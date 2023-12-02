@@ -18,14 +18,18 @@ public class ClanManager {
     private final Map<String, UUID> tagToId = new HashMap<>();
 
     private final ClanStorage cs;
+    private final MemberHolder holder;
     public ClanManager(ClanStorage cs){
         this.cs = cs;
+        this.holder = new MemberHolder(this);
         Clans.LOGGER.info("Loading clans...");
         // Running sync
         Set<UUID> uuids = cs.loadAllUUID();
         uuids.forEach(id -> {
 
         });
+        Clans.LOGGER.info("Loaded clans");
+
 
     }
 
@@ -33,9 +37,11 @@ public class ClanManager {
         if(!cs.clanExists(clanId))
             throw new IllegalArgumentException("Unknown clan " + clanId);
         ClanMeta meta = Objects.requireNonNull(cs.loadMeta(clanId));
+
         ClanLevelling levelling = Objects.requireNonNull(cs.loadLevelling(clanId));
         ClanSettings settings = Objects.requireNonNull(cs.loadSettings(clanId));
         MemberHolder memberHolder = Objects.requireNonNull(cs.loadMembers(clanId));
+
         Clan clan = new Clan(clanId, meta, settings, levelling, memberHolder);
         registerClan(clan);
         Clans.dbg("Loaded clan " + clanId);
@@ -144,7 +150,7 @@ public class ClanManager {
         return clans.values();
     }
 
-
-
-
+    public MemberHolder getMemberHolder() {
+        return holder;
+    }
 }

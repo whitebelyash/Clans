@@ -4,6 +4,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import ru.whbex.develop.clan.ClanManager;
 import ru.whbex.develop.player.CommandPerformer;
 import ru.whbex.develop.player.PlayerManager;
+import ru.whbex.develop.player.PlayerWrapper;
 import ru.whbex.develop.storage.ClanStorage;
 import ru.whbex.develop.storage.PlayerStorage;
 import ru.whbex.develop.storage.impl.TBDClanStorage;
@@ -23,17 +24,21 @@ public final class Clans {
     private ClanStorage cstorage;
     private PlayerStorage pstorage;
     private CommandPerformer console;
+    private PlayerWrapper playerWrapper;
     private static Clans instance;
-    public Clans(Logger logger, CommandPerformer console){
+    public Clans(Logger logger, CommandPerformer console, PlayerWrapper playerWrapper){
         LOGGER = logger;
         this.console = console;
+        this.playerWrapper = playerWrapper;
     }
 
     public void enable(){
+        long startTime = System.currentTimeMillis();
         instance = this;
         LOGGER.info("=== Clans ===");
         dbg("Debug enabled");
         this.createManagers();
+        LOGGER.info("Startup finished in " + (System.currentTimeMillis() - startTime) + " ms");
     }
     public void disable(){
         LOGGER.info("Disabling...");
@@ -60,6 +65,10 @@ public final class Clans {
 
     public PlayerManager getPlayerManager() {
         return playerManager;
+    }
+
+    public PlayerWrapper getPlayerWrapper() {
+        return playerWrapper;
     }
     // Debug
     // TODO: remove

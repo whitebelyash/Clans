@@ -59,6 +59,9 @@ public class TBD implements CommandExecutor {
                 });
                 break;
             case "disband":
+                break;
+            case "test-messaging":
+
 
         }
 

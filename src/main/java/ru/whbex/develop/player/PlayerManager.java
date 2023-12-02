@@ -2,10 +2,7 @@ package ru.whbex.develop.player;
 
 import ru.whbex.develop.storage.PlayerStorage;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerManager {
     private final PlayerStorage pstorage;
@@ -30,6 +27,10 @@ public class PlayerManager {
     }
     public CPlayer getPlayer(UUID playerId){
         return players.get(playerId);
+    }
+    public Collection<CPlayer> getPlayers(){
+        return this.players.values();
+
     }
     public void saveProfiles(){
 
