@@ -1,0 +1,7 @@
+name: clans
+version: '${project.version}'
+main: ru.whbex.develop.bukkit.MainBukkit
+api-version: '1.20'
+commands:
+  clans:
+    description: "Temp clans command"
