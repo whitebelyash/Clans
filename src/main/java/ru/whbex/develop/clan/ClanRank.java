@@ -1,7 +1,5 @@
 package ru.whbex.develop.clan;
 
-import ru.whbex.develop.lang.LocaleString;
-
 public enum ClanRank {
 
     // Specify color rank in lang file

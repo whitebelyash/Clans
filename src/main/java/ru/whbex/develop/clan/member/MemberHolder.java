@@ -26,6 +26,12 @@ public class MemberHolder {
 
         members.put(id, member);
         clanByMember.put(member, clan);
-        member.setClanId(clan.getId());
+        member.setClan(clan);
+    }
+    public boolean memberExists(UUID id){
+        return members.containsKey(id);
+    }
+    public Member getMember(UUID id){
+        return members.get(id);
     }
 }

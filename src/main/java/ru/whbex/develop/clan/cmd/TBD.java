@@ -8,12 +8,10 @@ import ru.whbex.develop.Clans;
 import ru.whbex.develop.bukkit.BukkitUtils;
 import ru.whbex.develop.clan.ClanManager;
 import ru.whbex.develop.clan.ClanMeta;
-import ru.whbex.develop.lang.LocaleString;
+import ru.whbex.develop.misc.ClanUtils;
 import ru.whbex.develop.player.CPlayer;
-import ru.whbex.develop.player.CommandPerformer;
 
 import java.util.Objects;
-import java.util.StringJoiner;
 
 public class TBD implements CommandExecutor {
     private final ClanManager cm = Clans.instance().getClanManager();
@@ -42,17 +40,15 @@ public class TBD implements CommandExecutor {
                     return;
                 }
                 String tag = args[1];
-                String name = args.length >= 3 ? args[2] : null;
-                try {
-                    cm.createClan(tag, name, p.getPlayerId());
-                } catch (IllegalArgumentException ex){
-                    p.sendMessage(LocaleString.COMMAND_CREATE_TAG_TAKEN);
-                    return;
+                String name = args.length >= 3 ? String.join(" ", args) : null;
+                if(ClanUtils.isClanMember(p.getPlayerId())){
+                    p.sendMessage(Loc);
                 }
+
                 p.sendMessage(LocaleString.COMMAND_CREATE_SUCCESS);
                 break;
             case "list":
-                p.sendMessage("Clan list");
+                p.sendMessage(LocaleString.COMMAND_LIST_HEADER);
                 cm.getAll().forEach(c -> {
                     ClanMeta meta = c.getMeta();
                     p.sendMessage(String.join(", ", meta.getTag(), meta.getName(), meta.getLeader().toString(), String.valueOf(meta.getCreationTime())));

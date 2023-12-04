@@ -9,7 +9,12 @@ public class ClanUtils {
     private static final ClanManager cm = Clans.instance().getClanManager();
 
     public static boolean isClanMember(UUID playerId){
-        if(cm.getMemberHolder().get)
+        return cm.getMemberHolder().memberExists(playerId) &&
+                cm.getMemberHolder().getMember(playerId).getClan() != null &&
+                cm.clanRegistered(cm.getMemberHolder().getMember(playerId).getClan());
+    }
+    public void notify(String message){
+
     }
 
 

@@ -2,7 +2,6 @@ package ru.whbex.develop.bukkit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import ru.whbex.develop.lang.LocaleString;
 import ru.whbex.develop.player.CommandPerformer;
 
 public class ConsoleWrapper implements CommandPerformer {

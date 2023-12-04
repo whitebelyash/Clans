@@ -8,6 +8,7 @@ public class ClanMeta {
     private String name;
     private String description;
     private UUID leader;
+    private boolean disband;
     private final long creationTime;
 
     public ClanMeta(String tag, String name, String description, UUID leader, long creationTime){

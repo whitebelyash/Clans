@@ -2,6 +2,7 @@ package ru.whbex.develop.clan;
 
 import ru.whbex.develop.Clans;
 import ru.whbex.develop.clan.member.MemberHolder;
+import ru.whbex.develop.misc.ClanUtils;
 import ru.whbex.develop.storage.ClanStorage;
 
 import java.util.*;
@@ -65,6 +66,9 @@ public class ClanManager {
             cs.saveMembers(clanId, clan.getMemberHolder());
         }
     }
+    public void saveClan(UUID id){
+
+    }
 
 
     public Clan getClan(UUID clanId){
@@ -113,6 +117,8 @@ public class ClanManager {
     public Clan createClan(String tag, String name, UUID leader) throws IllegalArgumentException {
         if(clanExists(tag))
             throw new IllegalArgumentException("Clan already exists!");
+        if(ClanUtils.isClanMember(leader))
+            throw new IllegalArgumentException("Provided leader already has clan!");
         // Clan name = tag for now
         if(name == null)
             name = tag + " clan";

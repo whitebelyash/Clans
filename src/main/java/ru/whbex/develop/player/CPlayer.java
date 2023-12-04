@@ -1,11 +1,9 @@
 package ru.whbex.develop.player;
 
-import org.bukkit.Bukkit;
 import ru.whbex.develop.Clans;
-import ru.whbex.develop.lang.LocaleString;
+import ru.whbex.develop.lang.LangFile;
 import ru.whbex.develop.misc.StringUtils;
 
-import java.util.Arrays;
 import java.util.UUID;
 
 public class CPlayer implements CommandPerformer {
@@ -22,22 +20,6 @@ public class CPlayer implements CommandPerformer {
         return playerId;
     }
 
-    @Override
-    public void sendMessage(LocaleString s) {
-        this.sendMessage(s.path);
-
-    }
-
-    public void sendMessage(LocaleString string, String... args){
-        // args ignored for now
-        this.sendMessage(StringUtils.simpleformat(string.path, args));
-    }
-
-    @Override
-    public void sendMessage(LocaleString s, LocaleString... args) {
-        String[] argsl = (String[]) Arrays.stream(args).map(e -> e.path).toArray();
-        this.sendMessage(s.path, argsl);
-
     }
 
     public void sendMessage(String string){
@@ -46,6 +28,11 @@ public class CPlayer implements CommandPerformer {
 
     @Override
     public void sendMessage(String s, String... args) {
+        for(int i = 0; i < args.length; i++) {
+            if (args[i].charAt(0) == "@") {
+
+            }
+        }
         pw.sendMessageColorized(playerId, StringUtils.simpleformat(s, args));
     }
 
