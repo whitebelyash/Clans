@@ -28,12 +28,7 @@ public class CPlayer implements CommandPerformer {
 
     @Override
     public void sendMessage(String s, String... args) {
-        for(int i = 0; i < args.length; i++) {
-            if (args[i].charAt(0) == "@") {
 
-            }
-        }
-        pw.sendMessageColorized(playerId, StringUtils.simpleformat(s, args));
     }
 
     public boolean isOnline(){
