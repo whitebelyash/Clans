@@ -3,15 +3,15 @@ package ru.whbex.develop.clan;
 public enum ClanRank {
 
     // Specify color rank in lang file
-    NOVICE(LocaleString.RANK_NOVICE),
-    MEMBER(LocaleString.RANK_MEMBER),
-    MANAGER(LocaleString.RANK_MANAGER),
-    DEPUTY(LocaleString.RANK_DEPUTY),
-    LEADER(LocaleString.RANK_LEADER)
+    NOVICE("rank.novice"),
+    MEMBER("rank.member"),
+    MANAGER("rank.manager"),
+    DEPUTY("rank.deputy"),
+    LEADER("rank.leader")
     ;
-    public final LocaleString name;
+    public final String name;
 
-    ClanRank(LocaleString name){
+    ClanRank(String name){
         this.name = name;
 
     }

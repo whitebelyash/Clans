@@ -20,7 +20,6 @@ public class CPlayer implements CommandPerformer {
         return playerId;
     }
 
-    }
 
     public void sendMessage(String string){
         pw.sendMessageColorized(playerId, string);
