@@ -11,7 +11,7 @@ public class MainBukkit extends JavaPlugin {
     @Override
     public void onEnable() {
         this.getLogger().info("Starting up on " + Bukkit.getName());
-        instance = new Clans(this.getLogger(), new ConsoleWrapper(), new PlayerWrapperBukkit());
+        instance = new Clans(this.getLogger(), new ConsoleWrapperBukkit(), new PlayerWrapperBukkit(), this.getDataFolder());
         instance.enable();
         this.getCommand("clans").setExecutor(new TBD());
         Bukkit.getPluginManager().registerEvents(new MainListener(), this);
