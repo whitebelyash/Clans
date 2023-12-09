@@ -4,25 +4,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import ru.whbex.develop.player.CommandPerformer;
 
-public class ConsoleWrapper implements CommandPerformer {
+public class ConsoleWrapperBukkit implements CommandPerformer {
     private final CommandSender sender = Bukkit.getConsoleSender();
 
-    @Override
-    public void sendMessage(LocaleString s) {
-        sender.sendMessage(s.path);
-    }
-
-    @Override
-    public void sendMessage(LocaleString s, String... args) {
-        sender.sendMessage(s.path);
-
-    }
-
-    @Override
-    public void sendMessage(LocaleString s, LocaleString... args) {
-        sender.sendMessage(s.path);
-
-    }
 
     @Override
     public void sendMessage(String s) {
