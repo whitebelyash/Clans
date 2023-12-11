@@ -2,8 +2,11 @@ package ru.whbex.develop.bukkit;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
-import ru.whbex.develop.Clans;
-import ru.whbex.develop.clan.cmd.TBD;
+import ru.whbex.develop.bukkit.listener.MainListener;
+import ru.whbex.develop.bukkit.wrap.ConsoleWrapperBukkit;
+import ru.whbex.develop.bukkit.wrap.PlayerWrapperBukkit;
+import ru.whbex.develop.core.Clans;
+import ru.whbex.develop.bukkit.cmd.TBD;
 
 public class MainBukkit extends JavaPlugin {
     private Clans instance;
