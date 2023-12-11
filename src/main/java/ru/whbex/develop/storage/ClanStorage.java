@@ -17,21 +17,13 @@ public interface ClanStorage {
     ClanMeta loadMeta(UUID clanId);
     ClanLevelling loadLevelling(UUID clanId);
     ClanSettings loadSettings(UUID clanId);
-    MemberHolder loadMembers(UUID clanId);
 
     // save
 
     void saveMeta(UUID clanId, ClanMeta meta);
     void saveLevelling(UUID clanId, ClanLevelling levelling);
     void saveSettings(UUID clanId, ClanSettings settings);
-    void saveMembers(UUID clanId, MemberHolder holder);
 
-    // update (returns false if update fail)
-
-    boolean updateMeta(UUID clanId, ClanMeta meta);
-    boolean updateLevelling(UUID clanId, ClanLevelling levelling);
-    boolean updateSettings(UUID clanId, ClanSettings settings);
-    boolean updateMembers(UUID clanId, MemberHolder holder);
 
     // Utilities
 

@@ -7,6 +7,7 @@ import ru.whbex.develop.player.CommandPerformer;
 import ru.whbex.develop.player.PlayerManager;
 import ru.whbex.develop.player.PlayerWrapper;
 import ru.whbex.develop.storage.ClanStorage;
+import ru.whbex.develop.storage.MemberStorage;
 import ru.whbex.develop.storage.PlayerStorage;
 import ru.whbex.develop.storage.impl.TBDClanStorage;
 import ru.whbex.develop.storage.impl.TBDPlayerStorage;
@@ -32,10 +33,12 @@ public final class Clans {
     private LangFile language;
     private static Clans instance;
     public Clans(Logger logger, CommandPerformer console, PlayerWrapper playerWrapper, File workingDir){
-        if(!workingDir.exists() || !workingDir.isDirectory())
-            throw new IllegalArgumentException("Invalid working dir!");
-        this.workDir = workingDir;
         LOGGER = logger;
+        if(!workingDir.exists() || !workingDir.isDirectory()){
+            LOGGER.warning("Working dir not found, creating new");
+            workingDir.mkdir();
+        }
+        this.workDir = workingDir;
         this.console = console;
         this.playerWrapper = playerWrapper;
     }
@@ -64,7 +67,7 @@ public final class Clans {
     private void createManagers(){
         cstorage = new TBDClanStorage();
         pstorage = new TBDPlayerStorage();
-        clanManager = new ClanManager(cstorage);
+        clanManager = new ClanManager(cstorage, (MemberStorage) cstorage);
         playerManager = new PlayerManager(pstorage, console);
 
     }

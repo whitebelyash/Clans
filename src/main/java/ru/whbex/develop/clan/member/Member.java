@@ -22,6 +22,10 @@ public class Member {
         this.clan = clan;
     }
 
+    public UUID getPlayerId() {
+        return playerId;
+    }
+
     public void setClan(Clan clan){
         this.clan = clan;
     }
@@ -32,5 +36,17 @@ public class Member {
 
     public ClanRank getRank() {
         return rank;
+    }
+
+    public int getExp() {
+        return exp;
+    }
+
+    public int getKills() {
+        return kills;
+    }
+
+    public int getDeaths() {
+        return deaths;
     }
 }

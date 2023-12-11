@@ -11,14 +11,12 @@ public class Clan {
     private final ClanMeta meta;
     private final ClanSettings settings;
     private final ClanLevelling levelling;
-    private MemberHolder holder;
 
-    public Clan(UUID clanId, ClanMeta meta, ClanSettings settings, ClanLevelling levelling, MemberHolder holder){
+    public Clan(UUID clanId, ClanMeta meta, ClanSettings settings, ClanLevelling levelling){
         this.clanId = clanId;
         this.meta = meta;
         this.settings = settings;
         this.levelling = levelling;
-        this.holder = holder;
     }
 
     public UUID getId() {
@@ -37,11 +35,4 @@ public class Clan {
         return settings;
     }
 
-    public MemberHolder getMemberHolder() {
-        return holder;
-    }
-
-    void setMemberHolder(MemberHolder memberHolder){
-        this.holder = memberHolder;
-    }
 }

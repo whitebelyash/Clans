@@ -19,6 +19,10 @@ public class MainBukkit extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        instance.disable();
+        if(instance != null)
+            instance.disable();
+        else
+            this.getLogger().info("Instance is null, skipping shutdown");
+
     }
 }

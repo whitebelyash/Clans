@@ -31,6 +31,9 @@ public class MemberHolder {
     public boolean memberExists(UUID id){
         return members.containsKey(id);
     }
+    public boolean memberExists(Member member){
+        return members.containsValue(member);
+    }
     public Member getMember(UUID id){
         return members.get(id);
     }
