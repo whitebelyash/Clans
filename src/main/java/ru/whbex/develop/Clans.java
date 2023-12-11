@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 
-// Poorly written clans plugin by young java coder (IS Student kekeke) (as i think maybe it is good lol)
+// Poorly written clans plugin
 // Goal - copy VanillaCraft clans functionality with some additions (because original is private & proprietary)
 public final class Clans {
 
