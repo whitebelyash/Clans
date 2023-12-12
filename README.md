@@ -1,7 +1,7 @@
 # Clans
 WIP Clans plugin for Spigot/etc...  
 Also an attempt to copy VanillaCraft (an old russian server which is closed for now) clans.
-VCClans was itself inspired by another plugin (i guess), which is feature-bloated (IMHO)
+VCClans was itself inspired by another plugin (i guess), which is feature-bloated IMHO
 
 ## why
 
