@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 public final class Clans {
 
     public static final boolean DEBUG = true;
+    private static final String LANG_PATH = Constants.LANGUAGE_FILE_NAME; // idk why
     public static Logger LOGGER;
     private ClanManager clanManager;
     private PlayerManager playerManager;
@@ -44,16 +45,11 @@ public final class Clans {
 
     public void enable(){
         long startTime = System.currentTimeMillis();
-        try {
-            this.language = new LangFile(new File(workDir, "default.lang"));
-        } catch (IOException e) {
-            LOGGER.info("Locale init fail");
-            e.printStackTrace();
-        }
         instance = this;
         LOGGER.info("=== Clans ===");
         dbg("Debug enabled");
         this.createManagers();
+        this.language = new LangFile(new File(workDir, LANG_PATH));
         LOGGER.info("Startup finished in " + (System.currentTimeMillis() - startTime) + " ms");
     }
     public void disable(){

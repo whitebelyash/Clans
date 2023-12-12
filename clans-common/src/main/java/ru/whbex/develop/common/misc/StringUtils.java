@@ -4,7 +4,7 @@ import ru.whbex.develop.common.Constants;
 
 public class StringUtils {
 
-    public static String simpleformat(String base, String... args){
+    public static String simpleformat(String base, Object... args){
         if(args.length < 1)
             return base;
         if(base.length() < 3)
@@ -15,7 +15,7 @@ public class StringUtils {
                 continue;
             int start = sb.indexOf("{" + p + "}");
             if(start > 0)
-                sb.replace(start, start + 3, args[p]);
+                sb.replace(start, start + 3, String.valueOf(args[p]));
         }
         return sb.toString();
     }

@@ -1,0 +1,34 @@
+# ranks
+rank.novice=Новичок
+rank.member=Участник
+rank.manager=Вербовщик
+rank.deputy=Зам. Главы
+rank.leader=Глава
+
+# commands
+
+# list
+command.list.header= === Clan list ===
+command.list.no-clans=Кланов пока нет..
+command.list.entry=TBD
+# seen
+command.seen.header= === Информация об игроке {0} === # comment test
+command.seen.line.uuid=- UUID: {0}
+command.seen.line.clan=- Клан: {0}
+command.seen.line.rank=- Ранг: {0}
+command.seen.line.experience=- Опыт: {0}
+command.seen.line.killdeath=- Смертей/Убийств: {0}/{1}
+# create
+command.create.leave=Вы должны покинуть клан, чтобы создать новый!
+command.create.clan-exists=Клан с тегом {0} уже существует! Придумайте другой тег
+command.create.success=Вы создали клан с тегом {0}
+
+# meta
+meta.command.usage=Неверно введена команда
+meta.command.unknown-error=Произошла ошибка во время выполнения команды
+meta.command.player-required=Необходимо быть игроком для выполнения данной команды
+meta.command.console-required=Данная команда доступна только в консоли сервера
+meta.command.no-permission=Недостаточно прав
+meta.command.unknown-player=Игрок не найден
+meta.command.unknown-clan=Клан не найден
+meta.misc.not-exists=Неизвестно

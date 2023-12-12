@@ -7,6 +7,9 @@ import ru.whbex.develop.bukkit.wrap.ConsoleWrapperBukkit;
 import ru.whbex.develop.bukkit.wrap.PlayerWrapperBukkit;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.whbex.develop.common.Constants;
+
+import java.io.File;
 
 public class MainBukkit extends JavaPlugin {
     private Clans instance;
@@ -14,6 +17,8 @@ public class MainBukkit extends JavaPlugin {
     @Override
     public void onEnable() {
         this.getLogger().info("Starting up on " + Bukkit.getName());
+        if(!(new File(this.getDataFolder(), Constants.LANGUAGE_FILE_NAME)).exists())
+            this.saveResource(Constants.LANGUAGE_FILE_NAME, true);
         instance = new Clans(this.getLogger(), new ConsoleWrapperBukkit(), new PlayerWrapperBukkit(), this.getDataFolder());
         instance.enable();
         this.getCommand("clans").setExecutor(new TBD());

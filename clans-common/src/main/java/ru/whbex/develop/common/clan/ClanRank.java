@@ -2,7 +2,6 @@ package ru.whbex.develop.common.clan;
 
 public enum ClanRank {
 
-    // Specify color rank in lang file
     NOVICE("rank.novice"),
     MEMBER("rank.member"),
     MANAGER("rank.manager"),

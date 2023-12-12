@@ -1,6 +1,7 @@
 package ru.whbex.develop.common.player;
 
 import ru.whbex.develop.common.Clans;
+import ru.whbex.develop.common.misc.StringUtils;
 import ru.whbex.develop.common.wrap.PlayerWrapper;
 
 import java.util.UUID;
@@ -21,11 +22,24 @@ public class CPlayer implements CommandPerformer {
 
 
     public void sendMessage(String string){
-        pw.sendMessageColorized(playerId, string);
+        pw.sendMessage(playerId, string);
     }
 
     @Override
-    public void sendMessage(String s, String... args) {
+    public void sendMessage(String s, Object... args) {
+        pw.sendMessage(playerId, StringUtils.simpleformat(s, args));
+
+    }
+
+    @Override
+    public void sendMessageT(String path) {
+        pw.sendMessage(playerId, Clans.instance().getLanguage().getString(path));
+    }
+
+    @Override
+    public void sendMessageT(String path, Object... args) {
+        String t = Clans.instance().getLanguage().getString(path);
+        pw.sendMessage(playerId, StringUtils.simpleformat(t, args));
 
     }
 

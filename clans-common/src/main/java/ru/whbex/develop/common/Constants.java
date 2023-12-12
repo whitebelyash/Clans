@@ -25,6 +25,9 @@ public class Constants {
     public static final String CLAN_CHAT_SPY = "clans.clanchat.spy";
     public static final String ALLY_CHAT_SPY = "clans.allychat.spy";
 
+    // misc
+    public static final String LANGUAGE_FILE_NAME = "messages.lang";
+
 
 
 
