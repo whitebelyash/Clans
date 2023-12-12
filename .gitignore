@@ -1,2 +1,5 @@
 # Project exclude paths
 /target/
+/clans-bukkit/bukkit.iml
+/clans.iml
+/someshit.iml
