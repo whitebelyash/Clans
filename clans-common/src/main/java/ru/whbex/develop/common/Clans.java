@@ -2,6 +2,7 @@ package ru.whbex.develop.common;
 
 import ru.whbex.develop.common.clan.ClanManager;
 import ru.whbex.develop.common.lang.LangFile;
+import ru.whbex.develop.common.misc.StringUtils;
 import ru.whbex.develop.common.storage.PlayerStorage;
 import ru.whbex.develop.common.player.CommandPerformer;
 import ru.whbex.develop.common.player.PlayerManager;
@@ -50,7 +51,7 @@ public final class Clans {
         dbg("Debug enabled");
         this.createManagers();
         this.language = new LangFile(new File(workDir, LANG_PATH));
-        LOGGER.info("Startup finished in " + (System.currentTimeMillis() - startTime) + " ms");
+        LOGGER.info(StringUtils.simpleformat("Startup finished in {0} ms", System.currentTimeMillis() - startTime));
     }
     public void disable(){
         LOGGER.info("Disabling...");
@@ -91,7 +92,7 @@ public final class Clans {
 
     public static void dbg(String msg){
         if(DEBUG)
-            LOGGER.info(String.format("DEBUG[%s]: %s",
+            LOGGER.info(StringUtils.simpleformat("DEBUG[{0}]: {1}",
                     Thread.currentThread().getStackTrace()[2].getClassName(),
                     msg));
 
