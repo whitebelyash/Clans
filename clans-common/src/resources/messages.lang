@@ -1,34 +1,34 @@
 # ranks
-rank.novice=Новичок
-rank.member=Участник
-rank.manager=Вербовщик
-rank.deputy=Зам. Главы
-rank.leader=Глава
+rank.novice=&7Новичок
+rank.member=&fУчастник
+rank.manager=&bВербовщик
+rank.deputy=&6Зам. Главы
+rank.leader=&cГлава
 
 # commands
 
 # list
 command.list.header= === Clan list ===
-command.list.no-clans=Кланов пока нет..
+command.list.no-clans=&7&oКланов пока нет..
 command.list.entry=TBD
 # seen
-command.seen.header= === Информация об игроке {0} === # comment test
-command.seen.line.uuid=- UUID: {0}
-command.seen.line.clan=- Клан: {0}
-command.seen.line.rank=- Ранг: {0}
-command.seen.line.experience=- Опыт: {0}
-command.seen.line.killdeath=- Смертей/Убийств: {0}/{1}
+command.seen.header=&8=== &fИнформация об игроке &c{0} &8=== # comment test
+command.seen.line.uuid=&8> &fUUID: &b{0}
+command.seen.line.clan=&8> &fКлан: &b{0}
+command.seen.line.rank=&8> &fРанг: {0}
+command.seen.line.experience=&8> Опыт: &b{0}
+command.seen.line.killdeath=&8> Смертей/Убийств: &b{0}/{1}
 # create
-command.create.leave=Вы должны покинуть клан, чтобы создать новый!
-command.create.clan-exists=Клан с тегом {0} уже существует! Придумайте другой тег
-command.create.success=Вы создали клан с тегом {0}
+command.create.leave=&cВы должны покинуть клан, чтобы создать новый!
+command.create.clan-exists=&cКлан с тегом {0} уже существует! Придумайте другой тег
+command.create.success=&fВы создали клан с тегом &c{0}
 
 # meta
-meta.command.usage=Неверно введена команда
-meta.command.unknown-error=Произошла ошибка во время выполнения команды
-meta.command.player-required=Необходимо быть игроком для выполнения данной команды
-meta.command.console-required=Данная команда доступна только в консоли сервера
-meta.command.no-permission=Недостаточно прав
-meta.command.unknown-player=Игрок не найден
-meta.command.unknown-clan=Клан не найден
-meta.misc.not-exists=Неизвестно
+meta.command.usage=&cНеверно введена команда
+meta.command.unknown-error=&cПроизошла ошибка во время выполнения команды
+meta.command.player-required=&cНеобходимо быть игроком для выполнения данной команды
+meta.command.console-required=&cДанная команда доступна только в консоли сервера
+meta.command.no-permission=&cНедостаточно прав
+meta.command.unknown-player=&cИгрок не найден
+meta.command.unknown-clan=&cКлан не найден
+meta.misc.not-exists=&7Неизвестно

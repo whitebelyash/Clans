@@ -44,6 +44,7 @@ public class ClanManager {
         ClanLevelling levelling = Objects.requireNonNull(cs.loadLevelling(clanId));
         ClanSettings settings = Objects.requireNonNull(cs.loadSettings(clanId));
 
+
         Clan clan = new Clan(clanId, meta, settings, levelling);
         registerClan(clan, true);
         Clans.dbg("Loaded clan " + clanId);

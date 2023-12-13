@@ -6,6 +6,7 @@ import ru.whbex.develop.common.clan.ClanSettings;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Future;
 
 // ClanDao
 

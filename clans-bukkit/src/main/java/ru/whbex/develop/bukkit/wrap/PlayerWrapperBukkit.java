@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import ru.whbex.develop.common.misc.StringUtils;
 import ru.whbex.develop.common.wrap.PlayerWrapper;
 import ru.whbex.develop.common.Constants;
 
@@ -14,10 +15,12 @@ public class PlayerWrapperBukkit implements PlayerWrapper {
     @Override
     public void sendMessage(UUID receiver, String string) {
         if(isOnline(receiver))
-            Bukkit.getPlayer(receiver).sendMessage(string);
+            Bukkit.getPlayer(receiver).sendMessage(StringUtils.colorize(string));
     }
+
+    // TODO: Remove
     public void sendMessageColorized(UUID receiver, String string){
-        sendMessage(receiver, ChatColor.translateAlternateColorCodes(Constants.PLAYER_COLOR_SYMBOL, string));
+        sendMessage(receiver, StringUtils.colorize(string));
 
     }
     public boolean isOnline(UUID target){

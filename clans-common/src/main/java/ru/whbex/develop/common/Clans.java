@@ -50,7 +50,7 @@ public final class Clans {
         LOGGER.info("=== Clans ===");
         dbg("Debug enabled");
         this.createManagers();
-        this.language = new LangFile(new File(workDir, LANG_PATH));
+        this.setupLocales();
         LOGGER.info(StringUtils.simpleformat("Startup finished in {0} ms", System.currentTimeMillis() - startTime));
     }
     public void disable(){
@@ -66,6 +66,10 @@ public final class Clans {
         clanManager = new ClanManager(cstorage, (MemberStorage) cstorage);
         playerManager = new PlayerManager(pstorage, console);
 
+    }
+    public boolean setupLocales(){
+        this.language = new LangFile(new File(workDir, LANG_PATH));
+        return this.language.isEmpty();
     }
     public static Clans instance(){
         return instance;

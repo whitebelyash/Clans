@@ -13,9 +13,11 @@ import java.io.File;
 
 public class MainBukkit extends JavaPlugin {
     private Clans instance;
+    private static MainBukkit mInstance;
 
     @Override
     public void onEnable() {
+        mInstance = this;
         this.getLogger().info("Starting up on " + Bukkit.getName());
         if(!(new File(this.getDataFolder(), Constants.LANGUAGE_FILE_NAME)).exists())
             this.saveResource(Constants.LANGUAGE_FILE_NAME, true);
@@ -32,5 +34,9 @@ public class MainBukkit extends JavaPlugin {
         else
             this.getLogger().info("Instance is null, skipping shutdown");
 
+    }
+
+    public static MainBukkit getInstance() {
+        return mInstance;
     }
 }

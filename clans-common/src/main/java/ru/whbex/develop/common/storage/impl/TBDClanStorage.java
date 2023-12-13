@@ -9,6 +9,8 @@ import ru.whbex.develop.common.storage.ClanStorage;
 import ru.whbex.develop.common.storage.MemberStorage;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 public class TBDClanStorage implements ClanStorage, MemberStorage {
     private UUID dummyId = new UUID(127, 127);

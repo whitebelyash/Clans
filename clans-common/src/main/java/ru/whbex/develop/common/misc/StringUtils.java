@@ -22,4 +22,10 @@ public class StringUtils {
     public static String colorize(String message){
         return message.replace(Constants.PLAYER_COLOR_SYMBOL, Constants.COLOR_SYMBOL);
     }
+    public static String stripColor(String message, boolean deep){
+        String output = message.replace(Constants.PLAYER_COLOR_SYMBOL, '\0');
+        if(deep)
+            output = output.replace(Constants.COLOR_SYMBOL, '\0');
+        return output;
+    }
 }

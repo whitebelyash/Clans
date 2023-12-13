@@ -1,5 +1,7 @@
 package ru.whbex.develop.bukkit.cmd;
 
+import org.bukkit.Bukkit;
+import ru.whbex.develop.bukkit.MainBukkit;
 import ru.whbex.develop.bukkit.misc.BukkitUtils;
 import ru.whbex.develop.common.Clans;
 import ru.whbex.develop.common.clan.member.Member;
@@ -34,6 +36,7 @@ public class TBD implements CommandExecutor {
         cmd.put("disband", this::disband);
         cmd.put("leave", this::leave);
         cmd.put("locale-ls", this::listlocales);
+        cmd.put("locale-reload", this::localereload);
     }
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
@@ -132,5 +135,12 @@ public class TBD implements CommandExecutor {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    private void localereload(CommandPerformer p, String[] args){
+        Bukkit.getScheduler().runTaskAsynchronously(MainBukkit.getInstance(), () -> {
+            boolean result = Clans.instance().setupLocales();
+            p.sendMessage("Locale reload successful: " + result);
+
+        });
     }
 }

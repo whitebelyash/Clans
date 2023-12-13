@@ -12,25 +12,25 @@ public class ConsoleWrapperBukkit implements CommandPerformer {
 
     @Override
     public void sendMessage(String s) {
-        sender.sendMessage(s);
+        sender.sendMessage(StringUtils.colorize(s));
 
     }
 
     @Override
     public void sendMessage(String s, Object... args) {
-        sender.sendMessage(StringUtils.simpleformat(s, args));
+        this.sendMessage(StringUtils.simpleformat(s, args));
 
     }
 
     @Override
     public void sendMessageT(String path) {
-        sender.sendMessage(Clans.instance().getLanguage().getString(path));
+        this.sendMessage(Clans.instance().getLanguage().getString(path));
     }
 
     @Override
     public void sendMessageT(String path, Object... args) {
         String t = Clans.instance().getLanguage().getString(path);
-        sender.sendMessage(StringUtils.simpleformat(t, args));
+        this.sendMessage(StringUtils.simpleformat(t, args));
 
     }
 
