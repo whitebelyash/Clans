@@ -2,9 +2,17 @@
 
 locale.name=Русский
 
+# not used yet
 plugin.prefix=&6Clans &8>&r
 plugin.description=Клановая система, вдохновлённая кланами VanillaCraft
 
+
+settings.visible.description=Могут ли игроки видеть ваш клан в чате и списке кланов
+settings.visible.enabled=Клан видят все
+settings.visible.disabled=Клан видят только участники вашего и союзных кланов
+settings.viewable.enabled=Информацию о клане видят все игроки
+settings.viewable.disabled=Информацию о клане видят только участники вашего и союзных кланов
+settings.viewable.description=Могут ли игроки просматривать информацию о вашем клане, будучи участниками другого
 
 # ranks
 rank.novice=&7Новичок
@@ -16,32 +24,31 @@ rank.leader=&cГлава
 # commands
 
 # list
-command.list.header= === Clan list ===
+command.list.header= &8=== &cСписок кланов сервера &8===
 command.list.no-clans=&7&oКланов пока нет..
 command.list.entry=TBD
 # seen/look
-command.seen.header=&8=== &fИнформация об игроке &c{0} &8===
-command.seen.line.uuid=&8> &fUUID: &b{0}
-command.seen.line.clan=&8> &fКлан: &b{0}
-command.seen.line.rank=&8> &fРанг: {0}
-command.seen.line.experience=&8> Опыт: &b{0}
-command.seen.line.killdeath=&8> Смертей/Убийств: &b{0}/{1}
+command.seen.header=&8=== &cИнформация об игроке &c{0} &8===
+command.seen.line.uuid=&8> &aUUID: &b{0}
+command.seen.line.clan=&8> &aКлан: &b{0}
+command.seen.line.rank=&8> &aРанг: {0}
+command.seen.line.experience=&8> &aОпыт: &b{0}
+command.seen.line.killdeath=&8> &aСмертей/Убийств: &b{0}/{1}
 
 # online/roster
 command.online.usage=Используйте {0} для просмотра участников в сети указанного клана
 command.online.message.self=Список участников в сети вашего клана: {0}
 command.online.message.other=Список участников в сети клана {0}: {1}
 
-# profile
+# profile (not done yet)
 command.profile.usage=Используйте {0} для просмотра информации об указанном клане
 command.profile.header-self= === Информация о вашем клане ===
 command.profile.header-other= === Информация о клане {0} ===
-command.profile.description= TBD
+command.profile.description= 
 command.profile.leader= TBD
 command.profile.lvl = TBD
 command.profile.exp = TBD
 command.profile.members = TBD
-command.profile
 
 
 # create
@@ -72,14 +79,6 @@ meta.timeunit.month=мес.
 meta.day.today=Сегодня
 meta.day.yesterday=Вчера
 meta.day.tomorrow=Завтра
-
-meta.wday.mon=Понедельник
-meta.wday.tue.Вторник
-meta.wday.wen=Среда
-meta.wday.thu=Четверг
-meta.wday.fri=Пятница
-meta.wday.sat=Суббота
-meta.wday.sun=Воскресенье
 
 # notify
 

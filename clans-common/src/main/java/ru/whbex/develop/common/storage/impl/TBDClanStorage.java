@@ -4,19 +4,17 @@ import ru.whbex.develop.common.Clans;
 import ru.whbex.develop.common.clan.ClanLevelling;
 import ru.whbex.develop.common.clan.ClanMeta;
 import ru.whbex.develop.common.clan.ClanSettings;
-import ru.whbex.develop.common.clan.member.Member;
+import ru.whbex.develop.common.clan.ClanMember;
 import ru.whbex.develop.common.storage.ClanStorage;
 import ru.whbex.develop.common.storage.MemberStorage;
 
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 public class TBDClanStorage implements ClanStorage, MemberStorage {
     private UUID dummyId = new UUID(127, 127);
     private UUID leaderId = new UUID(128, 128);
     private ClanMeta dummyMeta = new ClanMeta("Dummy", "Dummy clan",null, leaderId, 0);
-    private ClanSettings dummySettings = new ClanSettings();
+    private ClanSettings dummySettings = ClanSettings.builder().build();
     private ClanLevelling dummyLevelling = new ClanLevelling(0);
 
 
@@ -82,17 +80,17 @@ public class TBDClanStorage implements ClanStorage, MemberStorage {
     }
 
     @Override
-    public Member loadMember() {
+    public ClanMember loadMember() {
         return null;
     }
 
     @Override
-    public void saveMember(Member member) {
+    public void saveMember(ClanMember member) {
 
     }
 
     @Override
-    public Collection<Member> getAll(UUID clanId) {
+    public Collection<ClanMember> getAll(UUID clanId) {
         return Collections.emptySet();
     }
 
