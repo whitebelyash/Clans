@@ -1,7 +1,6 @@
 package ru.whbex.develop.common.clan;
 
-import ru.whbex.develop.common.Clans;
-import ru.whbex.develop.common.misc.StringUtils;
+import ru.whbex.develop.common.ClansPlugin;
 
 import java.util.EnumMap;
 // TODO: Support object values, not only boolean
@@ -16,7 +15,7 @@ public class ClanSettings {
         // Is this clan profile can be viewed by other players
         // same as VISIBLE
         // ignored if player has specific permission
-        VIEWABLE("settings.viewable.description", "settings.viewable.enabled" "settings.viewable.disabled", true),
+        VIEWABLE("settings.viewable.description", "settings.viewable.enabled", "settings.viewable.disabled", true),
         // Is anyone able to join this clan
         // admins can do /c place instead
         EVERYONE_CAN_JOIN("settings.public.description", "settings.public.enabled", "settings.public.disabled", false);
@@ -62,10 +61,10 @@ public class ClanSettings {
             return this;
         }
         public ClanSettings build(){
-            if(Clans.DEBUG){
-                Clans.dbg("Created ClanSettings with values: ");
+            if(ClansPlugin.Context.DEBUG){
+                ClansPlugin.dbg("Created ClanSettings with values: ");
                 ClanSettings.this.settings.forEach((k, v) -> {
-                    Clans.dbg("- {0}: {1}", k, v);
+                    ClansPlugin.dbg("- {0}: {1}", k, v);
                 });
             }
             return ClanSettings.this;

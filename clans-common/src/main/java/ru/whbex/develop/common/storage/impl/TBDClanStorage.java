@@ -1,10 +1,10 @@
 package ru.whbex.develop.common.storage.impl;
 
-import ru.whbex.develop.common.Clans;
+import ru.whbex.develop.common.ClansPlugin;
 import ru.whbex.develop.common.clan.ClanLevelling;
 import ru.whbex.develop.common.clan.ClanMeta;
 import ru.whbex.develop.common.clan.ClanSettings;
-import ru.whbex.develop.common.clan.ClanMember;
+import ru.whbex.develop.common.clan.member.Member;
 import ru.whbex.develop.common.storage.ClanStorage;
 import ru.whbex.develop.common.storage.MemberStorage;
 
@@ -19,7 +19,7 @@ public class TBDClanStorage implements ClanStorage, MemberStorage {
 
 
     public TBDClanStorage(){
-        Clans.dbg("Created dummy storage instance");
+        ClansPlugin.dbg("Created dummy storage instance");
     }
     @Override
     public ClanMeta loadMeta(UUID clanId) {
@@ -40,19 +40,19 @@ public class TBDClanStorage implements ClanStorage, MemberStorage {
 
     @Override
     public void saveMeta(UUID clanId, ClanMeta meta) {
-        Clans.dbg("Meta save called for " + clanId);
+        ClansPlugin.dbg("Meta save called for " + clanId);
 
     }
 
     @Override
     public void saveLevelling(UUID clanId, ClanLevelling levelling) {
-        Clans.dbg("Levelling save called for " + clanId);
+        ClansPlugin.dbg("Levelling save called for " + clanId);
 
     }
 
     @Override
     public void saveSettings(UUID clanId, ClanSettings settings) {
-        Clans.dbg("Settings save called for " + clanId);
+        ClansPlugin.dbg("Settings save called for " + clanId);
 
     }
 
@@ -69,28 +69,28 @@ public class TBDClanStorage implements ClanStorage, MemberStorage {
 
     @Override
     public void clanRemove(UUID clanId) {
-        Clans.dbg("Clan remove called for " + clanId);
+        ClansPlugin.dbg("Clan remove called for " + clanId);
 
     }
 
     @Override
     public void close() {
-        Clans.dbg("Closing dummy storage");
+        ClansPlugin.dbg("Closing dummy storage");
 
     }
 
     @Override
-    public ClanMember loadMember() {
+    public Member loadMember() {
         return null;
     }
 
     @Override
-    public void saveMember(ClanMember member) {
+    public void saveMember(Member member) {
 
     }
 
     @Override
-    public Collection<ClanMember> getAll(UUID clanId) {
+    public Collection<Member> getAll(UUID clanId) {
         return Collections.emptySet();
     }
 

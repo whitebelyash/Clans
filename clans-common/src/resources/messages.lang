@@ -1,18 +1,15 @@
 # Clans localization (ru_RU, Russian, temp)
 
+locale=ru_RU
 locale.name=Русский
+locale.tag=ru
 
 # not used yet
 plugin.prefix=&6Clans &8>&r
 plugin.description=Клановая система, вдохновлённая кланами VanillaCraft
 
 
-settings.visible.description=Могут ли игроки видеть ваш клан в чате и списке кланов
-settings.visible.enabled=Клан видят все
-settings.visible.disabled=Клан видят только участники вашего и союзных кланов
-settings.viewable.enabled=Информацию о клане видят все игроки
-settings.viewable.disabled=Информацию о клане видят только участники вашего и союзных кланов
-settings.viewable.description=Могут ли игроки просматривать информацию о вашем клане, будучи участниками другого
+
 
 # ranks
 rank.novice=&7Новичок
@@ -21,7 +18,7 @@ rank.manager=&bВербовщик
 rank.deputy=&6Зам. Главы
 rank.leader=&cГлава
 
-# commands
+# === commands ===
 
 # list
 command.list.header= &8=== &cСписок кланов сервера &8===
@@ -81,14 +78,20 @@ meta.day.yesterday=Вчера
 meta.day.tomorrow=Завтра
 
 # notify
-
 notify.clan-disband.player=Клан {0} был распущен
 notify.clan-disband.admin=Клан {0} был распущен администрацией
 notify.clan-create=Основан новый клан {0} {1}. Глава: {3} # 0 - tag, 1 - name, 3 - leader name
-
 notify.clan.leave={0} покинул клан
 notify.clan.kick={0} был исключён из клана
 nofity.clan.kick-privileged={0} был исключён из клана ({1}) # 1 - who kicked
 notify.clan.pvp-toggle-on=PvP между участниками теперь включён участником {1}
 notify.clan.pvp-toggle-off=PvP между участниками теперь выключен {1}
 notify.clan.lvlup=Поздравляем! Ваш клан теперь имеет {0} уровень.\nТеперь вам необходимо {1} опыта для следуюего уровня
+
+# settings description
+settings.visible.description=Могут ли игроки видеть ваш клан в чате и списке кланов
+settings.visible.enabled=Клан видят все
+settings.visible.disabled=Клан видят только участники вашего и союзных кланов
+settings.viewable.enabled=Информацию о клане видят все игроки
+settings.viewable.disabled=Информацию о клане видят только участники вашего и союзных кланов
+settings.viewable.description=Могут ли игроки просматривать информацию о вашем клане, будучи участниками другого

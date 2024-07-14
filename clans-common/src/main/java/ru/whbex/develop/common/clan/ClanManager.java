@@ -1,6 +1,6 @@
 package ru.whbex.develop.common.clan;
 
-import ru.whbex.develop.common.Clans;
+import ru.whbex.develop.common.ClansPlugin;
 import ru.whbex.develop.common.clan.member.Member;
 import ru.whbex.develop.common.clan.member.MemberHolder;
 import ru.whbex.develop.common.storage.ClanStorage;
@@ -8,9 +8,12 @@ import ru.whbex.develop.common.misc.ClanUtils;
 import ru.whbex.develop.common.storage.MemberStorage;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 // simple clan manager
 public class ClanManager {
+
+    private final Logger log = ClansPlugin.Context.INSTANCE.logger;
 
 
 
@@ -27,11 +30,11 @@ public class ClanManager {
         this.cs = cs;
         this.ms = ms;
         this.holder = new MemberHolder(this);
-        Clans.LOGGER.info("Loading clans...");
+        ClansPlugin.dbg("clans load begin");
         // Running sync
         Set<UUID> uuids = cs.loadAllUUID();
         uuids.forEach(this::loadClan);
-        Clans.LOGGER.info("Loaded clans");
+        log.info("Loaded clans");
 
 
     }
@@ -47,7 +50,7 @@ public class ClanManager {
 
         Clan clan = new Clan(clanId, meta, settings, levelling);
         registerClan(clan, true);
-        Clans.dbg("Loaded clan " + clanId);
+        ClansPlugin.dbg("Loaded clan " + clanId);
     }
     public void unloadClan(UUID clanId){
         if(!clans.containsKey(clanId))
@@ -86,26 +89,26 @@ public class ClanManager {
         if(clan.getMeta().getTag() != null)
             tagToId.put(clan.getMeta().getTag().toLowerCase(Locale.ROOT), clan.getId());
         else
-            Clans.LOGGER.warning(String.format("Registered clan %s with null tag!", clan.getId()));
-        Clans.dbg("Registered clan " + clan.getId());
+            log.warning(String.format("Registered clan %s with null tag!", clan.getId()));
+        ClansPlugin.dbg("Registered clan " + clan.getId());
         if(loadMembers){
-            Clans.dbg("Now will load members");
+            ClansPlugin.dbg("Now will load members");
             ms.getAll(clan.getId()).forEach(m -> {
                 if(m == null)
-                    Clans.dbg("Member is null");
+                    ClansPlugin.dbg("Member is null");
                 if(!clanRegistered(m.getClan())){
-                    Clans.dbg("Member doesn't belong to this clan!");
+                    ClansPlugin.dbg("Member doesn't belong to this clan!");
                     return;
                 }
                 if(getMemberHolder().memberExists(m)){
-                    Clans.dbg("Member already registered!");
+                    ClansPlugin.dbg("Member already registered!");
                     return;
                 }
                 holder.addMember(m.getPlayerId(), m, clan);
             });
         }
         if(!holder.memberExists(clan.getMeta().getLeader())){
-            Clans.dbg("Clan has no leader member instance, creating new");
+            ClansPlugin.dbg("Clan has no leader member instance, creating new");
             Member leader = new Member(clan.getMeta().getLeader(), clan, 0, 0, 0, ClanRank.LEADER);
             holder.addMember(clan.getMeta().getLeader(), leader, clan);
         }
@@ -116,14 +119,14 @@ public class ClanManager {
         if(getClan(clanId).getMeta().getTag() != null)
             tagToId.remove(getClan(clanId).getMeta().getTag().toLowerCase(Locale.ROOT));
         clans.remove(clanId);
-        Clans.dbg("Unregistered clan " + clanId);
+        ClansPlugin.dbg("Unregistered clan " + clanId);
     }
     public void unregisterClan(Clan clan) throws NoSuchElementException {
         if(!clans.containsValue(clan))
             throw new NoSuchElementException(String.format("Clan %s not registered in %s",
                     clan.getId(), this.getClass().getSimpleName()));
         clans.remove(clan.getId(), clan);
-        Clans.dbg("Unregistered clan " + clan.getId());
+        ClansPlugin.dbg("Unregistered clan " + clan.getId());
     }
 
     public Clan createClan(String tag, String name, UUID leader) throws IllegalArgumentException {
@@ -136,10 +139,10 @@ public class ClanManager {
             name = tag + " clan";
         ClanMeta meta = new ClanMeta(tag, name, null, leader, System.currentTimeMillis() / 1000);
         ClanLevelling lvl = new ClanLevelling(0);
-        ClanSettings settings = new ClanSettings();
+        ClanSettings settings = ClanSettings.builder().build();
         UUID clanId = UUID.randomUUID();
         Clan clan = new Clan(clanId, meta, settings, lvl);
-        Clans.dbg(String.format("Created clan %s %s", tag, name));
+        ClansPlugin.dbg(String.format("Created clan %s %s", tag, name));
         registerClan(clan, false);
         return clan;
     }
@@ -156,7 +159,7 @@ public class ClanManager {
         Clan clan = clans.get(tagToId.get(tag));
         clans.remove(clan.getId(), clan);
         tagToId.remove(tag, clan.getId());
-        Clans.dbg("Unregistered clan " + tag);
+        ClansPlugin.dbg("Unregistered clan " + tag);
     }
 
 

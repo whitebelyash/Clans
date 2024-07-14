@@ -1,6 +1,8 @@
 package ru.whbex.develop.common.clan;
 
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class ClanMeta {
@@ -10,6 +12,9 @@ public class ClanMeta {
     private UUID leader;
     private boolean disband;
     private final long creationTime;
+
+    // Stored in runtime
+    private final Map<String, Object> data = new HashMap<>();
 
     public ClanMeta(String tag, String name, String description, UUID leader, long creationTime){
         this.tag = tag;

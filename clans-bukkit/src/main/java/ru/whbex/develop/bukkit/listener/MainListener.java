@@ -1,6 +1,7 @@
 package ru.whbex.develop.bukkit.listener;
 
-import ru.whbex.develop.common.Clans;
+import ru.whbex.develop.bukkit.MainBukkit;
+import ru.whbex.develop.common.ClansPlugin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -10,6 +11,6 @@ public class MainListener implements Listener {
 
     @EventHandler(priority =  EventPriority.HIGHEST)
     public void on(PlayerLoginEvent e){
-        Clans.instance().getPlayerManager().createPlayer(e.getPlayer().getUniqueId(), e.getPlayer().getName());
+        ((MainBukkit) ClansPlugin.Context.INSTANCE.plugin).registerActor(e.getPlayer().getUniqueId());
     }
 }
