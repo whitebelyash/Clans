@@ -5,6 +5,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.whbex.develop.bukkit.cmd.TBD;
+import ru.whbex.develop.bukkit.listener.MainListener;
 import ru.whbex.develop.bukkit.wrap.ConsoleActorBukkit;
 import ru.whbex.develop.bukkit.wrap.PlayerActorBukkit;
 import ru.whbex.develop.common.ClansPlugin;
@@ -70,6 +71,8 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
         LOG.info("Registering commands");
         this.getCommand("clans").setExecutor(new TBD());
+        LOG.info("Registering event listeners");
+        Bukkit.getPluginManager().registerEvents(new MainListener(), this);
 
         LOG.info(StringUtils.simpleformat("{0} v{1} - enabled successfully", this.getName(), this.getDescription().getVersion()));
     }

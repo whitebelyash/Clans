@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import ru.whbex.develop.common.ClansPlugin;
 import ru.whbex.develop.common.cmd.CommandActor;
@@ -85,7 +86,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     }
 
     @Nullable
-    public OfflinePlayer getPlayer() {
+    public Player getPlayer() {
         return offline.getPlayer();
     }
 
