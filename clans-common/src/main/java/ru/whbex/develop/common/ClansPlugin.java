@@ -6,7 +6,9 @@ import ru.whbex.develop.common.misc.DisabledPlugin;
 import ru.whbex.develop.common.misc.StringUtils;
 import ru.whbex.develop.common.wrap.ConsoleActor;
 import ru.whbex.develop.common.player.PlayerActor;
+import ru.whbex.develop.common.wrap.Task;
 
+import java.util.Collection;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -31,11 +33,19 @@ public interface ClansPlugin {
     ConsoleActor getConsoleActor();
     PlayerActor getPlayerActor(UUID id);
     PlayerActor getPlayerActor(String name);
+    Collection<PlayerActor> getOnlineActors();
     ClanManager getClanManager();
     Language getLanguage();
 
+    Task run(Runnable task);
+    Task runLater(long delay, Runnable task);
+    Task runAsync(Runnable task);
+    Task runAsyncLater(long delay, Runnable task);
+
     void reloadLocales() throws Exception;
     void reloadConfigs() throws Exception;
+
+
 
     static void dbg(String m, Object... args){
         if(!Context.DEBUG)

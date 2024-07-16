@@ -5,7 +5,9 @@ import ru.whbex.develop.common.clan.ClanManager;
 import ru.whbex.develop.common.lang.Language;
 import ru.whbex.develop.common.wrap.ConsoleActor;
 import ru.whbex.develop.common.player.PlayerActor;
+import ru.whbex.develop.common.wrap.Task;
 
+import java.util.Collection;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -32,6 +34,11 @@ public class DisabledPlugin implements ClansPlugin {
     }
 
     @Override
+    public Collection<PlayerActor> getOnlineActors() {
+        throw new NullPointerException(MESSAGE);
+    }
+
+    @Override
     public ClanManager getClanManager() {
         throw new NullPointerException(MESSAGE);
 
@@ -41,6 +48,26 @@ public class DisabledPlugin implements ClansPlugin {
     public Language getLanguage() {
         throw new NullPointerException(MESSAGE);
 
+    }
+
+    @Override
+    public Task run(Runnable task) {
+        throw new NullPointerException(MESSAGE);
+    }
+
+    @Override
+    public Task runLater(long delay, Runnable task) {
+        throw new NullPointerException(MESSAGE);
+    }
+
+    @Override
+    public Task runAsync(Runnable task) {
+        throw new NullPointerException(MESSAGE);
+    }
+
+    @Override
+    public Task runAsyncLater(long delay, Runnable task) {
+        throw new NullPointerException(MESSAGE);
     }
 
     @Override
