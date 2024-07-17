@@ -9,15 +9,19 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import ru.whbex.develop.common.ClansPlugin;
 import ru.whbex.develop.common.cmd.CommandActor;
 import ru.whbex.develop.common.misc.StringUtils;
+import ru.whbex.develop.common.misc.requests.Request;
 import ru.whbex.develop.common.player.PlayerActor;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
 public class PlayerActorBukkit implements PlayerActor, CommandActor {
     private final UUID id;
     private final OfflinePlayer offline;
+    private final Map<PlayerActor, Request> requests = new HashMap<>();
 
     public PlayerActorBukkit(UUID id) {
         this.id = id;
@@ -28,35 +32,70 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     @Override
     public void sendMessage(String string) {
         if(!isOnline()) return;
-
-        offline.getPlayer().sendMessage(string);
+        offline.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', string));
     }
 
     @Override
     public void sendMessage(String s, Object... args) {
         if(!isOnline()) return;
 
-        offline.getPlayer().sendMessage(StringUtils.simpleformat(s, args));
+        this.sendMessage(StringUtils.simpleformat(s, args));
     }
 
     @Override
     public void sendMessageT(String s) {
         if(!isOnline()) return;
 
-
-        offline.getPlayer().sendMessage(ClansPlugin.Context.INSTANCE.plugin.getLanguage().getPhrase(s));
+        this.sendMessage(ClansPlugin.Context.INSTANCE.plugin.getLanguage().getPhrase(s));
     }
 
     @Override
     public void sendMessageT(String s, Object... args) {
         if(!isOnline()) return;
 
-        offline.getPlayer().sendMessage(StringUtils.simpleformat(ClansPlugin.Context.INSTANCE.plugin.getLanguage().getPhrase(s), args));
+        this.sendMessage(StringUtils.simpleformat(ClansPlugin.Context.INSTANCE.plugin.getLanguage().getPhrase(s), args));
     }
 
     @Override
     public String getName() {
         return offline.getName();
+    }
+
+    @Override
+    public void addRequest(Request request) {
+        if(request.recipient() != this){
+            // TODO: Remove this branch or log to WARNING level
+            ClansPlugin.dbg("Got invalid request " + request);
+            return;
+        }
+        requests.put(request.sender(), request);
+
+    }
+
+    @Override
+    public void removeRequest(Request request) {
+        requests.remove(request.sender(), request);
+    }
+
+    @Override
+    public void removeRequest(PlayerActor sender) {
+        requests.remove(sender);
+
+    }
+
+    @Override
+    public boolean hasRequestFrom(PlayerActor sender) {
+        return requests.containsKey(sender);
+    }
+
+    @Override
+    public boolean hasRequest(Request request) {
+        return requests.containsValue(request);
+    }
+
+    @Override
+    public Request getRequest(PlayerActor sender) {
+        return requests.get(sender);
     }
 
 

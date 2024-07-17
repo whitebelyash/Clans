@@ -2,7 +2,6 @@ package ru.whbex.develop.common.player;
 
 import ru.whbex.develop.common.ClansPlugin;
 import ru.whbex.develop.common.cmd.CommandActor;
-import ru.whbex.develop.common.storage.PlayerStorage;
 
 import java.util.*;
 

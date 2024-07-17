@@ -2,19 +2,20 @@ package ru.whbex.develop.common.clan.member;
 
 import ru.whbex.develop.common.clan.ClanRank;
 import ru.whbex.develop.common.clan.Clan;
+import ru.whbex.develop.common.player.PlayerActor;
 
 import java.util.UUID;
 
 public class Member {
-    private final UUID playerId;
+    private PlayerActor actor;
     private Clan clan;
     private int exp;
     private int kills = 0;
     private int deaths = 0;
     private ClanRank rank;
 
-    public Member(UUID playerId, Clan clan, int exp, int kills, int deaths, ClanRank rank){
-        this.playerId = playerId;
+    public Member(PlayerActor actor, Clan clan, int exp, int kills, int deaths, ClanRank rank){
+        this.actor = actor;
         this.exp = exp;
         this.kills = kills;
         this.deaths = deaths;
@@ -23,7 +24,10 @@ public class Member {
     }
 
     public UUID getPlayerId() {
-        return playerId;
+        return actor.getUniqueId();
+    }
+    public PlayerActor getActor(){
+        return actor;
     }
 
     public void setClan(Clan clan){

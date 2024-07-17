@@ -9,8 +9,21 @@
 
   <name>common</name>
   <url>http://whbex.ru</url>
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+      <dependency>
+        <groupId>org.xerial</groupId>
+        <artifactId>sqlite-jdbc</artifactId>
+        <scope>provided</scope>
+      </dependency>
+    </dependencies>
 
-  <packaging>jar</packaging>
+    <packaging>jar</packaging>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

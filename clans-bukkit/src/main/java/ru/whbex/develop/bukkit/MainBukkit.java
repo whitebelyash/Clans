@@ -3,6 +3,7 @@ package ru.whbex.develop.bukkit;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.whbex.develop.bukkit.cmd.TBD;
 import ru.whbex.develop.bukkit.listener.MainListener;
@@ -12,22 +13,24 @@ import ru.whbex.develop.bukkit.wrap.PlayerActorBukkit;
 import ru.whbex.develop.common.ClansPlugin;
 import ru.whbex.develop.common.clan.ClanManager;
 import ru.whbex.develop.common.cmd.CommandActor;
+import ru.whbex.develop.common.db.SQLAdapter;
+import ru.whbex.develop.common.db.SQLiteAdapter;
 import ru.whbex.develop.common.lang.LangFile;
 import ru.whbex.develop.common.lang.Language;
 import ru.whbex.develop.common.misc.StringUtils;
 import ru.whbex.develop.common.player.PlayerManager;
-import ru.whbex.develop.common.storage.ClanStorage;
-import ru.whbex.develop.common.storage.MemberStorage;
-import ru.whbex.develop.common.storage.PlayerStorage;
-import ru.whbex.develop.common.storage.impl.TBDClanStorage;
-import ru.whbex.develop.common.storage.impl.TBDPlayerStorage;
+
 import ru.whbex.develop.common.wrap.ConsoleActor;
 import ru.whbex.develop.common.player.PlayerActor;
 import ru.whbex.develop.common.wrap.Task;
 
 import javax.annotation.Nullable;
 import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MainBukkit extends JavaPlugin implements ClansPlugin {
@@ -36,11 +39,11 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     private Map<UUID, PlayerActor> actors = new HashMap<>();
     private Map<String, PlayerActor> actorsN = new HashMap<>();
+    private ExecutorService dbExecutor;
+    private Future<Void> dbConnection;
     private ClanManager clanManager;
-    private PlayerManager playerManager = null;
 
-    private ClanStorage stor;
-    private PlayerStorage pstor;
+    private SQLAdapter ad = null;
 
     private Language lang;
 
@@ -55,32 +58,80 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         LOG.info("=== Clans ===");
         LOG.info("Starting on " + Bukkit.getName());
 
-        this.saveResource("messages.lang", false);
+        LOG.info("Starting database executor");
+        dbExecutor = Executors.newSingleThreadExecutor();
 
+
+        /* Language init */
+        // TODO: Implement multilocale - using single locale for now
+        if(!(new File(getDataFolder(), "messages.lang")).exists())
+            this.saveResource("messages.lang", false);
         LangFile lf = new LangFile(new File(getDataFolder(), "messages.lang"));
         lang = new Language(lf);
-        LOG.info("Load complete");
+        databaseInit();
+        LOG.info("Stage 1 complete");
 
     }
     @Override
     public void onEnable(){
-
+        databaseEnable();
         LOG.info("Registering commands");
         this.getCommand("clans").setExecutor(new TBD());
         LOG.info("Registering event listeners");
         Bukkit.getPluginManager().registerEvents(new MainListener(), this);
-
+        LOG.info("Registering services");
+        Bukkit.getServicesManager().register(ClanManager.class, clanManager, this, ServicePriority.Normal);
+        LOG.info("Stage 2 complete");
         LOG.info(StringUtils.simpleformat("{0} v{1} - enabled successfully", this.getName(), this.getDescription().getVersion()));
     }
 
     @Override
     public void onDisable() {
         LOG.info("Shutting down");
-        stor.close();
-        pstor.close();
+        if(ad != null){
+            try {
+                if(ad.isConnected())
+                    ad.disconnect();
+            } catch (SQLException e) {
+                ClansPlugin.log(Level.SEVERE, "Database disconnect failed, skipping");
+            }
+        }
         LOG.info("OK");
+    }
+    private void databaseInit(){
+        /* Database init */
+        try {
+            ad = new SQLiteAdapter(new File(getDataFolder(), "clans.db"));
+        } catch (ClassNotFoundException e) {
+            ClansPlugin.log(Level.SEVERE, "Database init failed: no SQLite driver found in classpath!!! Shutting down");
+            ClansPlugin.dbg_printStacktrace(e);
+        } catch (IOException e) {
+            ClansPlugin.log(Level.SEVERE, "Database init failed: couldn't create sqlite db file!!! Shutting down");
+            ClansPlugin.dbg_printStacktrace(e);
+        } finally {
+            if(ad == null)
+                this.getPluginLoader().disablePlugin(this);
+        }
+        dbConnection = ad.connectAsynchronously(dbExecutor);
+    }
+    private void databaseEnable(){
+        if(!dbConnection.isDone()){
+            ClansPlugin.log(Level.INFO, "Waiting for database...");
+            try {
+                dbConnection.get(3, TimeUnit.SECONDS);
+                ad.update("CREATE TABLE IF NOT EXISTS clans (clanId int, tag varchar(16));", aff -> {});
+            } catch (CancellationException | InterruptedException e){
+                ClansPlugin.log(Level.SEVERE, "Database wait interrupted or cancelled!");
+            } catch (TimeoutException e){
+                ClansPlugin.log(Level.SEVERE, "Timed out waiting for database connection");
+            } catch (ExecutionException e){
+                ClansPlugin.log(Level.SEVERE, "Database connection failed: " + e.getLocalizedMessage());
+                ClansPlugin.dbg_printStacktrace(e);
+            } catch (SQLException e) {
+                ClansPlugin.log(Level.SEVERE, "Failed to execute initial SQL Update: " + e.getLocalizedMessage());
 
-
+            }
+        }
     }
 
     @Override
@@ -101,6 +152,11 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     }
 
     @Override
+    public SQLAdapter getSQLAdapter() {
+        return ad;
+    }
+
+    @Override
     public Task run(Runnable task) {
         return new BukkitTaskWrap(Bukkit.getScheduler().runTask(this, task));
     }
@@ -118,6 +174,11 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     @Override
     public Task runAsyncLater(long delay, Runnable task) {
         return new BukkitTaskWrap(Bukkit.getScheduler().runTaskLaterAsynchronously(this, task, delay));
+    }
+
+    @Override
+    public <T> Future<T> runCallable(Callable<T> callable) {
+        return dbExecutor.submit(callable);
     }
 
     @Override

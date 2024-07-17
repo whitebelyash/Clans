@@ -38,6 +38,8 @@ public class TBD implements CommandExecutor {
         cmd.put("leave", this::leave);
         cmd.put("locale-ls", this::listlocales);
         cmd.put("locale-reload", this::localereload);
+        cmd.put("actor-ls", this::listactors);
+        cmd.put("status", this::status);
     }
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
@@ -62,6 +64,7 @@ public class TBD implements CommandExecutor {
     }
 
     private void list(CommandActor p, String[] args){
+        /*
         if(cm.getAll().isEmpty()){
             p.sendMessageT("command.list.no-clans");
             return;
@@ -78,8 +81,11 @@ public class TBD implements CommandExecutor {
         });
 
         p.sendMessage(msg.toString());
+
+         */
     }
     private void create(CommandActor p, String[] args){
+        /*
         if(args.length < 2)
             throw new CommandError("meta.command.usage");
         if(!p.isPlayer())
@@ -93,8 +99,11 @@ public class TBD implements CommandExecutor {
             throw new CommandError("command.create.clan-exists", tag);
         cm.createClan(tag, name, ((PlayerActor) p).getUniqueId());
         p.sendMessageT("command.create.success", tag);
+
+         */
     }
     private void seen(CommandActor p, String[] args){
+        /*
         if(args.length < 2)
             throw new CommandError("meta.command.usage");
         String name = args[1];
@@ -119,6 +128,8 @@ public class TBD implements CommandExecutor {
             sb.append(simpleformat(lang.getPhrase(prefix+"line.killdeath"), m.getDeaths(), m.getKills())).append('\n');
         }
         p.sendMessage(sb.toString());
+
+         */
     }
     private void disband(CommandActor p, String[] args){
 
@@ -140,5 +151,18 @@ public class TBD implements CommandExecutor {
     }
     private void localereload(CommandActor p, String[] args){
 
+    }
+
+    private void listactors(CommandActor p, String[] args){
+        p.sendMessage("--- Online actors ---");
+        main.getOnlineActors().forEach(a -> {
+            p.sendMessage(a.toString() + '\n');
+        });
+        p.sendMessage(" ---");
+    }
+    private void status(CommandActor p, String[] args){
+        p.sendMessage(" --- Clans Status ---");
+        p.sendMessage(" - Database connected: " + (main.getSQLAdapter().isConnectedChecked() ? "yes" : "no"));
+        p.sendMessage(" ---");
     }
 }

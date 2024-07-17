@@ -3,15 +3,14 @@ package ru.whbex.develop.common.clan;
 import ru.whbex.develop.common.ClansPlugin;
 import ru.whbex.develop.common.clan.member.Member;
 import ru.whbex.develop.common.clan.member.MemberHolder;
-import ru.whbex.develop.common.storage.ClanStorage;
 import ru.whbex.develop.common.misc.ClanUtils;
-import ru.whbex.develop.common.storage.MemberStorage;
 
 import java.util.*;
 import java.util.logging.Logger;
 
 // simple clan manager
 public class ClanManager {
+    /*
 
     private final Logger log = ClansPlugin.Context.INSTANCE.logger;
 
@@ -23,10 +22,9 @@ public class ClanManager {
     // Tag to uuid map
     private final Map<String, UUID> tagToId = new HashMap<>();
 
-    private final ClanStorage cs;
-    private final MemberStorage ms;
+
     private final MemberHolder holder;
-    public ClanManager(ClanStorage cs, MemberStorage ms){
+    public ClanManager(){
         this.cs = cs;
         this.ms = ms;
         this.holder = new MemberHolder(this);
@@ -173,4 +171,6 @@ public class ClanManager {
     public MemberHolder getMemberHolder() {
         return holder;
     }
+
+     */
 }
