@@ -79,13 +79,11 @@ public class LangFile {
     public void open() throws IOException {
         reader = new BufferedReader(new FileReader(file));
         this.open = true;
-        ClansPlugin.dbg("Open LangFile at {0}", file.getAbsolutePath());
         current = reader.readLine();
         pos = 1;
     }
     public void close() throws IOException {
         reader.close();
-        ClansPlugin.dbg("Closed LangFile at {0}", file.getAbsolutePath());
     }
     public void setPosition(int pos) throws IOException {
         if(!open) return;
@@ -95,7 +93,6 @@ public class LangFile {
             reader.readLine();
         }
         current = reader.readLine();
-        ClansPlugin.dbg("Set position at {0}", pos);
     }
 
     public int getPosition() {
@@ -118,7 +115,6 @@ public class LangFile {
             return null;
         current = current.trim();
         String[] ret = current.split("=", 2);
-        ClansPlugin.dbg("ret {0}", Arrays.toString(ret));
         // value can be empty
         if(ret.length != 2 || ret[0].isEmpty())
             throw new IllegalArgumentException(StringUtils.simpleformat("Invalid phrase at {0} line! (LangFile: {1})", pos, file.getAbsolutePath()));

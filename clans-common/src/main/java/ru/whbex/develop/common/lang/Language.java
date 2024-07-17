@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class Language {
 
@@ -22,9 +23,9 @@ public class Language {
         try {
             file.open();
         } catch (IOException e) {
-            ClansPlugin.dbg("Failed to open LangFIle at {0}!", file.getFile().getAbsolutePath());
+            ClansPlugin.log(Level.INFO, "Failed to initialize language file at " + file.getFile().getPath());
+            ClansPlugin.dbg_printStacktrace(e);
         }
-        ClansPlugin.dbg("Position: {0}", file.getPosition());
         // LangFile is now pointing at first line
         try {
             while(file.hasNextLine()){
@@ -34,17 +35,12 @@ public class Language {
                 String[] phrase = file.getCurrentPhrase();
                 switch(phrase[0]){
                     case "locale":
-                        ClansPlugin.dbg("Locale name: {0}", phrase[1]);
-                        if(file.getFile().getName().equals(phrase[1]))
-                            ClansPlugin.dbg("Locale name should have same name with LangFile. Expect this");
                         name = phrase[0];
                         break;
                     case "locale.name":
-                        ClansPlugin.dbg("Locale name (localized): {0}", phrase[1]);
                         nameLocalized = phrase[1];
                         break;
                     case "locale.tag":
-                        ClansPlugin.dbg("Locale tag: {0}", phrase[1]);
                         locale = Locale.forLanguageTag(phrase[1]);
                         break;
                     default:
