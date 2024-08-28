@@ -1,6 +1,7 @@
 package ru.whbex.develop.common.clan;
 
 import ru.whbex.develop.common.ClansPlugin;
+import ru.whbex.develop.common.clan.loader.Bridge;
 import ru.whbex.develop.common.clan.member.Member;
 import ru.whbex.develop.common.clan.member.MemberHolder;
 import ru.whbex.develop.common.db.SQLAdapter;
@@ -24,10 +25,13 @@ public class ClanManager {
     // Main clan map
     private final Map<UUID, Clan> clans = new HashMap<>();
 
+    private final Bridge bridge;
+
     // Tag to uuid map
     private final Map<String, Clan> tagClans = new HashMap<>();
-    public ClanManager(ConfigWrapper config, SQLAdapter adapter){
+    public ClanManager(ConfigWrapper config, Bridge bridge){
         ClansPlugin.dbg("init clanmanager");
+        this.bridge = bridge;
         // TODO: Fetch clans from ClanLoader
     }
 
@@ -74,13 +78,27 @@ public class ClanManager {
     public boolean clanExists(UUID id){
         return clans.containsKey(id);
     }
-    // this return any loaded clans
+    // this returns any loaded clans
     public Collection<Clan> getAllClans(){
         return clans.values();
     }
     // this returns only real clans, not deleted
     public Collection<Clan> getClans(){
         return tagClans.values();
+    }
+
+    public void tmpExportClan(Clan clan){
+        bridge.insertClan(clan);
+    }
+    public void tmpImportClan(String tag){
+        Clan clan = bridge.fetchClan(tag);
+        if(clan == null) {
+            ClansPlugin.dbg("fetch fail");
+            return;
+        }
+        clans.put(clan.getId(), clan);
+        if(!clan.isDeleted())
+            tagClans.put(tag, clan);
     }
 
     /* !!! LEGACY !!! TODO: REMOVE */

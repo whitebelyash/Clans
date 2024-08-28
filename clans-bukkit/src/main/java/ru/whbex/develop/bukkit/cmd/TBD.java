@@ -47,6 +47,8 @@ public class TBD implements CommandExecutor {
         cmd.put("conn", this::conn);
         cmd.put("setlvl", this::setlvl);
         cmd.put("addexp", this::addexp);
+        cmd.put("export", this::export);
+        cmd.put("import", this::_import);
     }
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
@@ -225,6 +227,22 @@ public class TBD implements CommandExecutor {
         }
         this.cm.getClan(tag).getLevelling().addExperience(n);
         p.sendMessage("Add exp amount {0} for clan {1}", n, tag);
+    }
+    private void export(CommandActor p, String[] args){
+        if(args.length < 2)
+            throw new CommandError("meta.command.usage");
+        String tag = args[1];
+        if(!cm.clanExists(tag))
+            throw new CommandError("meta.command.unknown-clan");
+        cm.tmpExportClan(cm.getClan(tag));
+    }
+    private void _import(CommandActor p, String[] args){
+        if(args.length < 2)
+            throw new CommandError("meta.command.usage");
+        String tag = args[1];
+        if(cm.clanExists(tag))
+            throw new CommandError("already loaded");
+        cm.tmpImportClan(tag);
     }
 
 }

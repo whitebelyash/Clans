@@ -15,6 +15,7 @@ import ru.whbex.develop.bukkit.wrap.PlayerActorBukkit;
 import ru.whbex.develop.common.ClansPlugin;
 import ru.whbex.develop.common.clan.Clan;
 import ru.whbex.develop.common.clan.ClanManager;
+import ru.whbex.develop.common.clan.loader.SQLBridge;
 import ru.whbex.develop.common.cmd.CommandActor;
 import ru.whbex.develop.common.db.SQLAdapter;
 import ru.whbex.develop.common.db.SQLiteAdapter;
@@ -76,8 +77,8 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         LangFile lf = new LangFile(new File(getDataFolder(), "messages.lang"));
         lang = new Language(lf);
         databaseInit();
-
-        this.clanManager = new ClanManager(config, ad);
+        SQLBridge br = new SQLBridge(ad);
+        this.clanManager = new ClanManager(config, br);
 
         LOG.info("Stage 1 complete");
 
@@ -129,7 +130,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             ClansPlugin.log(Level.INFO, "Waiting for database...");
             try {
                 dbConnection.get(3, TimeUnit.SECONDS);
-                ad.update("CREATE TABLE IF NOT EXISTS clans (clanId int, tag varchar(16));", aff -> {});
             } catch (CancellationException | InterruptedException e){
                 ClansPlugin.log(Level.SEVERE, "Database wait interrupted or cancelled!");
             } catch (TimeoutException e){
@@ -137,9 +137,20 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             } catch (ExecutionException e){
                 ClansPlugin.log(Level.SEVERE, "Database connection failed: " + e.getLocalizedMessage());
                 ClansPlugin.dbg_printStacktrace(e);
+            }
+        }
+        else {
+            try {
+                ad.update("CREATE TABLE IF NOT EXISTS clans (id varchar(36), tag varchar(16), " +
+                                "name varchar(24), " +
+                                "description varchar(255), " +
+                                "leader varchar(36), " +
+                                "deleted TINYINT(1), " +
+                                "level INT, " +
+                                "exp INT);",
+                        aff -> ClansPlugin.dbg("Aff rows: " + aff));
             } catch (SQLException e) {
                 ClansPlugin.log(Level.SEVERE, "Failed to execute initial SQL Update: " + e.getLocalizedMessage());
-
             }
         }
     }
@@ -232,6 +243,11 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     @Nullable
     public PlayerActor getPlayerActor(String name) {
         return actorsN.get(name);
+    }
+
+    @Override
+    public PlayerActor getPlayerActorOrRegister(UUID id) {
+        return registerOrGetActor(id);
     }
 
     @Override

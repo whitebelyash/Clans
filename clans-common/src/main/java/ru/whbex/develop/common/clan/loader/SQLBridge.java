@@ -41,39 +41,42 @@ public class SQLBridge implements Bridge {
     }
     public Clan fetchClan(String tag) {
         ClansPlugin.dbg("fetch clan {0}", tag);
-        final String sql = "SELECT * FROM TABLE clans WHERE tag='" + tag +"';";
+        final String sql = "SELECT * FROM clans WHERE tag='" + tag +"';";
         AtomicReference<Clan> clan = new AtomicReference<>(); // this will be redone after switching to a proper callback
         Consumer<ResultSet> cb = rs -> {
             try {
-                if(rs.wasNull()){
+                if(rs.next())
+                    do {
+                        UUID id;
+                        if((id = StringUtils.UUIDFromString(rs.getString("id"))) == null){
+                            ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: UUID is null!");
+                            return;
+                        }
+                        String name = rs.getString("name");
+                        String description = rs.getString("description");
+                     //   long time = rs.getLong("creationEpoch");
+                        UUID lid;
+                        if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
+                            ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is null!");
+                            return;
+                        }
+                        ClansPlugin.Context.INSTANCE.plugin.getPlayerActorOrRegister(lid).sendMessage("Clan load!"); // TODO: remove
+                        int lvl = rs.getInt("level");
+                        int exp = rs.getInt("exp");
+                        ClanLevelling levelling = new ClanLevelling(lvl, exp);
+                        ClanMeta meta = new ClanMeta(tag, name, description, lid, 0);
+                        Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling);
+                        if(!ClanUtils.validateClan(c)){
+                            // TODO: specify why it was failed
+                            ClansPlugin.log(Level.SEVERE, "Clan validation failed!");
+                            return;
+                        }
+                        clan.set(c);
+                    } while(rs.next());
+                else {
                     ClansPlugin.log(Level.SEVERE, "No clan with tag " + tag + " was found!");
-                    return;
                 }
-                UUID id;
-                if((id = StringUtils.UUIDFromString(rs.getString("id"))) == null){
-                    ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: UUID is null!");
-                    return;
-                }
-                String name = rs.getString("name");
-                String description = rs.getString("description");
-                long time = rs.getLong("creationEpoch");
-                UUID lid;
-                if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
-                    ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is null!");
-                    return;
-                }
-                ClansPlugin.Context.INSTANCE.plugin.getPlayerActor(lid).sendMessage("Clan load!"); // TODO: remove
-                int lvl = rs.getInt("level");
-                int exp = rs.getInt("exp");
-                ClanLevelling levelling = new ClanLevelling(lvl, exp);
-                ClanMeta meta = new ClanMeta(tag, name, description, lid, time);
-                Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling);
-                if(!ClanUtils.validateClan(c)){
-                    // TODO: specify why it was failed
-                    ClansPlugin.log(Level.SEVERE, "Clan validation failed!");
-                    return;
-                }
-                clan.set(c);
+
             } catch (SQLException e){
                 ClansPlugin.log(Level.SEVERE, "Failed to fetch clan data for tag " + tag + "!!");
                 ClansPlugin.dbg_printStacktrace(e);
@@ -94,39 +97,43 @@ public class SQLBridge implements Bridge {
     @Override
     public Clan fetchClan(UUID id) {
         ClansPlugin.dbg("fetch clan {0}", id);
-        final String sql = "SELECT * FROM TABLE clans WHERE id='" + id.toString() +"'";
+        final String sql = "SELECT * FROM clans WHERE id='" + id.toString() +"'";
         AtomicReference<Clan> clan = new AtomicReference<>(); // fix
         Consumer<ResultSet> cb = rs -> {
             try {
-                if(rs.wasNull()){
+                if(rs.next())
+                    do {
+                        String tag;
+                        if((tag = rs.getString("tag")) == null){
+                            ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: tag is null!");
+                            return;
+                        }
+                        String name = rs.getString("name");
+                        String description = rs.getString("description");
+                       // long time = rs.getLong("creationEpoch");
+                        UUID lid;
+                        if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
+                            ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is null!");
+                            return;
+                        }
+                        ClansPlugin.Context.INSTANCE.plugin.getPlayerActorOrRegister(lid).sendMessage("Clan loaded!"); // TODO: remove
+                        int lvl = rs.getInt("level");
+                        int exp = rs.getInt("exp");
+                        ClanLevelling levelling = new ClanLevelling(lvl, exp);
+                        ClanMeta meta = new ClanMeta(tag, name, description, lid, 0);
+                        Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling);
+                        if(!ClanUtils.validateClan(c)){
+                            // TODO: specify why it was failed
+                            ClansPlugin.log(Level.SEVERE, "Clan validation failed!");
+                            return;
+                        }
+                        clan.set(c);
+                    } while(rs.next());
+                else {
                     ClansPlugin.log(Level.SEVERE, "No clan with id " + id + " was found!");
                     return;
                 }
-                String tag;
-                if((tag = rs.getString("tag")) == null){
-                    ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: tag is null!");
-                    return;
-                }
-                String name = rs.getString("name");
-                String description = rs.getString("description");
-                long time = rs.getLong("creationEpoch");
-                UUID lid;
-                if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
-                    ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is null!");
-                    return;
-                }
-                ClansPlugin.Context.INSTANCE.plugin.getPlayerActor(lid).sendMessage("Clan loaded!"); // TODO: remove
-                int lvl = rs.getInt("level");
-                int exp = rs.getInt("exp");
-                ClanLevelling levelling = new ClanLevelling(lvl, exp);
-                ClanMeta meta = new ClanMeta(tag, name, description, lid, time);
-                Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling);
-                if(!ClanUtils.validateClan(c)){
-                    // TODO: specify why it was failed
-                    ClansPlugin.log(Level.SEVERE, "Clan validation failed!");
-                    return;
-                }
-                clan.set(c);
+
             } catch (SQLException e){
                 ClansPlugin.log(Level.SEVERE, "Failed to fetch clan data for id " + id + "!!");
                 ClansPlugin.dbg_printStacktrace(e);
@@ -144,14 +151,12 @@ public class SQLBridge implements Bridge {
     @Override
     public UUID fetchUUIDFromTag(String tag) {
         ClansPlugin.dbg("fetch uuid from tag " + tag);
-        final String sql = "SELECT * FROM TABLE clans WHERE tag='" + tag +"';";
+        final String sql = "SELECT * FROM clans WHERE tag='" + tag +"';";
         AtomicReference<UUID> uuid = new AtomicReference<>();
         Consumer<ResultSet> cb = rs -> {
             try {
-                if(rs.wasNull())
-                {} // ignored
-                else
-                    uuid.set(StringUtils.UUIDFromString(rs.getString("id")));
+                if(rs.next()) do { uuid.set(StringUtils.UUIDFromString(rs.getString("id")));
+                    } while(rs.next());
             } catch (SQLException e){
                 ClansPlugin.log(Level.SEVERE, "Fetch uuid from tag failed");
                 ClansPlugin.dbg_printStacktrace(e);
@@ -168,14 +173,11 @@ public class SQLBridge implements Bridge {
     @Override
     public String fetchTagFromUUID(UUID id) {
         ClansPlugin.dbg("fetch uuid from uuid " + id);
-        final String sql = "SELECT * FROM TABLE clans WHERE id='" + id +"';";
+        final String sql = "SELECT * FROM clans WHERE id='" + id +"';";
         AtomicReference<String> tag = new AtomicReference<>();
         Consumer<ResultSet> cb = rs -> {
             try {
-                if(rs.wasNull())
-                {} // ignored
-                else
-                    tag.set(rs.getString("tag"));
+                if(rs.next()) do { tag.set(rs.getString("tag")); } while (rs.next());
             } catch (SQLException e){
                 ClansPlugin.log(Level.SEVERE, "Fetch tag from uuid failed");
                 ClansPlugin.dbg_printStacktrace(e);
@@ -192,7 +194,7 @@ public class SQLBridge implements Bridge {
     @Override
     public Collection<Clan> fetchAll() {
         ClansPlugin.dbg("fetch all!");
-        final String sql = "SELECT * FROM TABLE clans;";
+        final String sql = "SELECT * FROM clans;";
         List<Clan> clans = new ArrayList<>();
         Consumer<ResultSet> cb = rs -> {
             try {
@@ -210,17 +212,17 @@ public class SQLBridge implements Bridge {
                     String name = rs.getString("name");
                     String description = rs.getString("description");
                     boolean deleted = rs.getBoolean("deleted");
-                    long time = rs.getLong("creationEpoch");
+                  //  long time = rs.getLong("creationEpoch");
                     UUID lid;
                     if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
                         ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is null!");
                         continue;
                     }
-                    ClansPlugin.Context.INSTANCE.plugin.getPlayerActor(lid).sendMessage("Clan loaded!"); // TODO: remove
+                    ClansPlugin.Context.INSTANCE.plugin.getPlayerActorOrRegister(lid).sendMessage("Clan loaded!"); // TODO: remove
                     int lvl = rs.getInt("level");
                     int exp = rs.getInt("exp");
                     ClanLevelling levelling = new ClanLevelling(lvl, exp);
-                    ClanMeta meta = new ClanMeta(tag, name, description, lid, time);
+                    ClanMeta meta = new ClanMeta(tag, name, description, lid, 0);
                     Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling);
                     c.setDeleted(deleted);
                     if(!ClanUtils.validateClan(c)){
@@ -245,7 +247,7 @@ public class SQLBridge implements Bridge {
     @Override
     public boolean updateClan(Clan clan) {
         ClansPlugin.dbg("update clan {0}", clan.getId());
-        final String sql = "SELECT * FROM TABLE clans WHERE uuid='" + clan.getId() + "';";
+        final String sql = "SELECT * FROM clans WHERE uuid='" + clan.getId() + "';";
         Consumer<ResultSet> cb = rs -> {
             try {
                 if(rs.wasNull()) {
@@ -280,7 +282,7 @@ public class SQLBridge implements Bridge {
     public void updateAll(Collection<Clan> clans) {
         ClansPlugin.dbg("update all!");
         clans.forEach(c -> {
-            final String sql = "SELECT * FROM TABLE clans WHERE id='" + c.getId() + "';";
+            final String sql = "SELECT * FROM clans WHERE id='" + c.getId() + "';";
             Consumer<ResultSet> cb = rs -> {
                 try {
                     if(rs.wasNull()){
@@ -315,11 +317,11 @@ public class SQLBridge implements Bridge {
         ClansPlugin.dbg("clan {0} insert", clan.getId());
         // preparedstatements...
         final String sql = "INSERT INTO clans VALUES(" +
-                clan.getId() + ", " +
-                clan.getMeta().getTag() + ", " +
-                clan.getMeta().getName() + ", " +
-                clan.getMeta().getDescription() + ", " +
-                clan.getMeta().getLeader() + ", " +
+                "'" + clan.getId() + "', " +
+                "'" + clan.getMeta().getTag() + "', " +
+                "'" + clan.getMeta().getName() + "', " +
+                "'" + clan.getMeta().getDescription() + "', " +
+                "'" + clan.getMeta().getLeader() + "', " +
                 clan.isDeleted() + ", " +
                 clan.getLevelling().getLevel() + ", " +
                 clan.getLevelling().getExperience() + ");";

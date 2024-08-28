@@ -39,6 +39,11 @@ public class DisabledPlugin implements ClansPlugin {
     }
 
     @Override
+    public PlayerActor getPlayerActorOrRegister(UUID id) {
+        throw new NullPointerException(MESSAGE);
+    }
+
+    @Override
     public Collection<PlayerActor> getOnlineActors() {
         throw new NullPointerException(MESSAGE);
     }
