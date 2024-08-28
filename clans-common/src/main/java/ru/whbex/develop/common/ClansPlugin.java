@@ -39,6 +39,7 @@ public interface ClansPlugin {
     ConsoleActor getConsoleActor();
     PlayerActor getPlayerActor(UUID id);
     PlayerActor getPlayerActor(String name);
+    PlayerActor getPlayerActorOrRegister(UUID id);
     Collection<PlayerActor> getOnlineActors();
     ClanManager getClanManager();
     Language getLanguage();

@@ -1,6 +1,9 @@
 package ru.whbex.develop.common.misc;
 
+import ru.whbex.develop.common.ClansPlugin;
 import ru.whbex.develop.common.Constants;
+
+import java.util.UUID;
 
 public class StringUtils {
 
@@ -27,5 +30,17 @@ public class StringUtils {
         if(deep)
             output = output.replace(Constants.COLOR_SYMBOL, '\0');
         return output;
+    }
+    /* Safe string to uuid converter */
+    public static UUID UUIDFromString(String uuid){
+        UUID id;
+        try {
+            id = UUID.fromString(uuid);
+        } catch (IllegalArgumentException e){
+            ClansPlugin.dbg("inval uuid input: " + uuid); // TODO: Remove this sometime
+            return null;
+        }
+        return id;
+
     }
 }
