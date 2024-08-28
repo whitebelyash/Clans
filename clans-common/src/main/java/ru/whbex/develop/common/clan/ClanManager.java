@@ -3,14 +3,19 @@ package ru.whbex.develop.common.clan;
 import ru.whbex.develop.common.ClansPlugin;
 import ru.whbex.develop.common.clan.member.Member;
 import ru.whbex.develop.common.clan.member.MemberHolder;
+import ru.whbex.develop.common.db.SQLAdapter;
 import ru.whbex.develop.common.misc.ClanUtils;
+import ru.whbex.develop.common.wrap.ConfigWrapper;
 
 import java.util.*;
 import java.util.logging.Logger;
 
 // simple clan manager
 public class ClanManager {
-    /*
+    public enum Error {
+        CLAN_NOT_FOUND,
+        CLAN_TAG_EXISTS
+    }
 
     private final Logger log = ClansPlugin.Context.INSTANCE.logger;
 
@@ -20,22 +25,67 @@ public class ClanManager {
     private final Map<UUID, Clan> clans = new HashMap<>();
 
     // Tag to uuid map
-    private final Map<String, UUID> tagToId = new HashMap<>();
+    private final Map<String, Clan> tagClans = new HashMap<>();
+    public ClanManager(ConfigWrapper config, SQLAdapter adapter){
+        ClansPlugin.dbg("init clanmanager");
+        // TODO: Fetch clans from ClanLoader
+    }
 
 
-    private final MemberHolder holder;
-    public ClanManager(){
-        this.cs = cs;
-        this.ms = ms;
-        this.holder = new MemberHolder(this);
-        ClansPlugin.dbg("clans load begin");
-        // Running sync
-        Set<UUID> uuids = cs.loadAllUUID();
-        uuids.forEach(this::loadClan);
-        log.info("Loaded clans");
+    public Error createClan(String tag, String name, UUID leader){
+        if(tagClans.containsKey(tag))
+            return Error.CLAN_TAG_EXISTS;
+        UUID id = UUID.randomUUID();
+        ClansPlugin.dbg("creating clan (tag: {0}, name: {1}, leader: {2})", tag, name, leader);
+        ClanMeta cm = new ClanMeta(tag, name, null, leader, System.currentTimeMillis() / 1000L);
+        ClanLevelling l = new ClanLevelling(1, 0);
+        Clan clan = new Clan(this, id, cm, null, l);
+        clans.put(id, clan);
+        tagClans.put(tag.toLowerCase(Locale.ROOT), clan);
+        ClansPlugin.dbg("ok, not requesting clan flush,wait for scheduled");
+        return null;
+    }
+    public Error removeClan(UUID uuid){
+        ClansPlugin.dbg("removing clan {0}", clans.get(uuid));
+        clans.remove(uuid);
+        ClansPlugin.dbg("done");
+        return null;
+    }
+    public Error removeClan(String tag){
+        if(!tagClans.containsKey(tag.toLowerCase()))
+            return Error.CLAN_NOT_FOUND;
+        return this.removeClan(tagClans.get(tag.toLowerCase()).getId());
+    }
+    public Clan getClan(UUID id){
+        return clans.get(id);
+    }
+    public Clan getClan(String tag){
+        return tagClans.get(tag.toLowerCase());
+    }
 
+    public void onLevelUp(Clan clan){
+        ClansPlugin.dbg("onLvlUp stub " + clan.getId());
 
     }
+
+    public boolean clanExists(String tag){
+        return tagClans.containsKey(tag.toLowerCase()) && clans.containsKey(tagClans.get(tag).getId());
+    }
+    public boolean clanExists(UUID id){
+        return clans.containsKey(id);
+    }
+    // this return any loaded clans
+    public Collection<Clan> getAllClans(){
+        return clans.values();
+    }
+    // this returns only real clans, not deleted
+    public Collection<Clan> getClans(){
+        return tagClans.values();
+    }
+
+    /* !!! LEGACY !!! TODO: REMOVE */
+
+    /*
 
     public void loadClan(UUID clanId) throws IllegalArgumentException, NullPointerException {
         if(!cs.clanExists(clanId))

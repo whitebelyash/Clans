@@ -15,6 +15,7 @@ import java.util.logging.Level;
 public abstract class SQLAdapter {
     private final String path;
     private Connection con = null;
+    private boolean conFailed = false;
 
     public SQLAdapter(String driver, String url) throws ClassNotFoundException {
         Class.forName(driver);
@@ -22,20 +23,20 @@ public abstract class SQLAdapter {
     }
 
 
-    public final boolean isConnected() throws SQLException {
-        return con != null && !con.isClosed();
+    public final boolean isClosed() throws SQLException {
+        return con != null && con.isClosed();
     }
-    public final boolean isConnectedChecked(){
-        try {
-            return con != null && !con.isClosed();
-        } catch (SQLException e) {
-            return false;
-        }
+    public final boolean isValid() throws SQLException {
+        return con != null && con.isValid(5000); // TODO: move timeout to constants?
     }
 
     public final void connect() throws SQLException {
+        if(!isClosed())
+            throw new IllegalStateException("Already connected!");
         ClansPlugin.log(Level.INFO, "Connecting to the database...");
+
         con = DriverManager.getConnection(path);
+
         ClansPlugin.Context.INSTANCE.logger.info("Connected");
     }
     public final Future<Void> connectAsynchronously(ExecutorService executor){
@@ -47,18 +48,20 @@ public abstract class SQLAdapter {
         return executor.submit(connector);
     }
     public final void disconnect() throws SQLException {
-        if(isConnected()) {
+        if(!isClosed()) {
             ClansPlugin.log(Level.INFO, "Disconnecting from the database...");
             con.close();
             ClansPlugin.log(Level.INFO, "Disconnected");
         }
     }
     public final void query(String sql, Consumer<ResultSet> callback) throws SQLException {
-        if (!isConnected())
-            throw new IllegalStateException("Database is not connected!");
+        if (isClosed())
+            throw new IllegalStateException("Database connection is closed!");
         try (
                 Statement st = con.createStatement();
                 ResultSet rs = st.executeQuery(sql)) {
+            ClansPlugin.dbg("sql query" +
+                    ": {0}", sql);
             callback.accept(rs);
         } catch (SQLException e) {
             // TODO: better message
@@ -68,9 +71,10 @@ public abstract class SQLAdapter {
         }
     }
     public final void update(String sql, Consumer<Integer> callback) throws SQLException {
-        if (!isConnected())
-            throw new IllegalStateException("Database is not connected!");
+        if (isClosed())
+            throw new IllegalStateException("Database connection is closed!");
         try (Statement st = con.createStatement()) {
+            ClansPlugin.dbg("sql update: {0}", sql);
             callback.accept(st.executeUpdate(sql));
         } catch (SQLException e) {
             // TODO: better message

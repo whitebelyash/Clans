@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import ru.whbex.develop.common.ClansPlugin;
 import ru.whbex.develop.common.cmd.CommandActor;
+import ru.whbex.develop.common.lang.Language;
 import ru.whbex.develop.common.misc.StringUtils;
 import ru.whbex.develop.common.misc.requests.Request;
 import ru.whbex.develop.common.player.PlayerActor;
@@ -32,7 +33,8 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     @Override
     public void sendMessage(String string) {
         if(!isOnline()) return;
-        offline.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', string));
+        string = ChatColor.translateAlternateColorCodes('&', string);
+        offline.getPlayer().sendMessage(string);
     }
 
     @Override
@@ -62,10 +64,16 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     }
 
     @Override
+    public Language getLanguage() {
+        // TODO: Implement per-player locale support
+        return ClansPlugin.Context.INSTANCE.plugin.getLanguage();
+    }
+
+    @Override
     public void addRequest(Request request) {
         if(request.recipient() != this){
             // TODO: Remove this branch or log to WARNING level
-            ClansPlugin.dbg("Got invalid request " + request);
+            ClansPlugin.dbg("!!! Got invalid request " + request);
             return;
         }
         requests.put(request.sender(), request);

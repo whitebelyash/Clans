@@ -12,7 +12,7 @@ public class Constants {
     public static final int NEXT_LEVEL_STEP = 64;
 
     // ClanManager creation
-    public static final String CLAN_NAME_SUFFIX = " clan";
+    public static final String CLAN_NAME_FORMAT = "{0} clan";
 
     // === Permissions ===
     // broadcast

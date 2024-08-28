@@ -4,6 +4,7 @@ import ru.whbex.develop.common.ClansPlugin;
 import ru.whbex.develop.common.clan.ClanManager;
 import ru.whbex.develop.common.db.SQLAdapter;
 import ru.whbex.develop.common.lang.Language;
+import ru.whbex.develop.common.wrap.ConfigWrapper;
 import ru.whbex.develop.common.wrap.ConsoleActor;
 import ru.whbex.develop.common.player.PlayerActor;
 import ru.whbex.develop.common.wrap.Task;
@@ -11,6 +12,7 @@ import ru.whbex.develop.common.wrap.Task;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
@@ -84,6 +86,11 @@ public class DisabledPlugin implements ClansPlugin {
     }
 
     @Override
+    public ExecutorService getDatabaseExecutor() {
+        throw new NullPointerException(MESSAGE);
+    }
+
+    @Override
     public void reloadLocales() throws Exception {
         throw new NullPointerException(MESSAGE);
 
@@ -93,5 +100,10 @@ public class DisabledPlugin implements ClansPlugin {
     public void reloadConfigs() throws Exception {
         throw new NullPointerException(MESSAGE);
 
+    }
+
+    @Override
+    public ConfigWrapper getConfigWrapped() {
+        throw new NullPointerException(MESSAGE);
     }
 }

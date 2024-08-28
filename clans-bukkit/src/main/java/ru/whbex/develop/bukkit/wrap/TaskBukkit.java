@@ -3,9 +3,9 @@ package ru.whbex.develop.bukkit.wrap;
 import org.bukkit.scheduler.BukkitTask;
 import ru.whbex.develop.common.wrap.Task;
 
-public class BukkitTaskWrap implements Task {
+public class TaskBukkit implements Task {
     private final BukkitTask task;
-    public BukkitTaskWrap(BukkitTask task){
+    public TaskBukkit(BukkitTask task){
         this.task = task;
 
     }

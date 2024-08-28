@@ -5,6 +5,7 @@ import ru.whbex.develop.common.db.SQLAdapter;
 import ru.whbex.develop.common.lang.Language;
 import ru.whbex.develop.common.misc.DisabledPlugin;
 import ru.whbex.develop.common.misc.StringUtils;
+import ru.whbex.develop.common.wrap.ConfigWrapper;
 import ru.whbex.develop.common.wrap.ConsoleActor;
 import ru.whbex.develop.common.player.PlayerActor;
 import ru.whbex.develop.common.wrap.Task;
@@ -12,6 +13,7 @@ import ru.whbex.develop.common.wrap.Task;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,9 +49,11 @@ public interface ClansPlugin {
     Task runAsync(Runnable task);
     Task runAsyncLater(long delay, Runnable task);
     <T> Future<T> runCallable(Callable<T> callable);
+    ExecutorService getDatabaseExecutor();
 
     void reloadLocales() throws Exception;
     void reloadConfigs() throws Exception;
+    ConfigWrapper getConfigWrapped();
 
 
 
@@ -57,7 +61,9 @@ public interface ClansPlugin {
         if(!Context.DEBUG)
             return;
         Context.INSTANCE.logger.info(StringUtils.simpleformat("DBG({0}): {1}",
-                Thread.currentThread().getStackTrace()[2].getClassName(),
+                Thread.currentThread().getStackTrace()[2].getFileName() +
+                ':' +
+                Thread.currentThread().getStackTrace()[2].getLineNumber(),
                 StringUtils.simpleformat(m, args)));
     }
     static void dbg_printStacktrace(Throwable t){

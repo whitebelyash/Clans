@@ -1,6 +1,7 @@
 package ru.whbex.develop.common.player;
 
 import ru.whbex.develop.common.cmd.CommandActor;
+import ru.whbex.develop.common.lang.Language;
 import ru.whbex.develop.common.misc.requests.Request;
 
 import java.util.UUID;
@@ -12,6 +13,7 @@ public interface PlayerActor {
     void teleport(int x, int y, int z, String world);
     UUID getUniqueId();
     String getName();
+    Language getLanguage();
 
     // REQUESTS
 

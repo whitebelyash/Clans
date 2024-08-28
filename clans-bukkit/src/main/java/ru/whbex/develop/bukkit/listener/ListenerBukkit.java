@@ -7,7 +7,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 
-public class MainListener implements Listener {
+public class ListenerBukkit implements Listener {
 
     @EventHandler(priority =  EventPriority.HIGHEST)
     public void on(PlayerLoginEvent e){

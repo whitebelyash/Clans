@@ -3,6 +3,9 @@ WIP Clans plugin for Spigot/etc...
 Also an attempt to copy VanillaCraft (an old russian server which is closed for now) clans.
 VCClans was itself inspired by another plugin (i guess), which is feature-bloated IMHO
 
+Don't expect this to be completed any time soon - im doing this just for fun.  
+Dont' expect high quality code, comments, commit names and other things - this is my personal project, not some enterprise-level product.
+
 ## why
 
 coz i didn't find anything similar to VanillaCraft clans plugin.

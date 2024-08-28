@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import ru.whbex.develop.bukkit.MainBukkit;
 import ru.whbex.develop.bukkit.misc.BukkitUtils;
 import ru.whbex.develop.common.ClansPlugin;
+import ru.whbex.develop.common.Constants;
 import ru.whbex.develop.common.clan.member.Member;
 import ru.whbex.develop.common.lang.LangFile;
 import ru.whbex.develop.common.lang.Language;
@@ -14,9 +15,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import ru.whbex.develop.common.clan.ClanManager;
 import ru.whbex.develop.common.clan.ClanMeta;
+import ru.whbex.develop.common.misc.StringUtils;
 import ru.whbex.develop.common.player.PlayerActor;
 
 import java.lang.reflect.Field;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -40,6 +43,10 @@ public class TBD implements CommandExecutor {
         cmd.put("locale-reload", this::localereload);
         cmd.put("actor-ls", this::listactors);
         cmd.put("status", this::status);
+        cmd.put("breakcon", this::breakcon);
+        cmd.put("conn", this::conn);
+        cmd.put("setlvl", this::setlvl);
+        cmd.put("addexp", this::addexp);
     }
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
@@ -64,8 +71,7 @@ public class TBD implements CommandExecutor {
     }
 
     private void list(CommandActor p, String[] args){
-        /*
-        if(cm.getAll().isEmpty()){
+        if(cm.getClans().isEmpty()){
             p.sendMessageT("command.list.no-clans");
             return;
         }
@@ -73,7 +79,7 @@ public class TBD implements CommandExecutor {
         StringBuilder msg = new StringBuilder();
 
 
-        cm.getAll().forEach(c -> {
+        cm.getClans().forEach(c -> {
             ClanMeta m = c.getMeta();
             msg.append(String.join(", ", c.getId().toString(), m.getTag(), m.getName(),
                     String.valueOf(c.getLevelling().getLevel()), String.valueOf(m.getCreationTime()), m.getLeader().toString()));
@@ -81,11 +87,8 @@ public class TBD implements CommandExecutor {
         });
 
         p.sendMessage(msg.toString());
-
-         */
     }
     private void create(CommandActor p, String[] args){
-        /*
         if(args.length < 2)
             throw new CommandError("meta.command.usage");
         if(!p.isPlayer())
@@ -94,13 +97,11 @@ public class TBD implements CommandExecutor {
         if(ClanUtils.isClanMember(pa.getUniqueId()))
             throw new CommandError("command.create.leave");
         String tag = args[1];
-        String name = null;
+        String name = StringUtils.simpleformat(Constants.CLAN_NAME_FORMAT, tag);
         if(cm.clanExists(tag))
             throw new CommandError("command.create.clan-exists", tag);
         cm.createClan(tag, name, ((PlayerActor) p).getUniqueId());
         p.sendMessageT("command.create.success", tag);
-
-         */
     }
     private void seen(CommandActor p, String[] args){
         /*
@@ -160,9 +161,70 @@ public class TBD implements CommandExecutor {
         });
         p.sendMessage(" ---");
     }
-    private void status(CommandActor p, String[] args){
-        p.sendMessage(" --- Clans Status ---");
-        p.sendMessage(" - Database connected: " + (main.getSQLAdapter().isConnectedChecked() ? "yes" : "no"));
-        p.sendMessage(" ---");
+    private void status(CommandActor p, String[] args) {
+        // TODO: PRETTY EXPERIMNETAL, IMPLEMENT PROPER ASYNC!!!!!!
+        p.sendMessage("--- Clans Status ---");
+        boolean db;
+        try {
+            db = !ClansPlugin.Context.INSTANCE.plugin.getSQLAdapter().isClosed() && ClansPlugin.Context.INSTANCE.plugin.getSQLAdapter().isValid();
+        } catch (SQLException e) {
+            db = false;
+            ClansPlugin.dbg("db check failed !!!");
+            ClansPlugin.dbg_printStacktrace(e);
+        }
+        p.sendMessage("| db: " + (db ? "ok" : "failed"));
     }
+    private void breakcon(CommandActor p, String[] args){
+        p.sendMessage("Breaking db conn");
+        try {
+            ClansPlugin.Context.INSTANCE.plugin.getSQLAdapter().disconnect();
+        } catch (SQLException e) {
+            p.sendMessage("FAIL!");
+            ClansPlugin.dbg("Disconnect fail");
+            ClansPlugin.dbg_printStacktrace(e);
+        }
+        p.sendMessage("Success!");
+    }
+    private void conn(CommandActor p, String[] args){
+        p.sendMessage("Connect to db");
+        try {
+            ClansPlugin.Context.INSTANCE.plugin.getSQLAdapter().connect();
+        } catch (SQLException e) {
+            p.sendMessage("FAIL!");
+            ClansPlugin.dbg("Connect fail");
+            ClansPlugin.dbg_printStacktrace(e);
+        }
+        p.sendMessage("Success!");
+    }
+    private void setlvl(CommandActor p, String[] args){
+        if(args.length < 3)
+            throw new CommandError("meta.command.usage");
+        String tag = args[1];
+        if(!cm.clanExists(tag))
+            throw new CommandError("meta.command.unknown-clan");
+        int n = 0;
+        try {
+            n = Integer.parseInt(args[2]);
+        } catch (NumberFormatException e){
+            throw new CommandError("meta.command.usage");
+        }
+        this.cm.getClan(tag).getLevelling().setLevel(n, true);
+        p.sendMessage("Set level {0} for clan {1}", n, tag);
+    }
+    private void addexp(CommandActor p, String[] args){
+        if(args.length < 3)
+            throw new CommandError("meta.command.usage");
+        String tag = args[1];
+        if(!cm.clanExists(tag))
+            throw new CommandError("meta.command.unknown-clan");
+        int n = 0;
+        try {
+            n = Integer.parseInt(args[2]);
+        } catch (NumberFormatException e){
+            throw new CommandError("meta.command.usage");
+        }
+        this.cm.getClan(tag).getLevelling().addExperience(n);
+        p.sendMessage("Add exp amount {0} for clan {1}", n, tag);
+    }
+
 }

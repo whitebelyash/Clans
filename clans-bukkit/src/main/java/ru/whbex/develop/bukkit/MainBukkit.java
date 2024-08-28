@@ -5,12 +5,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.checker.units.qual.C;
 import ru.whbex.develop.bukkit.cmd.TBD;
-import ru.whbex.develop.bukkit.listener.MainListener;
-import ru.whbex.develop.bukkit.wrap.BukkitTaskWrap;
+import ru.whbex.develop.bukkit.listener.ListenerBukkit;
+import ru.whbex.develop.bukkit.wrap.TaskBukkit;
+import ru.whbex.develop.bukkit.wrap.ConfigWrapperBukkit;
 import ru.whbex.develop.bukkit.wrap.ConsoleActorBukkit;
 import ru.whbex.develop.bukkit.wrap.PlayerActorBukkit;
 import ru.whbex.develop.common.ClansPlugin;
+import ru.whbex.develop.common.clan.Clan;
 import ru.whbex.develop.common.clan.ClanManager;
 import ru.whbex.develop.common.cmd.CommandActor;
 import ru.whbex.develop.common.db.SQLAdapter;
@@ -18,8 +21,8 @@ import ru.whbex.develop.common.db.SQLiteAdapter;
 import ru.whbex.develop.common.lang.LangFile;
 import ru.whbex.develop.common.lang.Language;
 import ru.whbex.develop.common.misc.StringUtils;
-import ru.whbex.develop.common.player.PlayerManager;
 
+import ru.whbex.develop.common.wrap.ConfigWrapper;
 import ru.whbex.develop.common.wrap.ConsoleActor;
 import ru.whbex.develop.common.player.PlayerActor;
 import ru.whbex.develop.common.wrap.Task;
@@ -36,6 +39,7 @@ import java.util.logging.Logger;
 public class MainBukkit extends JavaPlugin implements ClansPlugin {
     private Logger LOG;
     private ConsoleActor console = new ConsoleActorBukkit();
+    private ConfigWrapper config;
 
     private Map<UUID, PlayerActor> actors = new HashMap<>();
     private Map<String, PlayerActor> actorsN = new HashMap<>();
@@ -58,6 +62,9 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         LOG.info("=== Clans ===");
         LOG.info("Starting on " + Bukkit.getName());
 
+        this.saveDefaultConfig();
+        config = new ConfigWrapperBukkit(this.getConfig());
+
         LOG.info("Starting database executor");
         dbExecutor = Executors.newSingleThreadExecutor();
 
@@ -69,6 +76,9 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         LangFile lf = new LangFile(new File(getDataFolder(), "messages.lang"));
         lang = new Language(lf);
         databaseInit();
+
+        this.clanManager = new ClanManager(config, ad);
+
         LOG.info("Stage 1 complete");
 
     }
@@ -78,7 +88,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         LOG.info("Registering commands");
         this.getCommand("clans").setExecutor(new TBD());
         LOG.info("Registering event listeners");
-        Bukkit.getPluginManager().registerEvents(new MainListener(), this);
+        Bukkit.getPluginManager().registerEvents(new ListenerBukkit(), this);
         LOG.info("Registering services");
         Bukkit.getServicesManager().register(ClanManager.class, clanManager, this, ServicePriority.Normal);
         LOG.info("Stage 2 complete");
@@ -90,7 +100,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         LOG.info("Shutting down");
         if(ad != null){
             try {
-                if(ad.isConnected())
+                if(!ad.isClosed())
                     ad.disconnect();
             } catch (SQLException e) {
                 ClansPlugin.log(Level.SEVERE, "Database disconnect failed, skipping");
@@ -158,27 +168,32 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     @Override
     public Task run(Runnable task) {
-        return new BukkitTaskWrap(Bukkit.getScheduler().runTask(this, task));
+        return new TaskBukkit(Bukkit.getScheduler().runTask(this, task));
     }
 
     @Override
     public Task runLater(long delay, Runnable task) {
-        return new BukkitTaskWrap(Bukkit.getScheduler().runTaskLater(this, task, delay));
+        return new TaskBukkit(Bukkit.getScheduler().runTaskLater(this, task, delay));
     }
 
     @Override
     public Task runAsync(Runnable task) {
-        return new BukkitTaskWrap(Bukkit.getScheduler().runTaskAsynchronously(this, task));
+        return new TaskBukkit(Bukkit.getScheduler().runTaskAsynchronously(this, task));
     }
 
     @Override
     public Task runAsyncLater(long delay, Runnable task) {
-        return new BukkitTaskWrap(Bukkit.getScheduler().runTaskLaterAsynchronously(this, task, delay));
+        return new TaskBukkit(Bukkit.getScheduler().runTaskLaterAsynchronously(this, task, delay));
     }
 
     @Override
     public <T> Future<T> runCallable(Callable<T> callable) {
         return dbExecutor.submit(callable);
+    }
+
+    @Override
+    public ExecutorService getDatabaseExecutor() {
+        return dbExecutor;
     }
 
     @Override
@@ -227,5 +242,9 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     public CommandActor asCommandActor(CommandSender sender){
         return sender instanceof Player ? (CommandActor) registerOrGetActor(((Player) sender).getUniqueId()) : (CommandActor) console;
+    }
+
+    public ConfigWrapper getConfigWrapped(){
+        return config;
     }
 }

@@ -1,19 +1,24 @@
 package ru.whbex.develop.common.clan;
 
 
+import ru.whbex.develop.common.ClansPlugin;
+
 import java.util.UUID;
 
 // Clan class
 public class Clan {
+    private final ClanManager cm;
+
     private final UUID clanId;
     private final ClanMeta meta;
-    private final ClanSettings settings;
     private final ClanLevelling levelling;
 
-    public Clan(UUID clanId, ClanMeta meta, ClanSettings settings, ClanLevelling levelling){
+    private boolean isDeleted = false;
+
+    public Clan(ClanManager cm, UUID clanId, ClanMeta meta, ClanSettings settings, ClanLevelling levelling){
+        this.cm = cm;
         this.clanId = clanId;
         this.meta = meta;
-        this.settings = settings;
         this.levelling = levelling;
     }
 
@@ -29,8 +34,18 @@ public class Clan {
         return levelling;
     }
 
-    public ClanSettings getSettings() {
-        return settings;
+
+    public boolean isDeleted() {
+        return isDeleted;
     }
 
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
+
+
+    ClanManager clanManager(){
+        return cm;
+    }
 }
