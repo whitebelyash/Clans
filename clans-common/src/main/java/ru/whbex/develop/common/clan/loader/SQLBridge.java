@@ -4,10 +4,10 @@ import ru.whbex.develop.common.db.SQLAdapter;
 
 import java.sql.SQLException;
 
-public class SQLClanLoader implements ClanLoader {
+public class SQLBridge implements Bridge {
     private final SQLAdapter adapter;
 
-    public SQLClanLoader(SQLAdapter adapter){
+    public SQLBridge(SQLAdapter adapter){
         this.adapter = adapter;
     }
     @Override

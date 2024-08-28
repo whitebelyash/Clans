@@ -1,6 +1,6 @@
 package ru.whbex.develop.common.clan.loader;
 
-public interface ClanLoader {
+public interface Bridge {
 
     boolean valid();
 }
