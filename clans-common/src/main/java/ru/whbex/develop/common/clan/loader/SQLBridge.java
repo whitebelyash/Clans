@@ -69,7 +69,7 @@ public class SQLBridge implements Bridge {
                         if(!ClanUtils.validateClan(c)){
                             // TODO: specify why it was failed
                             ClansPlugin.log(Level.SEVERE, "Clan validation failed!");
-                            return false;
+                            c.setValidated(false);
                         }
                         clan.set(c);
                     } while(rs.next());
@@ -121,7 +121,7 @@ public class SQLBridge implements Bridge {
                         if(!ClanUtils.validateClan(c)){
                             // TODO: specify why it was failed
                             ClansPlugin.log(Level.SEVERE, "Clan validation failed!");
-                            return false;
+                            c.setValidated(false);
                         }
                         clan.set(c);
                     } while(rs.next());

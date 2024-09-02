@@ -14,6 +14,7 @@ public class Clan {
     private final ClanLevelling levelling;
 
     private boolean isDeleted = false;
+    private boolean isValidated = true;
 
     public Clan(ClanManager cm, UUID clanId, ClanMeta meta, ClanSettings settings, ClanLevelling levelling){
         this.cm = cm;
@@ -39,8 +40,15 @@ public class Clan {
         return isDeleted;
     }
 
+    public boolean isValidated() {
+        return isValidated;
+    }
+
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;
+    }
+    public void setValidated(boolean validated){
+        this.isValidated = validated;
     }
 
 

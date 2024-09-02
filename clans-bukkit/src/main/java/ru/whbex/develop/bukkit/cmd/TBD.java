@@ -79,10 +79,14 @@ public class TBD implements CommandExecutor {
         }
         p.sendMessageT("command.list.header");
         StringBuilder msg = new StringBuilder();
-
-
+        p.sendMessage("&4!isValidated&r | &cisDeleted");
+        p.sendMessage(" ");
         cm.getClans().forEach(c -> {
             ClanMeta m = c.getMeta();
+            if(!c.isValidated())
+                msg.append("&4");
+            if(c.isDeleted())
+                msg.append("&c");
             msg.append(String.join(", ", c.getId().toString(), m.getTag(), m.getName(),
                     String.valueOf(c.getLevelling().getLevel()), String.valueOf(m.getCreationTime()), m.getLeader().toString()));
             msg.append('\n');
