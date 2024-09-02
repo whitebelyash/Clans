@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 
+// TODO: Redo connection logic - maybe, connect only on db query/update?
 public abstract class SQLAdapter {
     private final String path;
     private Connection con = null;
@@ -30,6 +31,7 @@ public abstract class SQLAdapter {
         return con != null && con.isValid(5000); // TODO: move timeout to constants?
     }
 
+    // TODO: Implement this another way - connect on query/update, not on plugin startup
     public final void connect() throws SQLException {
         if(!isClosed())
             throw new IllegalStateException("Already connected!");
@@ -54,33 +56,67 @@ public abstract class SQLAdapter {
             ClansPlugin.log(Level.INFO, "Disconnected");
         }
     }
-    public final void query(String sql, Consumer<ResultSet> callback) throws SQLException {
-        if (isClosed())
-            throw new IllegalStateException("Database connection is closed!");
+    public final void query(String sql, SQLCallback callback) throws SQLException {
+        if (isClosed() || con == null)
+            throw new IllegalStateException("Database connection is closed or invalid!");
         try (
                 Statement st = con.createStatement();
                 ResultSet rs = st.executeQuery(sql)) {
             ClansPlugin.dbg("sql query" +
                     ": {0}", sql);
-            callback.accept(rs);
+            callback.execute(rs);
         } catch (SQLException e) {
             // TODO: better message
             ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
-            ClansPlugin.dbg("SQLState: {0}", e.getSQLState());
-            ClansPlugin.dbg_printStacktrace(e);
+            throw new SQLException(e);
         }
     }
-    public final void update(String sql, Consumer<Integer> callback) throws SQLException {
-        if (isClosed())
-            throw new IllegalStateException("Database connection is closed!");
+
+    /**
+     * Execute update on database
+     * @param sql sql
+     * @return affected rows if success, -1 otherwise
+     * @throws SQLException
+     */
+    public final int update(String sql) throws SQLException {
+        if (isClosed() || con == null)
+            throw new IllegalStateException("Database connection is closed or invalid!");
         try (Statement st = con.createStatement()) {
             ClansPlugin.dbg("sql update: {0}", sql);
-            callback.accept(st.executeUpdate(sql));
+            return st.executeUpdate(sql);
         } catch (SQLException e) {
             // TODO: better message
             ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
-            ClansPlugin.dbg("SQLState: {0}", e.getSQLState());
-            ClansPlugin.dbg_printStacktrace(e);
+            throw new SQLException(e);
         }
+    }
+    public final void queryPrepared(String sql, Consumer<PreparedStatement> ps, SQLCallback callback) throws SQLException{
+        if (isClosed())
+            throw new IllegalStateException("Database connection is closed or invalid!");
+        try(
+                PreparedStatement s = con.prepareStatement(sql)
+                ){
+            ps.accept(s);
+            callback.execute(s.executeQuery());
+        } catch(SQLException e){
+            ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
+            throw new SQLException(e);
+        }
+    }
+    public final int updatePrepared(String sql, Consumer<PreparedStatement> ps) throws SQLException {
+        if (isClosed())
+            throw new IllegalStateException("Database connection is closed or invalid!");
+        try(
+                PreparedStatement s = con.prepareStatement(sql)
+                ){
+            ps.accept(s);
+            return s.executeUpdate();
+        } catch (SQLException e){
+            ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
+            throw new SQLException(e);
+
+        }
+
+
     }
 }
