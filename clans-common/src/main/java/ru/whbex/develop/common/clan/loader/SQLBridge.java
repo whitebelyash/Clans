@@ -6,6 +6,7 @@ import ru.whbex.develop.common.clan.Clan;
 import ru.whbex.develop.common.clan.ClanLevelling;
 import ru.whbex.develop.common.clan.ClanMeta;
 import ru.whbex.develop.common.db.SQLAdapter;
+import ru.whbex.develop.common.db.SQLCallback;
 import ru.whbex.develop.common.misc.ClanUtils;
 import ru.whbex.develop.common.misc.StringUtils;
 
@@ -43,14 +44,13 @@ public class SQLBridge implements Bridge {
         ClansPlugin.dbg("fetch clan {0}", tag);
         final String sql = "SELECT * FROM clans WHERE tag='" + tag +"';";
         AtomicReference<Clan> clan = new AtomicReference<>(); // this will be redone after switching to a proper callback
-        Consumer<ResultSet> cb = rs -> {
-            try {
+        SQLCallback cb = rs -> {
                 if(rs.next())
                     do {
                         UUID id;
                         if((id = StringUtils.UUIDFromString(rs.getString("id"))) == null){
                             ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: UUID is null!");
-                            return;
+                            return false;
                         }
                         String name = rs.getString("name");
                         String description = rs.getString("description");
@@ -58,7 +58,7 @@ public class SQLBridge implements Bridge {
                         UUID lid;
                         if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
                             ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is null!");
-                            return;
+                            return false;
                         }
                         ClansPlugin.Context.INSTANCE.plugin.getPlayerActorOrRegister(lid).sendMessage("Clan load!"); // TODO: remove
                         int lvl = rs.getInt("level");
@@ -69,18 +69,15 @@ public class SQLBridge implements Bridge {
                         if(!ClanUtils.validateClan(c)){
                             // TODO: specify why it was failed
                             ClansPlugin.log(Level.SEVERE, "Clan validation failed!");
-                            return;
+                            return false;
                         }
                         clan.set(c);
                     } while(rs.next());
                 else {
                     ClansPlugin.log(Level.SEVERE, "No clan with tag " + tag + " was found!");
+                    return false;
                 }
-
-            } catch (SQLException e){
-                ClansPlugin.log(Level.SEVERE, "Failed to fetch clan data for tag " + tag + "!!");
-                ClansPlugin.dbg_printStacktrace(e);
-            }
+            return true;
         };
         // this is being run in the same thread as the query
         try {
@@ -98,15 +95,14 @@ public class SQLBridge implements Bridge {
     public Clan fetchClan(UUID id) {
         ClansPlugin.dbg("fetch clan {0}", id);
         final String sql = "SELECT * FROM clans WHERE id='" + id.toString() +"'";
-        AtomicReference<Clan> clan = new AtomicReference<>(); // fix
-        Consumer<ResultSet> cb = rs -> {
-            try {
+        AtomicReference<Clan> clan = new AtomicReference<>();
+        SQLCallback cb = rs -> {
                 if(rs.next())
                     do {
                         String tag;
                         if((tag = rs.getString("tag")) == null){
                             ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: tag is null!");
-                            return;
+                            return false;
                         }
                         String name = rs.getString("name");
                         String description = rs.getString("description");
@@ -114,7 +110,7 @@ public class SQLBridge implements Bridge {
                         UUID lid;
                         if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
                             ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is null!");
-                            return;
+                            return false;
                         }
                         ClansPlugin.Context.INSTANCE.plugin.getPlayerActorOrRegister(lid).sendMessage("Clan loaded!"); // TODO: remove
                         int lvl = rs.getInt("level");
@@ -125,19 +121,15 @@ public class SQLBridge implements Bridge {
                         if(!ClanUtils.validateClan(c)){
                             // TODO: specify why it was failed
                             ClansPlugin.log(Level.SEVERE, "Clan validation failed!");
-                            return;
+                            return false;
                         }
                         clan.set(c);
                     } while(rs.next());
                 else {
                     ClansPlugin.log(Level.SEVERE, "No clan with id " + id + " was found!");
-                    return;
+                    return false;
                 }
-
-            } catch (SQLException e){
-                ClansPlugin.log(Level.SEVERE, "Failed to fetch clan data for id " + id + "!!");
-                ClansPlugin.dbg_printStacktrace(e);
-            }
+                return true;
         };
         // this is being run in the same thread as the query
         try {
@@ -153,14 +145,10 @@ public class SQLBridge implements Bridge {
         ClansPlugin.dbg("fetch uuid from tag " + tag);
         final String sql = "SELECT * FROM clans WHERE tag='" + tag +"';";
         AtomicReference<UUID> uuid = new AtomicReference<>();
-        Consumer<ResultSet> cb = rs -> {
-            try {
+        SQLCallback cb = rs -> {
                 if(rs.next()) do { uuid.set(StringUtils.UUIDFromString(rs.getString("id")));
                     } while(rs.next());
-            } catch (SQLException e){
-                ClansPlugin.log(Level.SEVERE, "Fetch uuid from tag failed");
-                ClansPlugin.dbg_printStacktrace(e);
-            }
+                return true;
         };
         try {
             adapter.query(sql, cb);
@@ -175,13 +163,9 @@ public class SQLBridge implements Bridge {
         ClansPlugin.dbg("fetch uuid from uuid " + id);
         final String sql = "SELECT * FROM clans WHERE id='" + id +"';";
         AtomicReference<String> tag = new AtomicReference<>();
-        Consumer<ResultSet> cb = rs -> {
-            try {
+        SQLCallback cb = rs -> {
                 if(rs.next()) do { tag.set(rs.getString("tag")); } while (rs.next());
-            } catch (SQLException e){
-                ClansPlugin.log(Level.SEVERE, "Fetch tag from uuid failed");
-                ClansPlugin.dbg_printStacktrace(e);
-            }
+                return true;
         };
         try {
             adapter.query(sql, cb);
@@ -196,17 +180,17 @@ public class SQLBridge implements Bridge {
         ClansPlugin.dbg("fetch all!");
         final String sql = "SELECT * FROM clans;";
         List<Clan> clans = new ArrayList<>();
-        Consumer<ResultSet> cb = rs -> {
-            try {
+        SQLCallback cb = rs -> {
+            boolean ret = true;
                 while(rs.next()){
                     String tag;
                     UUID id;
                     if((tag = rs.getString("tag")) == null){
-                        ClansPlugin.log(Level.SEVERE, "Invalid clan data on row " + rs.getRow());
+                        ClansPlugin.log(Level.SEVERE, "Tag fetch failed: Invalid clan data on row " + rs.getRow());
                         continue;
                     }
                     if((id = StringUtils.UUIDFromString(rs.getString("uuid"))) == null){
-                        ClansPlugin.log(Level.SEVERE, "Invalid clan data on row " + rs.getRow());
+                        ClansPlugin.log(Level.SEVERE, "UUID fetch failed: Invalid clan data on row " + rs.getRow());
                         continue;
                     }
                     String name = rs.getString("name");
@@ -227,14 +211,12 @@ public class SQLBridge implements Bridge {
                     c.setDeleted(deleted);
                     if(!ClanUtils.validateClan(c)){
                         // TODO: specify why it was failed
-                        ClansPlugin.log(Level.SEVERE, "Clan validation failed!");
-                        return;
+                        ClansPlugin.log(Level.SEVERE, "Clan {0} validation failed!", tag);
+                        ret = false;
                     }
                     clans.add(c);
                 }
-            } catch(SQLException e){
-                ClansPlugin.log(Level.SEVERE,  "Clan fetch failure!");
-            }
+                return ret;
         };
         try {
             adapter.query(sql, cb);
@@ -248,12 +230,12 @@ public class SQLBridge implements Bridge {
     public boolean updateClan(Clan clan) {
         ClansPlugin.dbg("update clan {0}", clan.getId());
         final String sql = "SELECT * FROM clans WHERE uuid='" + clan.getId() + "';";
-        Consumer<ResultSet> cb = rs -> {
+        SQLCallback cb = rs -> {
             try {
                 if(rs.wasNull()) {
                     ClansPlugin.log(Level.SEVERE, "Clan " + clan.getId() + " was not found for update. " +
                             "Use SQLBridge#insertClan to insert a new clan");
-                    return;
+                    return false;
                 }
                 rs.updateString("tag", clan.getMeta().getTag());
                 rs.updateString("name", clan.getMeta().getName());
@@ -263,8 +245,10 @@ public class SQLBridge implements Bridge {
                 rs.updateInt("level", clan.getLevelling().getLevel());
                 rs.updateInt("exp", clan.getLevelling().getExperience());
                 rs.updateRow();
+                return true;
             } catch (SQLException e){
                 ClansPlugin.log(Level.SEVERE,  "Clan " + clan.getId() + " update failure!");
+                return false;
             }
         };
         try {
@@ -283,11 +267,12 @@ public class SQLBridge implements Bridge {
         ClansPlugin.dbg("update all!");
         clans.forEach(c -> {
             final String sql = "SELECT * FROM clans WHERE id='" + c.getId() + "';";
-            Consumer<ResultSet> cb = rs -> {
+            SQLCallback cb = rs -> {
                 try {
+                    // TODO: shit fix this
                     if(rs.wasNull()){
                         ClansPlugin.log(Level.SEVERE, "Clan " + c.getId() + " was not found, use insertClans please!!");
-                        return;
+                        return false;
                     }
                     rs.updateString("tag", c.getMeta().getTag());
                     rs.updateString("name", c.getMeta().getName());
@@ -301,7 +286,9 @@ public class SQLBridge implements Bridge {
                     // fuck me
                     ClansPlugin.log(Level.SEVERE, "updateAll() failed!");
                     ClansPlugin.dbg_printStacktrace(e);
+                    return false;
                 }
+                return true;
             };
             try {
                 adapter.query(sql, cb);
@@ -326,7 +313,8 @@ public class SQLBridge implements Bridge {
                 clan.getLevelling().getLevel() + ", " +
                 clan.getLevelling().getExperience() + ");";
         try {
-            adapter.update(sql, aff -> ClansPlugin.dbg("affected rows after insert: {0}", aff));
+            int rows = adapter.update(sql);
+            ClansPlugin.dbg("affected rows after insert: {0}", rows);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
