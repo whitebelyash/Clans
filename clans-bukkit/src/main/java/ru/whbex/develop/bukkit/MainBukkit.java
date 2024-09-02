@@ -147,8 +147,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
                                 "leader varchar(36), " +
                                 "deleted TINYINT(1), " +
                                 "level INT, " +
-                                "exp INT);",
-                        aff -> ClansPlugin.dbg("Aff rows: " + aff));
+                                "exp INT);");
             } catch (SQLException e) {
                 ClansPlugin.log(Level.SEVERE, "Failed to execute initial SQL Update: " + e.getLocalizedMessage());
             }

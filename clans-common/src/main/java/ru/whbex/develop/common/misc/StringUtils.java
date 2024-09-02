@@ -3,6 +3,8 @@ package ru.whbex.develop.common.misc;
 import ru.whbex.develop.common.ClansPlugin;
 import ru.whbex.develop.common.Constants;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 public class StringUtils {
@@ -41,6 +43,15 @@ public class StringUtils {
             return null;
         }
         return id;
+    }
+    /* Unix epoch (in seconds) to date string converter */
+    public static String epochAsString(String format, long epoch){
+        Date date = new Date(epoch*1000);
+        try {
+            return new SimpleDateFormat(format).format(date);
+        } catch (NullPointerException | IllegalArgumentException e){
+            return new SimpleDateFormat().format(date);
+        }
 
     }
 }

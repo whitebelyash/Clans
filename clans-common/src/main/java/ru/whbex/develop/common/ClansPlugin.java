@@ -73,6 +73,12 @@ public interface ClansPlugin {
     }
 
     static void log(Level level, String message){
+        if(Context.INSTANCE.logger == null) return;
         Context.INSTANCE.logger.log(level, message);
+    }
+    static void log(Level level, String message, Object... args){
+        if(Context.INSTANCE.logger == null) return;
+        Context.INSTANCE.logger.log(level, message, args);
+
     }
 }
