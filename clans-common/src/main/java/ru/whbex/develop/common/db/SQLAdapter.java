@@ -56,7 +56,7 @@ public abstract class SQLAdapter {
             ClansPlugin.log(Level.INFO, "Disconnected");
         }
     }
-    public final boolean query(String sql, SQLCallback callback) throws SQLException {
+    public final boolean query(String sql, SQLCallback<ResultSet> callback) throws SQLException {
         if (isClosed() || con == null)
             throw new IllegalStateException("Database connection is closed or invalid!");
         boolean ret;
@@ -92,14 +92,14 @@ public abstract class SQLAdapter {
             throw new SQLException(e);
         }
     }
-    public final boolean queryPrepared(String sql, Consumer<PreparedStatement> ps, SQLCallback callback) throws SQLException{
+    public final boolean queryPrepared(String sql, SQLCallback<PreparedStatement> ps, SQLCallback<ResultSet> callback) throws SQLException{
         if (isClosed())
             throw new IllegalStateException("Database connection is closed or invalid!");
         boolean ret;
         try(
                 PreparedStatement s = con.prepareStatement(sql)
                 ){
-            ps.accept(s);
+            ps.execute(s);
             ret = callback.execute(s.executeQuery());
         } catch(SQLException e){
             ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
@@ -107,13 +107,13 @@ public abstract class SQLAdapter {
         }
         return ret;
     }
-    public final int updatePrepared(String sql, Consumer<PreparedStatement> ps) throws SQLException {
+    public final int updatePrepared(String sql, SQLCallback<PreparedStatement> ps) throws SQLException {
         if (isClosed())
             throw new IllegalStateException("Database connection is closed or invalid!");
         try(
                 PreparedStatement s = con.prepareStatement(sql)
                 ){
-            ps.accept(s);
+            ps.execute(s);
             return s.executeUpdate();
         } catch (SQLException e){
             ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
