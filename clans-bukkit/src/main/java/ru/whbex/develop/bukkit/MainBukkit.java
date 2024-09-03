@@ -144,6 +144,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
                 ad.update("CREATE TABLE IF NOT EXISTS clans (id varchar(36), tag varchar(16), " +
                                 "name varchar(24), " +
                                 "description varchar(255), " +
+                                "creationEpoch LONG" + // TODO: fixxx
                                 "leader varchar(36), " +
                                 "deleted TINYINT(1), " +
                                 "level INT, " +

@@ -25,7 +25,7 @@ import java.util.logging.Level;
 /* SQLAdapter bridge to ClanManager */
 /* Anything here must be run in the same thread as the SQLAdapter. */
 // TODO: IMPLEMENT PREPAREDSTATEMENTS !!!!!!!!!
-// TODO: Fix shitty callback exception handling
+// DONE: Fix shitty callback exception handling
 public class SQLBridge implements Bridge {
     private final SQLAdapter adapter;
 
@@ -54,7 +54,7 @@ public class SQLBridge implements Bridge {
                         }
                         String name = rs.getString("name");
                         String description = rs.getString("description");
-                     //   long time = rs.getLong("creationEpoch");
+                        long time = rs.getLong("creationEpoch");
                         UUID lid;
                         if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
                             ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is null!");
@@ -106,7 +106,7 @@ public class SQLBridge implements Bridge {
                         }
                         String name = rs.getString("name");
                         String description = rs.getString("description");
-                       // long time = rs.getLong("creationEpoch");
+                        long time = rs.getLong("creationEpoch");
                         UUID lid;
                         if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
                             ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is null!");
@@ -199,7 +199,7 @@ public class SQLBridge implements Bridge {
                     String name = rs.getString("name");
                     String description = rs.getString("description");
                     boolean deleted = rs.getBoolean("deleted");
-                  //  long time = rs.getLong("creationEpoch");
+                    long time = rs.getLong("creationEpoch");
                     UUID lid;
                     if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
                         ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is null!");
@@ -247,6 +247,7 @@ public class SQLBridge implements Bridge {
                 rs.updateString("tag", clan.getMeta().getTag());
                 rs.updateString("name", clan.getMeta().getName());
                 rs.updateString("description", clan.getMeta().getDescription());
+                rs.updateLong("creationEpoch", clan.getMeta().getCreationTime());
                 rs.updateString("leader", clan.getMeta().getLeader().toString());
                 rs.updateBoolean("deleted", clan.isDeleted());
                 rs.updateInt("level", clan.getLevelling().getLevel());
@@ -284,6 +285,7 @@ public class SQLBridge implements Bridge {
                     rs.updateString("tag", c.getMeta().getTag());
                     rs.updateString("name", c.getMeta().getName());
                     rs.updateString("description", c.getMeta().getDescription());
+                    rs.updateLong("creationEpoch", c.getMeta().getCreationTime());
                     rs.updateString("leader", c.getMeta().getLeader().toString());
                     rs.updateBoolean("deleted", c.isDeleted());
                     rs.updateInt("level", c.getLevelling().getLevel());
