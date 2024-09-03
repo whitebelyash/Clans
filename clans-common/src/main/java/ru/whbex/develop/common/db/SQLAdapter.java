@@ -56,20 +56,22 @@ public abstract class SQLAdapter {
             ClansPlugin.log(Level.INFO, "Disconnected");
         }
     }
-    public final void query(String sql, SQLCallback callback) throws SQLException {
+    public final boolean query(String sql, SQLCallback callback) throws SQLException {
         if (isClosed() || con == null)
             throw new IllegalStateException("Database connection is closed or invalid!");
+        boolean ret;
         try (
                 Statement st = con.createStatement();
                 ResultSet rs = st.executeQuery(sql)) {
             ClansPlugin.dbg("sql query" +
                     ": {0}", sql);
-            callback.execute(rs);
+            ret = callback.execute(rs);
         } catch (SQLException e) {
             // TODO: better message
             ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
             throw new SQLException(e);
         }
+        return ret;
     }
 
     /**
@@ -90,18 +92,20 @@ public abstract class SQLAdapter {
             throw new SQLException(e);
         }
     }
-    public final void queryPrepared(String sql, Consumer<PreparedStatement> ps, SQLCallback callback) throws SQLException{
+    public final boolean queryPrepared(String sql, Consumer<PreparedStatement> ps, SQLCallback callback) throws SQLException{
         if (isClosed())
             throw new IllegalStateException("Database connection is closed or invalid!");
+        boolean ret;
         try(
                 PreparedStatement s = con.prepareStatement(sql)
                 ){
             ps.accept(s);
-            callback.execute(s.executeQuery());
+            ret = callback.execute(s.executeQuery());
         } catch(SQLException e){
             ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
             throw new SQLException(e);
         }
+        return ret;
     }
     public final int updatePrepared(String sql, Consumer<PreparedStatement> ps) throws SQLException {
         if (isClosed())
