@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @FunctionalInterface
-public interface SQLCallback {
+public interface SQLCallback<T> {
 
-    boolean execute(ResultSet set) throws SQLException;
+    boolean execute(T t) throws SQLException;
 }
