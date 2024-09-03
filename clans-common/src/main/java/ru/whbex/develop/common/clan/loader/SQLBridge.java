@@ -79,16 +79,16 @@ public class SQLBridge implements Bridge {
                 }
             return true;
         };
+        boolean ret = false;
         // this is being run in the same thread as the query
         try {
-            adapter.query(sql, cb);
+           ret = adapter.query(sql, cb);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            ClansPlugin.log(Level.SEVERE, "Clan fetch failed: " + e.getLocalizedMessage());
+            ClansPlugin.dbg_printStacktrace(e);
         }
+        if(!ret) ClansPlugin.log(Level.SEVERE, "Failed to fetch clan with tag {0}!", tag);
         return clan.get();
-
-
-
     }
 
     @Override
@@ -131,12 +131,15 @@ public class SQLBridge implements Bridge {
                 }
                 return true;
         };
+        boolean ret = false;
         // this is being run in the same thread as the query
         try {
-            adapter.query(sql, cb);
+            ret = adapter.query(sql, cb);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            ClansPlugin.log(Level.SEVERE, "Clan fetch failed: " + e.getLocalizedMessage());
+            ClansPlugin.dbg_printStacktrace(e);
         }
+        if(!ret) ClansPlugin.log(Level.SEVERE, "Failed to fetch clan with UUID {0}!", id);
         return clan.get();
     }
 
@@ -153,7 +156,7 @@ public class SQLBridge implements Bridge {
         try {
             adapter.query(sql, cb);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            ClansPlugin.log(Level.SEVERE, "Failed to fetch UUID from tag {0}!", tag);
         }
         return uuid.get();
     }
@@ -170,7 +173,7 @@ public class SQLBridge implements Bridge {
         try {
             adapter.query(sql, cb);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            ClansPlugin.log(Level.SEVERE, "Failed to fetch tag from UUID {0}!", id);
         }
         return tag.get();
     }
@@ -212,17 +215,21 @@ public class SQLBridge implements Bridge {
                     if(!ClanUtils.validateClan(c)){
                         // TODO: specify why it was failed
                         ClansPlugin.log(Level.SEVERE, "Clan {0} validation failed!", tag);
+                        c.setValidated(false);
                         ret = false;
                     }
                     clans.add(c);
                 }
                 return ret;
         };
+        boolean ret;
         try {
-            adapter.query(sql, cb);
+            ret = adapter.query(sql, cb);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            ClansPlugin.log(Level.SEVERE, "Caught exception on clan loading!!!");
+            ret = false;
         }
+        if(!ret) ClansPlugin.log(Level.SEVERE, "Clan fetch was unsuccessful, beware"); // fix
         return clans;
     }
 
