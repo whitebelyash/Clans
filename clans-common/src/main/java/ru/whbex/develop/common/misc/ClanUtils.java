@@ -15,13 +15,6 @@ public class ClanUtils {
 
     }
 
-    public static boolean validateClan(Clan clan){
-        return clan.getMeta().getName() == null ||
-                clan.getMeta().getLeader() == null ||
-                clan.getMeta().getTag() == null ||
-                clan.getLevelling().getLevel() == 0;
-
-    }
 
 
 }

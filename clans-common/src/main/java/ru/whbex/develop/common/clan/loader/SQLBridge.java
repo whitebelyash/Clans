@@ -67,11 +67,6 @@ public class SQLBridge implements Bridge {
                         ClanLevelling levelling = new ClanLevelling(lvl, exp);
                         ClanMeta meta = new ClanMeta(tag, name, description, lid, time);
                         Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling);
-                        if(!ClanUtils.validateClan(c)){
-                            // TODO: specify why it was failed
-                            ClansPlugin.log(Level.SEVERE, "Clan validation failed!");
-                            c.setValidated(false);
-                        }
                         clan.set(c);
                     } while(rs.next());
                 else {
@@ -119,11 +114,6 @@ public class SQLBridge implements Bridge {
                         ClanLevelling levelling = new ClanLevelling(lvl, exp);
                         ClanMeta meta = new ClanMeta(tag, name, description, lid, time);
                         Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling);
-                        if(!ClanUtils.validateClan(c)){
-                            // TODO: specify why it was failed
-                            ClansPlugin.log(Level.SEVERE, "Clan validation failed!");
-                            c.setValidated(false);
-                        }
                         clan.set(c);
                     } while(rs.next());
                 else {
@@ -213,12 +203,6 @@ public class SQLBridge implements Bridge {
                     ClanMeta meta = new ClanMeta(tag, name, description, lid, time);
                     Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling);
                     c.setDeleted(deleted);
-                    if(!ClanUtils.validateClan(c)){
-                        // TODO: specify why it was failed
-                        ClansPlugin.log(Level.SEVERE, "Clan {0} validation failed!", tag);
-                        c.setValidated(false);
-                        ret = false;
-                    }
                     clans.add(c);
                 }
                 return ret;
