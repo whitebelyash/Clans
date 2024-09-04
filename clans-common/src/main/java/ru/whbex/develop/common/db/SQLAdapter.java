@@ -118,9 +118,19 @@ public abstract class SQLAdapter {
         } catch (SQLException e){
             ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
             throw new SQLException(e);
-
         }
-
-
+    }
+    public final int[] updateBatched(String sql, SQLCallback<PreparedStatement> ps) throws SQLException {
+        if (isClosed())
+            throw new IllegalStateException("Database connection is closed or invalid!");
+        try(
+                PreparedStatement s = con.prepareStatement(sql)
+        ){
+            ps.execute(s);
+            return s.executeBatch();
+        } catch (SQLException e){
+            ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
+            throw new SQLException(e);
+        }
     }
 }

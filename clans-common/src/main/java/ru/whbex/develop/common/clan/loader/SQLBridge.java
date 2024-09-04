@@ -10,12 +10,10 @@ import ru.whbex.develop.common.db.SQLCallback;
 import ru.whbex.develop.common.misc.ClanUtils;
 import ru.whbex.develop.common.misc.StringUtils;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -29,6 +27,9 @@ import java.util.logging.Level;
 public class SQLBridge implements Bridge {
     private final SQLAdapter adapter;
 
+    private static final String TAG_QUERY_SQL = "SELECT * FROM clans WHERE tag=?;";
+    private static final String UUID_QUERY_SQL = "SELECT * FROM clans WHERE id=?;";
+    private static final String INSERT_SQL = "INSERT INTO clans VALUES(?, ?, ?, ?, ?, ?, ?, ? ,?);";
     public SQLBridge(SQLAdapter adapter){
         this.adapter = adapter;
     }
@@ -42,9 +43,9 @@ public class SQLBridge implements Bridge {
     }
     public Clan fetchClan(String tag) {
         ClansPlugin.dbg("fetch clan {0}", tag);
-        final String sql = "SELECT * FROM clans WHERE tag='" + tag +"';";
-        AtomicReference<Clan> clan = new AtomicReference<>(); // this will be redone after switching to a proper callback
-        SQLCallback cb = rs -> {
+        AtomicReference<Clan> clan = new AtomicReference<>();
+        SQLCallback<PreparedStatement> sql = ps -> {ps.setString(1, tag); return true;};
+        SQLCallback<ResultSet> cb = rs -> {
                 if(rs.next())
                     do {
                         UUID id;
@@ -82,7 +83,7 @@ public class SQLBridge implements Bridge {
         boolean ret = false;
         // this is being run in the same thread as the query
         try {
-           ret = adapter.query(sql, cb);
+           ret = adapter.queryPrepared(TAG_QUERY_SQL, sql, cb);
         } catch (SQLException e) {
             ClansPlugin.log(Level.SEVERE, "Clan fetch failed: " + e.getLocalizedMessage());
             ClansPlugin.dbg_printStacktrace(e);
@@ -94,9 +95,9 @@ public class SQLBridge implements Bridge {
     @Override
     public Clan fetchClan(UUID id) {
         ClansPlugin.dbg("fetch clan {0}", id);
-        final String sql = "SELECT * FROM clans WHERE id='" + id.toString() +"'";
         AtomicReference<Clan> clan = new AtomicReference<>();
-        SQLCallback cb = rs -> {
+        SQLCallback<PreparedStatement> sql = ps -> {ps.setString(1, id.toString()); return true;};
+        SQLCallback<ResultSet> cb = rs -> {
                 if(rs.next())
                     do {
                         String tag;
@@ -134,7 +135,7 @@ public class SQLBridge implements Bridge {
         boolean ret = false;
         // this is being run in the same thread as the query
         try {
-            ret = adapter.query(sql, cb);
+            ret = adapter.queryPrepared(UUID_QUERY_SQL, sql, cb);
         } catch (SQLException e) {
             ClansPlugin.log(Level.SEVERE, "Clan fetch failed: " + e.getLocalizedMessage());
             ClansPlugin.dbg_printStacktrace(e);
@@ -146,15 +147,15 @@ public class SQLBridge implements Bridge {
     @Override
     public UUID fetchUUIDFromTag(String tag) {
         ClansPlugin.dbg("fetch uuid from tag " + tag);
-        final String sql = "SELECT * FROM clans WHERE tag='" + tag +"';";
         AtomicReference<UUID> uuid = new AtomicReference<>();
-        SQLCallback cb = rs -> {
+        SQLCallback<PreparedStatement> sql = ps -> {ps.setString(1, tag); return true;};
+        SQLCallback<ResultSet> cb = rs -> {
                 if(rs.next()) do { uuid.set(StringUtils.UUIDFromString(rs.getString("id")));
                     } while(rs.next());
                 return true;
         };
         try {
-            adapter.query(sql, cb);
+            adapter.queryPrepared(TAG_QUERY_SQL, sql, cb);
         } catch (SQLException e) {
             ClansPlugin.log(Level.SEVERE, "Failed to fetch UUID from tag {0}!", tag);
         }
@@ -164,14 +165,14 @@ public class SQLBridge implements Bridge {
     @Override
     public String fetchTagFromUUID(UUID id) {
         ClansPlugin.dbg("fetch uuid from uuid " + id);
-        final String sql = "SELECT * FROM clans WHERE id='" + id +"';";
+        SQLCallback<PreparedStatement> sql = ps -> {ps.setString(1, id.toString()); return true;};
         AtomicReference<String> tag = new AtomicReference<>();
-        SQLCallback cb = rs -> {
+        SQLCallback<ResultSet> cb = rs -> {
                 if(rs.next()) do { tag.set(rs.getString("tag")); } while (rs.next());
                 return true;
         };
         try {
-            adapter.query(sql, cb);
+            adapter.queryPrepared(UUID_QUERY_SQL, sql, cb);
         } catch (SQLException e) {
             ClansPlugin.log(Level.SEVERE, "Failed to fetch tag from UUID {0}!", id);
         }
@@ -183,7 +184,7 @@ public class SQLBridge implements Bridge {
         ClansPlugin.dbg("fetch all!");
         final String sql = "SELECT * FROM clans;";
         List<Clan> clans = new ArrayList<>();
-        SQLCallback cb = rs -> {
+        SQLCallback<ResultSet> cb = rs -> {
             boolean ret = true;
                 while(rs.next()){
                     String tag;
@@ -202,7 +203,7 @@ public class SQLBridge implements Bridge {
                     long time = rs.getLong("creationEpoch");
                     UUID lid;
                     if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
-                        ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is null!");
+                        ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is invalid!");
                         continue;
                     }
                     ClansPlugin.Context.INSTANCE.plugin.getPlayerActorOrRegister(lid).sendMessage("Clan loaded!"); // TODO: remove
@@ -236,14 +237,9 @@ public class SQLBridge implements Bridge {
     @Override
     public boolean updateClan(Clan clan) {
         ClansPlugin.dbg("update clan {0}", clan.getId());
-        final String sql = "SELECT * FROM clans WHERE uuid='" + clan.getId() + "';";
-        SQLCallback cb = rs -> {
-            try {
-                if(rs.wasNull()) {
-                    ClansPlugin.log(Level.SEVERE, "Clan " + clan.getId() + " was not found for update. " +
-                            "Use SQLBridge#insertClan to insert a new clan");
-                    return false;
-                }
+        SQLCallback<PreparedStatement> sql = ps -> {ps.setString(1, clan.getId().toString()); return true;};
+        SQLCallback<ResultSet> cb = rs -> {
+            if (rs.next()) do {
                 rs.updateString("tag", clan.getMeta().getTag());
                 rs.updateString("name", clan.getMeta().getName());
                 rs.updateString("description", clan.getMeta().getDescription());
@@ -254,101 +250,123 @@ public class SQLBridge implements Bridge {
                 rs.updateInt("exp", clan.getLevelling().getExperience());
                 rs.updateRow();
                 return true;
-            } catch (SQLException e){
-                ClansPlugin.log(Level.SEVERE,  "Clan " + clan.getId() + " update failure!");
+            } while (rs.next());
+            else {
+                ClansPlugin.log(Level.SEVERE, "Update fail: no such clan {0}", clan.toString());
                 return false;
             }
         };
+        boolean ret = false;
         try {
-            adapter.query(sql, cb);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            ret = adapter.queryPrepared(UUID_QUERY_SQL, sql, cb);
+        } catch (SQLException e){
+            ClansPlugin.log(Level.SEVERE, "Update failed");
         }
-        return true;
-
-
+        return ret;
     }
     // Don't use
     // TODO: Requires big refactor !!!
     @Override
     public void updateAll(Collection<Clan> clans) {
         ClansPlugin.dbg("update all!");
-        clans.forEach(c -> {
-            final String sql = "SELECT * FROM clans WHERE id='" + c.getId() + "';";
-            SQLCallback cb = rs -> {
-                try {
-                    // TODO: shit fix this
-                    if(rs.wasNull()){
-                        ClansPlugin.log(Level.SEVERE, "Clan " + c.getId() + " was not found, use insertClans please!!");
-                        return false;
-                    }
-                    rs.updateString("tag", c.getMeta().getTag());
-                    rs.updateString("name", c.getMeta().getName());
-                    rs.updateString("description", c.getMeta().getDescription());
-                    rs.updateLong("creationEpoch", c.getMeta().getCreationTime());
-                    rs.updateString("leader", c.getMeta().getLeader().toString());
-                    rs.updateBoolean("deleted", c.isDeleted());
-                    rs.updateInt("level", c.getLevelling().getLevel());
-                    rs.updateInt("exp", c.getLevelling().getExperience());
-                    rs.updateRow();
-                } catch(SQLException e){
-                    // fuck me
-                    ClansPlugin.log(Level.SEVERE, "updateAll() failed!");
-                    ClansPlugin.dbg_printStacktrace(e);
-                    return false;
-                }
-                return true;
-            };
-            try {
-                adapter.query(sql, cb);
-            } catch (SQLException e) {
-                ClansPlugin.log(Level.SEVERE, "Clan update failed for " + c.getId());
-                ClansPlugin.dbg_printStacktrace(e);
+        int amount = clans.size();
+        if(amount < 1){
+            ClansPlugin.log(Level.WARNING, "Requested update with empty clan collection");
+            return;
+        }
+        StringBuilder sqlb = new StringBuilder("SELECT * FROM clans WHERE id IN(");
+        for (int i = 0; i < amount; i++){
+            sqlb.append("?, ");
+        }
+        sqlb.setLength(sqlb.length() - 2);
+        sqlb.append(");");
+        ClansPlugin.dbg("sql string: " + sqlb);
+        HashMap<String, Clan> ids = new HashMap<>();
+        SQLCallback<PreparedStatement> sql = ps -> {
+            int i = 1;
+            for(Clan c : clans){
+                ps.setString(1, c.getId().toString());
+                ids.put(c.getId().toString(), c);
+                i++;
             }
-        });
+            return true;
+        };
+        SQLCallback<ResultSet> cb = rs -> {
+            if (rs.next())
+                do {
+                if (!ids.containsKey(rs.getString("id"))) {
+                    ClansPlugin.log(Level.WARNING, "Clan {0} was not found in db for update");
+                    continue;
+                }
+                Clan c = ids.get(rs.getString("id"));
+                rs.updateString("tag", c.getMeta().getTag());
+                rs.updateString("name", c.getMeta().getName());
+                rs.updateString("description", c.getMeta().getDescription());
+                rs.updateLong("creationEpoch", c.getMeta().getCreationTime());
+                rs.updateString("leader", c.getMeta().getLeader().toString());
+                rs.updateBoolean("deleted", c.isDeleted());
+                rs.updateInt("level", c.getLevelling().getLevel());
+                rs.updateInt("exp", c.getLevelling().getExperience());
+                rs.updateRow();
+            } while (rs.next());
+            return true;
+        };
+        try {
+            adapter.queryPrepared(sqlb.toString(), sql, cb);
+        } catch (SQLException e) {
+            ClansPlugin.log(Level.SEVERE, "Caught exception updating clan collection!!");
+        }
     }
 
     @Override
     public void insertClan(Clan clan) {
         ClansPlugin.dbg("clan {0} insert", clan.getId());
-        // preparedstatements...
-        final String sql = "INSERT INTO clans VALUES(" +
-                "'" + clan.getId() + "', " +
-                "'" + clan.getMeta().getTag() + "', " +
-                "'" + clan.getMeta().getName() + "', " +
-                "'" + clan.getMeta().getDescription() + "', " +
-                "'" + clan.getMeta().getLeader() + "', " +
-                clan.isDeleted() + ", " +
-                clan.getLevelling().getLevel() + ", " +
-                clan.getLevelling().getExperience() + ");";
+        SQLCallback<PreparedStatement> sql = ps -> {
+            ps.setString(1, clan.getId().toString());
+            ps.setString(2, clan.getMeta().getTag());
+            ps.setString(3, clan.getMeta().getName());
+            ps.setString(4, clan.getMeta().getDescription());
+            ps.setLong(5, clan.getMeta().getCreationTime());
+            ps.setString(6, clan.getMeta().getLeader().toString());
+            ps.setBoolean(7, clan.isDeleted());
+            ps.setInt(8, clan.getLevelling().getLevel());
+            ps.setInt(9, clan.getLevelling().getExperience());
+            return true;
+        };
         try {
-            int rows = adapter.update(sql);
+            int rows = adapter.updatePrepared(INSERT_SQL, sql);
             ClansPlugin.dbg("affected rows after insert: {0}", rows);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            ClansPlugin.log(Level.SEVERE, "Caught exception inserting clan " + clan.getId());
         }
-
     }
 
     @Override
     public void insertAll(Collection<Clan> clans) {
-        // Commented for now - TBD
-        /*
-        ClansPlugin.dbg("insert all!");
-        StringBuilder sql = new StringBuilder("INSERT INTO clans VALUES");
-        clans.forEach(c -> {
-            String sq = "(" + c.getId() + ", " +
-                    c.getMeta().getTag() + ", " +
-                    c.getMeta().getName() + ", " +
-                    c.getMeta().getDescription() + ", " +
-                    c.getMeta().getLeader() + ", " +
-                    c.isDeleted() + ", " +
-                    c.getLevelling().getLevel() + ", " +
-                    c.getLevelling().getExperience() + "), ";
-            sql.append(sq);
-        });
-
-         */
+        if(clans.isEmpty()){
+            ClansPlugin.log(Level.WARNING, "Tried to insert empty clan collection");
+            return;
+        }
+        SQLCallback<PreparedStatement> sql = ps -> {
+            for (Clan clan : clans) {
+                ps.setString(1, clan.getId().toString());
+                ps.setString(2, clan.getMeta().getTag());
+                ps.setString(3, clan.getMeta().getName());
+                ps.setString(4, clan.getMeta().getDescription());
+                ps.setLong(5, clan.getMeta().getCreationTime());
+                ps.setString(6, clan.getMeta().getLeader().toString());
+                ps.setBoolean(7, clan.isDeleted());
+                ps.setInt(8, clan.getLevelling().getLevel());
+                ps.setInt(9, clan.getLevelling().getExperience());
+                ps.addBatch();
+            }
+            return true;
+        };
+        try {
+            adapter.updateBatched(INSERT_SQL, sql);
+        } catch (SQLException e) {
+            ClansPlugin.log(Level.SEVERE, "Caught exception inserting clans!!");
+        }
 
 
     }
