@@ -77,8 +77,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         LangFile lf = new LangFile(new File(getDataFolder(), "messages.lang"));
         lang = new Language(lf);
         databaseInit();
-        SQLBridge br = new SQLBridge(ad);
-        this.clanManager = new ClanManager(config, br);
+
 
         LOG.info("Stage 1 complete");
 
@@ -86,6 +85,8 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     @Override
     public void onEnable(){
         databaseEnable();
+        SQLBridge br = new SQLBridge(ad);
+        this.clanManager = new ClanManager(config, br);
         LOG.info("Registering commands");
         this.getCommand("clans").setExecutor(new TBD());
         LOG.info("Registering event listeners");
