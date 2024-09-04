@@ -15,11 +15,14 @@ public class Clan {
 
     private boolean isDeleted = false;
 
-    public Clan(ClanManager cm, UUID clanId, ClanMeta meta, ClanSettings settings, ClanLevelling levelling){
+    private boolean insert = true;
+
+    public Clan(ClanManager cm, UUID clanId, ClanMeta meta, ClanSettings settings, ClanLevelling levelling, boolean insert){
         this.cm = cm;
         this.clanId = clanId;
         this.meta = meta;
         this.levelling = levelling;
+        this.insert = insert;
     }
 
     public UUID getId() {
@@ -47,5 +50,9 @@ public class Clan {
 
     ClanManager clanManager(){
         return cm;
+    }
+
+    boolean insert(){
+        return insert;
     }
 }

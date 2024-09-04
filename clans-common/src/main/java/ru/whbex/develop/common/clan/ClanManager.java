@@ -54,7 +54,7 @@ public class ClanManager {
         ClansPlugin.dbg("creating clan (tag: {0}, name: {1}, leader: {2})", tag, name, leader);
         ClanMeta cm = new ClanMeta(tag, name, null, leader, System.currentTimeMillis() / 1000L);
         ClanLevelling l = new ClanLevelling(1, 0);
-        Clan clan = new Clan(this, id, cm, null, l);
+        Clan clan = new Clan(this, id, cm, null, l, true);
         clans.put(id, clan);
         tagClans.put(tag.toLowerCase(Locale.ROOT), clan);
         ClansPlugin.dbg("ok, not requesting clan flush,wait for scheduled");
@@ -120,7 +120,12 @@ public class ClanManager {
             // TODO: Discover concurrent issues here
             fetched.forEach(c -> {
                 if(clans.containsKey(c.getId())) {
-                    ClansPlugin.log(Level.SEVERE, "Clan UUID collide detected: {0} with {1}", c.getMeta().getTag(), clans.get(c.getId()).getMeta().getTag());
+                    ClansPlugin.log(Level.SEVERE, "Clan UUID collide detected: {0} with {1}, skipping", c.getMeta().getTag(), clans.get(c.getId()).getMeta().getTag());
+                    return;
+                }
+                if(!c.isDeleted() && clanExists(c.getMeta().getTag())){
+                    ClansPlugin.log(Level.SEVERE, "Clan tag conflict detected: {0} with {1}, skipping", c.getMeta().getTag(), tagClans.get(c.getMeta().getTag()).getMeta().getTag());
+                    return;
                 }
                 // TODO: Check leader collide
                 clans.put(c.getId(), c);
@@ -134,8 +139,19 @@ public class ClanManager {
     }
     public Future<Void> exportAll(Bridge bridge){
         Callable<Void> call = () -> {
+            if(clans.isEmpty())
+                return null;
             ClansPlugin.log(Level.INFO, "Saving clans...");
-            bridge.insertAll(clans.values());
+            Set<Clan> toUpdate = new HashSet<>();
+            Set<Clan> toInsert = new HashSet<>();
+            clans.values().forEach(clan -> {
+                if(clan.insert())
+                    toInsert.add(clan);
+                else
+                    toUpdate.add(clan);
+            });
+            if(!toUpdate.isEmpty()) bridge.updateAll(toUpdate);
+            if(!toInsert.isEmpty()) bridge.insertAll(toInsert);
             ClansPlugin.log(Level.INFO, "Complete!");
             return null;
         };
