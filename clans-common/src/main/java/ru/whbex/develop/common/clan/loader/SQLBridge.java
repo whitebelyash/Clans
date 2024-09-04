@@ -65,7 +65,7 @@ public class SQLBridge implements Bridge {
                         int lvl = rs.getInt("level");
                         int exp = rs.getInt("exp");
                         ClanLevelling levelling = new ClanLevelling(lvl, exp);
-                        ClanMeta meta = new ClanMeta(tag, name, description, lid, 0);
+                        ClanMeta meta = new ClanMeta(tag, name, description, lid, time);
                         Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling);
                         if(!ClanUtils.validateClan(c)){
                             // TODO: specify why it was failed
@@ -117,7 +117,7 @@ public class SQLBridge implements Bridge {
                         int lvl = rs.getInt("level");
                         int exp = rs.getInt("exp");
                         ClanLevelling levelling = new ClanLevelling(lvl, exp);
-                        ClanMeta meta = new ClanMeta(tag, name, description, lid, 0);
+                        ClanMeta meta = new ClanMeta(tag, name, description, lid, time);
                         Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling);
                         if(!ClanUtils.validateClan(c)){
                             // TODO: specify why it was failed
@@ -210,7 +210,7 @@ public class SQLBridge implements Bridge {
                     int lvl = rs.getInt("level");
                     int exp = rs.getInt("exp");
                     ClanLevelling levelling = new ClanLevelling(lvl, exp);
-                    ClanMeta meta = new ClanMeta(tag, name, description, lid, 0);
+                    ClanMeta meta = new ClanMeta(tag, name, description, lid, time);
                     Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling);
                     c.setDeleted(deleted);
                     if(!ClanUtils.validateClan(c)){
