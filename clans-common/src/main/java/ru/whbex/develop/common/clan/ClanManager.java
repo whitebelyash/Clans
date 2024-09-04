@@ -9,6 +9,10 @@ import ru.whbex.develop.common.misc.ClanUtils;
 import ru.whbex.develop.common.wrap.ConfigWrapper;
 
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 // simple clan manager
@@ -33,6 +37,13 @@ public class ClanManager {
         ClansPlugin.dbg("init clanmanager");
         this.bridge = bridge;
         // TODO: Fetch clans from ClanLoader
+        try {
+            this.importAll(bridge).get();
+        } catch (InterruptedException | ExecutionException e) {
+            ClansPlugin.log(Level.SEVERE, "Failed to import clans on ClanManager init!!!");
+            throw new RuntimeException(e);
+        }
+
     }
 
 
@@ -99,6 +110,44 @@ public class ClanManager {
         clans.put(clan.getId(), clan);
         if(!clan.isDeleted())
             tagClans.put(tag, clan);
+    }
+
+    public Future<Void> importAll(Bridge bridge){
+        Callable<Void> call = () -> {
+            ClansPlugin.log(Level.INFO, "Loading clans...");
+            Collection<Clan> fetched = bridge.fetchAll();
+            // no sync for now
+            // TODO: Discover concurrent issues here
+            fetched.forEach(c -> {
+                if(clans.containsKey(c.getId())) {
+                    ClansPlugin.log(Level.SEVERE, "Clan UUID collide detected: {0} with {1}", c.getMeta().getTag(), clans.get(c.getId()).getMeta().getTag());
+                }
+                // TODO: Check leader collide
+                clans.put(c.getId(), c);
+                if(!c.isDeleted())
+                    tagClans.put(c.getMeta().getTag().toLowerCase(), c);
+            });
+            ClansPlugin.log(Level.INFO, "Loaded {0}/{1} clans", clans.size(), tagClans.size());
+            return null;
+        };
+        return ClansPlugin.Context.INSTANCE.plugin.runCallable(call);
+    }
+    public Future<Void> exportAll(Bridge bridge){
+        Callable<Void> call = () -> {
+            ClansPlugin.log(Level.INFO, "Saving clans...");
+            bridge.insertAll(clans.values());
+            ClansPlugin.log(Level.INFO, "Complete!");
+            return null;
+        };
+        return ClansPlugin.Context.INSTANCE.plugin.runCallable(call);
+    }
+    public void shutdown(){
+        try {
+            this.exportAll(bridge).get();
+        } catch (InterruptedException | ExecutionException e) {
+            ClansPlugin.log(Level.SEVERE, "Failed to save clans!");
+            throw new RuntimeException(e);
+        }
     }
 
     /* !!! LEGACY !!! TODO: REMOVE */

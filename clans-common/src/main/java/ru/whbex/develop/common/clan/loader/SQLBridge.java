@@ -183,7 +183,7 @@ public class SQLBridge implements Bridge {
                         ClansPlugin.log(Level.SEVERE, "Tag fetch failed: Invalid clan data on row " + rs.getRow());
                         continue;
                     }
-                    if((id = StringUtils.UUIDFromString(rs.getString("uuid"))) == null){
+                    if((id = StringUtils.UUIDFromString(rs.getString("id"))) == null){
                         ClansPlugin.log(Level.SEVERE, "UUID fetch failed: Invalid clan data on row " + rs.getRow());
                         continue;
                     }
