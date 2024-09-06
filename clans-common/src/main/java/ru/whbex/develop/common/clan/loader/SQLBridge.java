@@ -1,29 +1,22 @@
 package ru.whbex.develop.common.clan.loader;
 
-import org.bukkit.entity.Player;
 import ru.whbex.develop.common.ClansPlugin;
 import ru.whbex.develop.common.clan.Clan;
 import ru.whbex.develop.common.clan.ClanLevelling;
 import ru.whbex.develop.common.clan.ClanMeta;
 import ru.whbex.develop.common.db.SQLAdapter;
 import ru.whbex.develop.common.db.SQLCallback;
-import ru.whbex.develop.common.misc.ClanUtils;
 import ru.whbex.develop.common.misc.StringUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 import java.util.logging.Level;
 
-// what the fuck im doing...
 /* SQLAdapter bridge to ClanManager */
 /* Anything here must be run in the same thread as the SQLAdapter. */
-// TODO: IMPLEMENT PREPAREDSTATEMENTS !!!!!!!!!
-// DONE: Fix shitty callback exception handling
 public class SQLBridge implements Bridge {
     private final SQLAdapter adapter;
 
@@ -251,7 +244,9 @@ public class SQLBridge implements Bridge {
     // Don't use
     // TODO: Requires big refactor !!!
     @Override
-    public void updateAll(Collection<Clan> clans) {
+    public boolean updateAll(Collection<Clan> clans) {
+        throw new UnsupportedOperationException("Usupported for now");
+        /*
         ClansPlugin.dbg("update all!");
         int amount = clans.size();
         if(amount < 1){
@@ -300,10 +295,12 @@ public class SQLBridge implements Bridge {
         } catch (SQLException e) {
             ClansPlugin.log(Level.SEVERE, "Caught exception updating clan collection!!");
         }
+
+         */
     }
 
     @Override
-    public void insertClan(Clan clan) {
+    public boolean insertClan(Clan clan) {
         ClansPlugin.dbg("clan {0} insert", clan.getId());
         SQLCallback<PreparedStatement> sql = ps -> {
             ps.setString(1, clan.getId().toString());
@@ -320,16 +317,18 @@ public class SQLBridge implements Bridge {
         try {
             int rows = adapter.updatePrepared(INSERT_SQL, sql);
             ClansPlugin.dbg("affected rows after insert: {0}", rows);
+            return true;
         } catch (SQLException e) {
             ClansPlugin.log(Level.SEVERE, "Caught exception inserting clan " + clan.getId());
+            return false;
         }
     }
 
     @Override
-    public void insertAll(Collection<Clan> clans) {
+    public boolean insertAll(Collection<Clan> clans) {
         if(clans.isEmpty()){
             ClansPlugin.log(Level.WARNING, "Tried to insert empty clan collection");
-            return;
+            return false;
         }
         SQLCallback<PreparedStatement> sql = ps -> {
             for (Clan clan : clans) {
@@ -348,8 +347,10 @@ public class SQLBridge implements Bridge {
         };
         try {
             adapter.updateBatched(INSERT_SQL, sql);
+            return true;
         } catch (SQLException e) {
             ClansPlugin.log(Level.SEVERE, "Caught exception inserting clans!!");
+            return false;
         }
 
 
