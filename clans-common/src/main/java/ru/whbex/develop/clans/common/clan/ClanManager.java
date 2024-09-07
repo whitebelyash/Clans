@@ -1,5 +1,6 @@
 package ru.whbex.develop.clans.common.clan;
 
+import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.clan.loader.Bridge;
 import ru.whbex.develop.clans.common.wrap.ConfigWrapper;
 import ru.whbex.develop.clans.common.ClansPlugin;
@@ -8,8 +9,7 @@ import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
 
 // simple clan manager
 public class ClanManager {
@@ -36,7 +36,7 @@ public class ClanManager {
         try {
             this.importAll(bridge).get();
         } catch (InterruptedException | ExecutionException e) {
-            ClansPlugin.log(Level.SEVERE, "Failed to import clans on ClanManager init!!!");
+            ClansPlugin.log(Level.ERROR, "Failed to import clans on ClanManager init!!!");
             throw new RuntimeException(e);
         }
 
@@ -116,11 +116,11 @@ public class ClanManager {
             // TODO: Discover concurrency issues here
             fetched.forEach(c -> {
                 if(clans.containsKey(c.getId())) {
-                    ClansPlugin.log(Level.SEVERE, "Clan UUID collide detected: {0} with {1}, skipping", c.getMeta().getTag(), clans.get(c.getId()).getMeta().getTag());
+                    ClansPlugin.log(Level.ERROR, "Clan UUID collide detected: {0} with {1}, skipping", c.getMeta().getTag(), clans.get(c.getId()).getMeta().getTag());
                     return;
                 }
                 if(!c.isDeleted() && clanExists(c.getMeta().getTag())){
-                    ClansPlugin.log(Level.SEVERE, "Clan tag conflict detected: {0} with {1}, skipping", c.getMeta().getTag(), tagClans.get(c.getMeta().getTag()).getMeta().getTag());
+                    ClansPlugin.log(Level.ERROR, "Clan tag conflict detected: {0} with {1}, skipping", c.getMeta().getTag(), tagClans.get(c.getMeta().getTag()).getMeta().getTag());
                     return;
                 }
                 // TODO: Check leader collide
@@ -128,7 +128,7 @@ public class ClanManager {
                 if(!c.isDeleted())
                     tagClans.put(c.getMeta().getTag().toLowerCase(), c);
                 if(c.insert()){
-                    ClansPlugin.log(Level.SEVERE, "Loaded clan with insert enabled, this is not ok !!!!");
+                    ClansPlugin.log(Level.ERROR, "Loaded clan with insert enabled, this is not ok !!!!");
                 }
             });
             ClansPlugin.log(Level.INFO, "Loaded {0}/{1} clans", clans.size(), tagClans.size());
@@ -151,7 +151,7 @@ public class ClanManager {
         try {
             this.exportAll(bridge).get();
         } catch (InterruptedException | ExecutionException e) {
-            ClansPlugin.log(Level.SEVERE, "Failed to save clans!");
+            ClansPlugin.log(Level.ERROR, "Failed to save clans!");
             throw new RuntimeException(e);
         }
     }

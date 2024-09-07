@@ -6,7 +6,7 @@ import java.sql.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
+import org.slf4j.event.Level;
 
 // TODO: Redo connection logic - maybe, connect only on db query/update?
 public abstract class SQLAdapter {
@@ -64,7 +64,7 @@ public abstract class SQLAdapter {
             ret = callback.execute(rs);
         } catch (SQLException e) {
             // TODO: better message
-            ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
+            ClansPlugin.log(Level.ERROR, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
             throw new SQLException(e);
         }
         return ret;
@@ -84,7 +84,7 @@ public abstract class SQLAdapter {
             return st.executeUpdate(sql);
         } catch (SQLException e) {
             // TODO: better message
-            ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
+            ClansPlugin.log(Level.ERROR, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
             throw new SQLException(e);
         }
     }
@@ -98,7 +98,7 @@ public abstract class SQLAdapter {
             ps.execute(s);
             ret = callback.execute(s.executeQuery());
         } catch(SQLException e){
-            ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
+            ClansPlugin.log(Level.ERROR, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
             throw new SQLException(e);
         }
         return ret;
@@ -112,7 +112,7 @@ public abstract class SQLAdapter {
             ps.execute(s);
             return s.executeUpdate();
         } catch (SQLException e){
-            ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
+            ClansPlugin.log(Level.ERROR, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
             throw new SQLException(e);
         }
     }
@@ -125,7 +125,7 @@ public abstract class SQLAdapter {
             ps.execute(s);
             return s.executeBatch();
         } catch (SQLException e){
-            ClansPlugin.log(Level.SEVERE, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
+            ClansPlugin.log(Level.ERROR, "SQL Failure: " + e.getLocalizedMessage() + " !!!");
             throw new SQLException(e);
         }
     }

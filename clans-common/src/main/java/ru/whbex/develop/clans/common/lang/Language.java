@@ -1,12 +1,12 @@
 package ru.whbex.develop.clans.common.lang;
 
+import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.logging.Level;
 
 public class Language {
 

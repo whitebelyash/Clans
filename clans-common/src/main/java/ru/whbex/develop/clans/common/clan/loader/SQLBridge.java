@@ -13,7 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.logging.Level;
+import org.slf4j.event.Level;
 
 /* SQLAdapter bridge to ClanManager */
 /* Anything here must be run in the same thread as the SQLAdapter. */
@@ -47,7 +47,7 @@ public class SQLBridge implements Bridge {
                     do {
                         UUID id;
                         if((id = StringUtils.UUIDFromString(rs.getString("id"))) == null){
-                            ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: UUID is null!");
+                            ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: UUID is null!");
                             return false;
                         }
                         String name = rs.getString("name");
@@ -55,7 +55,7 @@ public class SQLBridge implements Bridge {
                         long time = rs.getLong("creationEpoch");
                         UUID lid;
                         if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
-                            ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is null!");
+                            ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: leader UUID is null!");
                             return false;
                         }
                         ClansPlugin.Context.INSTANCE.plugin.getPlayerActorOrRegister(lid).sendMessage("Clan load!"); // TODO: remove
@@ -67,7 +67,7 @@ public class SQLBridge implements Bridge {
                         clan.set(c);
                     } while(rs.next());
                 else {
-                    ClansPlugin.log(Level.SEVERE, "No clan with tag " + tag + " was found!");
+                    ClansPlugin.log(Level.ERROR, "No clan with tag " + tag + " was found!");
                     return false;
                 }
             return true;
@@ -77,10 +77,10 @@ public class SQLBridge implements Bridge {
         try {
            ret = adapter.queryPrepared(TAG_QUERY_SQL, sql, cb);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.SEVERE, "Clan fetch failed: " + e.getLocalizedMessage());
+            ClansPlugin.log(Level.ERROR, "Clan fetch failed: " + e.getLocalizedMessage());
             ClansPlugin.dbg_printStacktrace(e);
         }
-        if(!ret) ClansPlugin.log(Level.SEVERE, "Failed to fetch clan with tag {0}!", tag);
+        if(!ret) ClansPlugin.log(Level.ERROR, "Failed to fetch clan with tag {0}!", tag);
         return clan.get();
     }
 
@@ -94,7 +94,7 @@ public class SQLBridge implements Bridge {
                     do {
                         String tag;
                         if((tag = rs.getString("tag")) == null){
-                            ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: tag is null!");
+                            ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: tag is null!");
                             return false;
                         }
                         String name = rs.getString("name");
@@ -102,7 +102,7 @@ public class SQLBridge implements Bridge {
                         long time = rs.getLong("creationEpoch");
                         UUID lid;
                         if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
-                            ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is null!");
+                            ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: leader UUID is null!");
                             return false;
                         }
                         ClansPlugin.Context.INSTANCE.plugin.getPlayerActorOrRegister(lid).sendMessage("Clan loaded!"); // TODO: remove
@@ -114,7 +114,7 @@ public class SQLBridge implements Bridge {
                         clan.set(c);
                     } while(rs.next());
                 else {
-                    ClansPlugin.log(Level.SEVERE, "No clan with id " + id + " was found!");
+                    ClansPlugin.log(Level.ERROR, "No clan with id " + id + " was found!");
                     return false;
                 }
                 return true;
@@ -124,10 +124,10 @@ public class SQLBridge implements Bridge {
         try {
             ret = adapter.queryPrepared(UUID_QUERY_SQL, sql, cb);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.SEVERE, "Clan fetch failed: " + e.getLocalizedMessage());
+            ClansPlugin.log(Level.ERROR, "Clan fetch failed: " + e.getLocalizedMessage());
             ClansPlugin.dbg_printStacktrace(e);
         }
-        if(!ret) ClansPlugin.log(Level.SEVERE, "Failed to fetch clan with UUID {0}!", id);
+        if(!ret) ClansPlugin.log(Level.ERROR, "Failed to fetch clan with UUID {0}!", id);
         return clan.get();
     }
 
@@ -144,7 +144,7 @@ public class SQLBridge implements Bridge {
         try {
             adapter.queryPrepared(TAG_QUERY_SQL, sql, cb);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.SEVERE, "Failed to fetch UUID from tag {0}!", tag);
+            ClansPlugin.log(Level.ERROR, "Failed to fetch UUID from tag {0}!", tag);
         }
         return uuid.get();
     }
@@ -161,7 +161,7 @@ public class SQLBridge implements Bridge {
         try {
             adapter.queryPrepared(UUID_QUERY_SQL, sql, cb);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.SEVERE, "Failed to fetch tag from UUID {0}!", id);
+            ClansPlugin.log(Level.ERROR, "Failed to fetch tag from UUID {0}!", id);
         }
         return tag.get();
     }
@@ -177,11 +177,11 @@ public class SQLBridge implements Bridge {
                     String tag;
                     UUID id;
                     if((tag = rs.getString("tag")) == null){
-                        ClansPlugin.log(Level.SEVERE, "Tag fetch failed: Invalid clan data on row " + rs.getRow());
+                        ClansPlugin.log(Level.ERROR, "Tag fetch failed: Invalid clan data on row " + rs.getRow());
                         continue;
                     }
                     if((id = StringUtils.UUIDFromString(rs.getString("id"))) == null){
-                        ClansPlugin.log(Level.SEVERE, "UUID fetch failed: Invalid clan data on row " + rs.getRow());
+                        ClansPlugin.log(Level.ERROR, "UUID fetch failed: Invalid clan data on row " + rs.getRow());
                         continue;
                     }
                     String name = rs.getString("name");
@@ -190,7 +190,7 @@ public class SQLBridge implements Bridge {
                     long time = rs.getLong("creationEpoch");
                     UUID lid;
                     if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
-                        ClansPlugin.log(Level.SEVERE, "Failed to load clan {0}: leader UUID is invalid!");
+                        ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: leader UUID is invalid!");
                         continue;
                     }
                     ClansPlugin.Context.INSTANCE.plugin.getPlayerActorOrRegister(lid).sendMessage("Clan loaded!"); // TODO: remove
@@ -208,10 +208,10 @@ public class SQLBridge implements Bridge {
         try {
             ret = adapter.query(sql, cb);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.SEVERE, "Caught exception on clan loading!!!");
+            ClansPlugin.log(Level.ERROR, "Caught exception on clan loading!!!");
             ret = false;
         }
-        if(!ret) ClansPlugin.log(Level.SEVERE, "Clan fetch was unsuccessful, beware"); // fix
+        if(!ret) ClansPlugin.log(Level.ERROR, "Clan fetch was unsuccessful, beware"); // fix
         return clans;
     }
 
@@ -233,7 +233,7 @@ public class SQLBridge implements Bridge {
                 return true;
             } while (rs.next());
             else {
-                ClansPlugin.log(Level.SEVERE, "Update fail: no such clan {0}", clan.toString());
+                ClansPlugin.log(Level.ERROR, "Update fail: no such clan {0}", clan.toString());
                 return false;
             }
         };
@@ -241,7 +241,7 @@ public class SQLBridge implements Bridge {
         try {
             ret = adapter.queryPrepared(UUID_QUERY_SQL, sql, cb);
         } catch (SQLException e){
-            ClansPlugin.log(Level.SEVERE, "Update failed");
+            ClansPlugin.log(Level.ERROR, "Update failed");
         }
         return ret;
     }
@@ -297,7 +297,7 @@ public class SQLBridge implements Bridge {
         try {
             adapter.queryPrepared(sqlb.toString(), sql, cb);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.SEVERE, "Caught exception updating clan collection!!");
+            ClansPlugin.log(Level.ERROR, "Caught exception updating clan collection!!");
         }
 
          */
@@ -323,7 +323,7 @@ public class SQLBridge implements Bridge {
             ClansPlugin.dbg("affected rows after insert: {0}", rows);
             return true;
         } catch (SQLException e) {
-            ClansPlugin.log(Level.SEVERE, "Caught exception inserting clan " + clan.getId());
+            ClansPlugin.log(Level.ERROR, "Caught exception inserting clan " + clan.getId());
             return false;
         }
     }
@@ -331,7 +331,7 @@ public class SQLBridge implements Bridge {
     @Override
     public boolean insertAll(Collection<Clan> clans, boolean replace) {
         if(clans.isEmpty()){
-            ClansPlugin.log(Level.WARNING, "Tried to insert empty clan collection");
+            ClansPlugin.log(Level.WARN, "Tried to insert empty clan collection");
             return false;
         }
         SQLCallback<PreparedStatement> sql = ps -> {
@@ -353,7 +353,7 @@ public class SQLBridge implements Bridge {
             adapter.updateBatched(replace ? REPLACE_SQL : INSERT_SQL, sql);
             return true;
         } catch (SQLException e) {
-            ClansPlugin.log(Level.SEVERE, "Caught exception inserting clans!!");
+            ClansPlugin.log(Level.ERROR, "Caught exception inserting clans!!");
             return false;
         }
 

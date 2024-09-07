@@ -1,10 +1,14 @@
 package ru.whbex.develop.clans.bukkit;
 
+import com.djaytan.bukkit.slf4j.BukkitLoggerFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.event.Level;
 import ru.whbex.develop.clans.bukkit.cmd.TBD;
 import ru.whbex.develop.clans.bukkit.listener.ListenerBukkit;
 import ru.whbex.develop.clans.bukkit.wrap.TaskBukkit;
@@ -32,11 +36,9 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MainBukkit extends JavaPlugin implements ClansPlugin {
-    private Logger LOG;
+    private java.util.logging.Logger LOG;
     private ConsoleActor console = new ConsoleActorBukkit();
     private ConfigWrapper config;
 
@@ -53,8 +55,11 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     @Override
     public void onLoad(){
-        LOG = getLogger();
-        Context.INSTANCE.setLogger(LOG);
+        /* Logging setup */
+        LOG = this.getLogger();
+        BukkitLoggerFactory.provideBukkitLogger(LOG);
+        Context.INSTANCE.setLogger(LoggerFactory.getLogger(this.getName()));
+        Context.INSTANCE.setJavaLogger(LOG);
         Context.INSTANCE.setContext(this);
 
         ClansPlugin.dbg("hello");
@@ -104,7 +109,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
                 if(!ad.isClosed())
                     ad.disconnect();
             } catch (SQLException e) {
-                ClansPlugin.log(Level.SEVERE, "Database disconnect failed, skipping");
+                ClansPlugin.log(Level.ERROR, "Database disconnect failed, skipping");
             }
         }
         LOG.info("OK");
@@ -114,10 +119,10 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         try {
             ad = new SQLiteAdapter(new File(getDataFolder(), "clans.db"));
         } catch (ClassNotFoundException e) {
-            ClansPlugin.log(Level.SEVERE, "Database init failed: no SQLite driver found in classpath!!! Shutting down");
+            ClansPlugin.log(Level.ERROR, "Database init failed: no SQLite driver found in classpath!!! Shutting down");
             ClansPlugin.dbg_printStacktrace(e);
         } catch (IOException e) {
-            ClansPlugin.log(Level.SEVERE, "Database init failed: couldn't create sqlite db file!!! Shutting down");
+            ClansPlugin.log(Level.ERROR, "Database init failed: couldn't create sqlite db file!!! Shutting down");
             ClansPlugin.dbg_printStacktrace(e);
         } finally {
             if(ad == null)
@@ -131,11 +136,11 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             try {
                 dbConnection.get(3, TimeUnit.SECONDS);
             } catch (CancellationException | InterruptedException e){
-                ClansPlugin.log(Level.SEVERE, "Database wait interrupted or cancelled!");
+                ClansPlugin.log(Level.ERROR, "Database wait interrupted or cancelled!");
             } catch (TimeoutException e){
-                ClansPlugin.log(Level.SEVERE, "Timed out waiting for database connection");
+                ClansPlugin.log(Level.ERROR, "Timed out waiting for database connection");
             } catch (ExecutionException e){
-                ClansPlugin.log(Level.SEVERE, "Database connection failed: " + e.getLocalizedMessage());
+                ClansPlugin.log(Level.ERROR, "Database connection failed: " + e.getLocalizedMessage());
                 ClansPlugin.dbg_printStacktrace(e);
             }
         }
@@ -153,11 +158,10 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
                                 "level INT, " +
                                 "exp INT);");
             } catch (SQLException e) {
-                ClansPlugin.log(Level.SEVERE, "Failed to execute initial SQL Update: " + e.getLocalizedMessage());
+                ClansPlugin.log(Level.ERROR, "Failed to execute initial SQL Update: " + e.getLocalizedMessage());
             }
         }
     }
-
     @Override
     public ConsoleActor getConsoleActor() {
         return console;
