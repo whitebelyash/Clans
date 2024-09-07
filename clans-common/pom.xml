@@ -22,9 +22,13 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <scope>compile</scope>
+      </dependency>
+      <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <scope>provided</scope>
       </dependency>
     </dependencies>
 

@@ -19,6 +19,7 @@ import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.clan.loader.SQLBridge;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
+import ru.whbex.develop.clans.common.db.H2SQLAdapter;
 import ru.whbex.develop.clans.common.db.SQLAdapter;
 import ru.whbex.develop.clans.common.db.SQLiteAdapter;
 import ru.whbex.develop.clans.common.lang.LangFile;
@@ -117,9 +118,10 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     private void databaseInit(){
         /* Database init */
         try {
-            ad = new SQLiteAdapter(new File(getDataFolder(), "clans.db"));
+            // ad = new SQLiteAdapter(new File(getDataFolder(), "clans.db"));
+            ad = new H2SQLAdapter(new File(getDataFolder(), "clans.h2"));
         } catch (ClassNotFoundException e) {
-            ClansPlugin.log(Level.ERROR, "Database init failed: no SQLite driver found in classpath!!! Shutting down");
+            ClansPlugin.log(Level.ERROR, "Database init failed: no H2 driver found in classpath!!! Shutting down");
             ClansPlugin.dbg_printStacktrace(e);
         } catch (IOException e) {
             ClansPlugin.log(Level.ERROR, "Database init failed: couldn't create sqlite db file!!! Shutting down");
@@ -154,7 +156,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
                                 "description varchar(255), " +
                                 "creationEpoch LONG, " + // TODO: fixxx
                                 "leader varchar(36), " +
-                                "deleted TINYINT(1), " +
+                                "deleted TINYINT, " +
                                 "level INT, " +
                                 "exp INT);");
             } catch (SQLException e) {

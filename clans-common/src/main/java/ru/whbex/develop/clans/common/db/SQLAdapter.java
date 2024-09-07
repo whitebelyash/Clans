@@ -14,14 +14,14 @@ public abstract class SQLAdapter {
     private Connection con = null;
     private boolean conFailed = false;
 
-    public SQLAdapter(String driver, String url) throws ClassNotFoundException {
-        Class.forName(driver);
+    public SQLAdapter(String driverClass, String url) throws ClassNotFoundException {
+        Class.forName(driverClass);
         this.path = url;
     }
 
 
     public final boolean isClosed() throws SQLException {
-        return con != null && con.isClosed();
+        return con == null || con.isClosed();
     }
     public final boolean isValid() throws SQLException {
         return con != null && con.isValid(5000); // TODO: move timeout to constants?
