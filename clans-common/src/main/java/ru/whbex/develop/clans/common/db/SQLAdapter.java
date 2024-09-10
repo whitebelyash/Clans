@@ -8,15 +8,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import org.slf4j.event.Level;
 
+/* JDBC adapter. Supports query/update, preparedstatement query/update, batched update */
 // TODO: Redo connection logic - maybe, connect only on db query/update?
 public abstract class SQLAdapter {
-    private final String path;
     private Connection con = null;
     private boolean conFailed = false;
+    public static final String JDBC_PREFIX = "jdbc:";
 
-    public SQLAdapter(String driverClass, String url) throws ClassNotFoundException {
+    public SQLAdapter(String driverClass) throws ClassNotFoundException {
         Class.forName(driverClass);
-        this.path = url;
     }
 
 
@@ -27,20 +27,22 @@ public abstract class SQLAdapter {
         return con != null && con.isValid(5000); // TODO: move timeout to constants?
     }
 
+    public abstract Connection getConnection() throws SQLException;
+
     // TODO: Implement this another way - connect on query/update, not on plugin startup
     public final void connect() throws SQLException {
         if(!isClosed())
             throw new IllegalStateException("Already connected!");
         ClansPlugin.log(Level.INFO, "Connecting to the database...");
 
-        con = DriverManager.getConnection(path);
+        con = getConnection();
 
         ClansPlugin.Context.INSTANCE.logger.info("Connected");
     }
     public final Future<Void> connectAsynchronously(ExecutorService executor){
         ClansPlugin.log(Level.INFO, "Connecting to the database");
         Callable<Void> connector = () -> {
-            con = DriverManager.getConnection(path);
+            con = getConnection();
             return null;
         };
         return executor.submit(connector);

@@ -2,11 +2,22 @@ package ru.whbex.develop.clans.common.db;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class H2SQLAdapter extends SQLAdapter {
-    public H2SQLAdapter(File file) throws ClassNotFoundException, IOException {
-        super(org.h2.Driver.class.getName(), "jdbc:h2:" + file.getAbsolutePath());
+    private final String path;
+    public H2SQLAdapter(File file) throws ClassNotFoundException, NoClassDefFoundError, IOException {
+        super(org.h2.Driver.class.getName());
         if(!file.exists())
             file.createNewFile();
+        this.path = SQLAdapter.JDBC_PREFIX + ":h2:" + file.getAbsolutePath();
+    }
+
+    @Override
+    public Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(path);
     }
 }
