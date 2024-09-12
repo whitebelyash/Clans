@@ -1,5 +1,7 @@
 package ru.whbex.develop.clans.common.db;
 
+import ru.whbex.develop.clans.common.ClansPlugin;
+
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -17,6 +19,8 @@ public class SQLiteAdapter extends SQLAdapter {
 
     @Override
     public Connection getConnection() throws SQLException {
+        ClansPlugin.dbg("connect to " + path);
+        DriverManager.setLoginTimeout(SQLAdapter.LOGIN_TIMEOUT);
         return DriverManager.getConnection(path);
     }
 }

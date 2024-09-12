@@ -11,9 +11,11 @@ import org.slf4j.event.Level;
 /* JDBC adapter. Supports query/update, preparedstatement query/update, batched update */
 // TODO: Redo connection logic - maybe, connect only on db query/update?
 public abstract class SQLAdapter {
-    private Connection con = null;
+    private volatile Connection con;
     private boolean conFailed = false;
-    public static final String JDBC_PREFIX = "jdbc:";
+
+    public static final String JDBC_PREFIX = "jdbc";
+    public static final int LOGIN_TIMEOUT = 3;
 
     public SQLAdapter(String driverClass) throws ClassNotFoundException {
         Class.forName(driverClass);
@@ -34,15 +36,19 @@ public abstract class SQLAdapter {
         if(!isClosed())
             throw new IllegalStateException("Already connected!");
         ClansPlugin.log(Level.INFO, "Connecting to the database...");
-
         con = getConnection();
-
-        ClansPlugin.Context.INSTANCE.logger.info("Connected");
+        ClansPlugin.dbg("con is: " + con);
+        ClansPlugin.dbg("conn fail!!");
+        ClansPlugin.log(Level.INFO, "Connected");
     }
     public final Future<Void> connectAsynchronously(ExecutorService executor){
         ClansPlugin.log(Level.INFO, "Connecting to the database");
         Callable<Void> connector = () -> {
             con = getConnection();
+            ClansPlugin.dbg("con is: " + con);
+            if(con == null)
+                ClansPlugin.dbg("conn fail!!");
+            ClansPlugin.log(Level.INFO, "Connected");
             return null;
         };
         return executor.submit(connector);
@@ -55,8 +61,6 @@ public abstract class SQLAdapter {
         }
     }
     public final boolean query(String sql, SQLCallback<ResultSet> callback) throws SQLException {
-        if (isClosed() || con == null)
-            throw new IllegalStateException("Database connection is closed or invalid!");
         boolean ret;
         try (
                 Statement st = con.createStatement();
@@ -79,8 +83,6 @@ public abstract class SQLAdapter {
      * @throws SQLException
      */
     public final int update(String sql) throws SQLException {
-        if (isClosed() || con == null)
-            throw new IllegalStateException("Database connection is closed or invalid!");
         try (Statement st = con.createStatement()) {
             ClansPlugin.dbg("sql update: {0}", sql);
             return st.executeUpdate(sql);
@@ -91,8 +93,6 @@ public abstract class SQLAdapter {
         }
     }
     public final boolean queryPrepared(String sql, SQLCallback<PreparedStatement> ps, SQLCallback<ResultSet> callback) throws SQLException{
-        if (isClosed())
-            throw new IllegalStateException("Database connection is closed or invalid!");
         boolean ret;
         try(
                 PreparedStatement s = con.prepareStatement(sql)
@@ -106,8 +106,6 @@ public abstract class SQLAdapter {
         return ret;
     }
     public final int updatePrepared(String sql, SQLCallback<PreparedStatement> ps) throws SQLException {
-        if (isClosed())
-            throw new IllegalStateException("Database connection is closed or invalid!");
         try(
                 PreparedStatement s = con.prepareStatement(sql)
                 ){
@@ -119,8 +117,6 @@ public abstract class SQLAdapter {
         }
     }
     public final int[] updateBatched(String sql, SQLCallback<PreparedStatement> ps) throws SQLException {
-        if (isClosed())
-            throw new IllegalStateException("Database connection is closed or invalid!");
         try(
                 PreparedStatement s = con.prepareStatement(sql)
         ){
