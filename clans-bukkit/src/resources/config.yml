@@ -1,1 +1,19 @@
-test: true
+# Clans config
+
+# Database configuration
+database:
+
+  # Database type. Supported values: h2, sqlite
+  type: h2
+
+  # Database name
+  dbname: clans.h2
+
+  # Database user. Leave empty for h2/sqlite
+  user: ''
+
+  # Database password. Leave empty for h2/sqlite
+  password: ''
+
+  # Database address
+  address: ./
