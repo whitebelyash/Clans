@@ -1,15 +1,15 @@
-package ru.whbex.develop.clans.bukkit.cmd;
+package ru.whbex.develop.clans.common.cmd;
 
 public class CommandError extends RuntimeException {
     private final String message;
     private final Object[] args;
 
-    CommandError(String message, Object... args){
+    public CommandError(String message, Object... args){
         this.message = message;
         this.args = args;
     }
 
-    CommandError(String message){
+    public CommandError(String message){
         this(message, new Object[0]);
     }
 
