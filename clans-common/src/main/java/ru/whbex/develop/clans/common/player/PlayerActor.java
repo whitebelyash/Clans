@@ -1,5 +1,6 @@
 package ru.whbex.develop.clans.common.player;
 
+import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.misc.requests.Request;
 
@@ -14,6 +15,8 @@ public interface PlayerActor {
     String getName();
     Language getLanguage();
 
+    Clan getClan();
+    boolean hasClan();
     // REQUESTS
 
     void addRequest(Request request);

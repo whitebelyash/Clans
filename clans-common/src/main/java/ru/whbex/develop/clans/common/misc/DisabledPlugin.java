@@ -1,6 +1,7 @@
 package ru.whbex.develop.clans.common.misc;
 
 import ru.whbex.develop.clans.common.player.PlayerActor;
+import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.wrap.ConsoleActor;
 import ru.whbex.develop.clans.common.wrap.Task;
 import ru.whbex.develop.clans.common.ClansPlugin;
@@ -19,27 +20,7 @@ import org.slf4j.Logger;
 public class DisabledPlugin implements ClansPlugin {
     private static final String MESSAGE = "Plugin is disabled!";
     @Override
-    public ConsoleActor getConsoleActor() {
-        throw new NullPointerException(MESSAGE);
-    }
-
-    @Override
-    public PlayerActor getPlayerActor(UUID id) {
-        throw new NullPointerException(MESSAGE);
-    }
-
-    @Override
-    public PlayerActor getPlayerActor(String name) {
-        throw new NullPointerException(MESSAGE);
-    }
-
-    @Override
-    public PlayerActor getPlayerActorOrRegister(UUID id) {
-        throw new NullPointerException(MESSAGE);
-    }
-
-    @Override
-    public Collection<PlayerActor> getOnlineActors() {
+    public PlayerManager getPlayerManager() {
         throw new NullPointerException(MESSAGE);
     }
 

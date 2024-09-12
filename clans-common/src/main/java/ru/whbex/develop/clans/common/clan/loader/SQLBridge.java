@@ -58,7 +58,7 @@ public class SQLBridge implements Bridge {
                             ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: leader UUID is null!");
                             return false;
                         }
-                        ClansPlugin.Context.INSTANCE.plugin.getPlayerActorOrRegister(lid).sendMessage("Clan load!"); // TODO: remove
+                        ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOrRegisterPlayerActor(lid).sendMessage("Clan load!"); // TODO: remove
                         int lvl = rs.getInt("level");
                         int exp = rs.getInt("exp");
                         ClanLevelling levelling = new ClanLevelling(lvl, exp);
@@ -105,7 +105,7 @@ public class SQLBridge implements Bridge {
                             ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: leader UUID is null!");
                             return false;
                         }
-                        ClansPlugin.Context.INSTANCE.plugin.getPlayerActorOrRegister(lid).sendMessage("Clan loaded!"); // TODO: remove
+                        ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOrRegisterPlayerActor(lid).sendMessage("Clan loaded!"); // TODO: remove
                         int lvl = rs.getInt("level");
                         int exp = rs.getInt("exp");
                         ClanLevelling levelling = new ClanLevelling(lvl, exp);
@@ -193,7 +193,7 @@ public class SQLBridge implements Bridge {
                         ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: leader UUID is invalid!");
                         continue;
                     }
-                    ClansPlugin.Context.INSTANCE.plugin.getPlayerActorOrRegister(lid).sendMessage("Clan loaded!"); // TODO: remove
+                    ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOrRegisterPlayerActor(lid).sendMessage("Clan loaded!"); // TODO: remove
                     int lvl = rs.getInt("level");
                     int exp = rs.getInt("exp");
                     ClanLevelling levelling = new ClanLevelling(lvl, exp);

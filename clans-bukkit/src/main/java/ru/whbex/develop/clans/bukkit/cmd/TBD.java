@@ -3,6 +3,7 @@ package ru.whbex.develop.clans.bukkit.cmd;
 import ru.whbex.develop.clans.bukkit.MainBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
+import ru.whbex.develop.clans.common.cmd.CommandError;
 import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.misc.ClanUtils;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
@@ -153,7 +154,7 @@ public class TBD implements CommandExecutor {
 
     private void listactors(CommandActor p, String[] args){
         p.sendMessage("--- Online actors ---");
-        main.getOnlineActors().forEach(a -> {
+        main.getPlayerManager().getOnlinePlayerActors().forEach(a -> {
             p.sendMessage(a.toString() + '\n');
         });
         p.sendMessage(" ---");

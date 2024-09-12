@@ -7,35 +7,31 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.bukkit.cmd.TBD;
 import ru.whbex.develop.clans.bukkit.listener.ListenerBukkit;
+import ru.whbex.develop.clans.bukkit.player.PlayerManagerBukkit;
 import ru.whbex.develop.clans.bukkit.wrap.TaskBukkit;
 import ru.whbex.develop.clans.bukkit.wrap.ConfigWrapperBukkit;
-import ru.whbex.develop.clans.bukkit.wrap.ConsoleActorBukkit;
-import ru.whbex.develop.clans.bukkit.wrap.PlayerActorBukkit;
+import ru.whbex.develop.clans.bukkit.player.ConsoleActorBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.clan.loader.SQLBridge;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.db.H2SQLAdapter;
 import ru.whbex.develop.clans.common.db.SQLAdapter;
-import ru.whbex.develop.clans.common.db.SQLiteAdapter;
 import ru.whbex.develop.clans.common.lang.LangFile;
 import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.misc.StringUtils;
 
+import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.wrap.ConfigWrapper;
 import ru.whbex.develop.clans.common.wrap.ConsoleActor;
-import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.wrap.Task;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.*;
 import java.util.concurrent.*;
 
 public class MainBukkit extends JavaPlugin implements ClansPlugin {
@@ -43,11 +39,12 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     private ConsoleActor console = new ConsoleActorBukkit();
     private ConfigWrapper config;
 
-    private Map<UUID, PlayerActor> actors = new HashMap<>();
-    private Map<String, PlayerActor> actorsN = new HashMap<>();
+
     private ExecutorService dbExecutor;
     private Future<Void> dbConnection;
+
     private ClanManager clanManager;
+    private PlayerManager playerManager;
 
     private SQLAdapter ad = null;
 
@@ -90,6 +87,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     public void onEnable(){
         databaseEnable();
         SQLBridge br = new SQLBridge(ad);
+        this.playerManager = new PlayerManagerBukkit(br);
         this.clanManager = new ClanManager(config, br);
         LOG.info("Registering commands");
         this.getCommand("clans").setExecutor(new TBD());
@@ -136,7 +134,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         if(!dbConnection.isDone()){
             ClansPlugin.log(Level.INFO, "Waiting for database...");
             try {
-                dbConnection.get(3, TimeUnit.SECONDS);
+                dbConnection.get(SQLAdapter.LOGIN_TIMEOUT, TimeUnit.SECONDS);
             } catch (CancellationException | InterruptedException e){
                 ClansPlugin.log(Level.ERROR, "Database wait interrupted or cancelled!");
             } catch (TimeoutException e){
@@ -164,16 +162,15 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             }
         }
     }
-    @Override
-    public ConsoleActor getConsoleActor() {
-        return console;
-    }
-
 
 
     @Override
     public ClanManager getClanManager() {
         return clanManager;
+    }
+    @Override
+    public PlayerManager getPlayerManager(){
+        return playerManager;
     }
 
     @Override
@@ -230,43 +227,11 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     // Actor management
 
-    public PlayerActor registerOrGetActor(UUID id){
-        if(actors.containsKey(id))
-            return actors.get(id);
-        registerActor(id);
-        return actors.get(id);
-    }
-    public void registerActor(UUID id){
-        PlayerActor pa = new PlayerActorBukkit(id);
-        actors.put(id, pa);
-        actorsN.put(pa.getName(), pa);
-        ClansPlugin.dbg("Registered actor {0}", pa);
-    }
 
-    @Override
-    public PlayerActor getPlayerActor(UUID id) {
-        return actors.get(id);
-    }
-
-    @Override
-    @Nullable
-    public PlayerActor getPlayerActor(String name) {
-        return actorsN.get(name);
-    }
-
-    @Override
-    public PlayerActor getPlayerActorOrRegister(UUID id) {
-        return registerOrGetActor(id);
-    }
-
-    @Override
-    public Collection<PlayerActor> getOnlineActors() {
-        return actors.values();
-    }
 
 
     public CommandActor asCommandActor(CommandSender sender){
-        return sender instanceof Player ? (CommandActor) registerOrGetActor(((Player) sender).getUniqueId()) : (CommandActor) console;
+        return sender instanceof Player ? (CommandActor) playerManager.getOrRegisterPlayerActor(((Player) sender).getUniqueId()) : (CommandActor) console;
     }
 
     public ConfigWrapper getConfigWrapped(){

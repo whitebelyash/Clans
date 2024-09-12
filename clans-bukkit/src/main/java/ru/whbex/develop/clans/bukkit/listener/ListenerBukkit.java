@@ -11,7 +11,6 @@ public class ListenerBukkit implements Listener {
 
     @EventHandler(priority =  EventPriority.HIGHEST)
     public void on(PlayerLoginEvent e){
-        if(ClansPlugin.Context.INSTANCE.plugin.getPlayerActor(e.getPlayer().getUniqueId()) == null)
-            ((MainBukkit) ClansPlugin.Context.INSTANCE.plugin).registerActor(e.getPlayer().getUniqueId());
+        ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().registerPlayerActor(e.getPlayer().getUniqueId());
     }
 }

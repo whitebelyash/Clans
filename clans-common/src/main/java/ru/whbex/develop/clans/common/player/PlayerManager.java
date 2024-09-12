@@ -1,51 +1,85 @@
 package ru.whbex.develop.clans.common.player;
 
-public class PlayerManager {
-    /*
-    private final PlayerStorage pstorage;
-    private final Map<UUID, ClanActor> players;
-    private final Map<String, ClanActor> byName;
-    private final ClansPlugin inst = ClansPlugin.Context.INSTANCE.plugin;
-    private final CommandActor console;
+import ru.whbex.develop.clans.common.wrap.ConsoleActor;
 
-    public PlayerManager(PlayerStorage ps){
-        this.pstorage = ps;
-        players = new HashMap<>();
-        byName = new HashMap<>();
-    }
+import java.util.Collection;
+import java.util.UUID;
 
-    public void createPlayer(UUID playerId, String name){
-        // TODO: Refactor
-        if(players.containsKey(playerId))
-            throw new IllegalArgumentException("Player already exists!");
-        ClanActor c = new ClanActor(playerId, name);
-        players.put(playerId, c);
-        byName.put(name, c);
-    }
-    public void removePlayer(UUID playerId){
-        if(!players.containsKey(playerId))
-            throw new NoSuchElementException("Player not found!");
-        ClanActor c = getPlayer(playerId);
-        players.remove(playerId);
-        if(byName.containsValue(c))
-            byName.remove(c.getName(), c);
-    }
-    public ClanActor getPlayer(UUID playerId){
-        return players.get(playerId);
-    }
-    public ClanActor getPlayer(String name){
-        return byName.get(name);
-    }
-    public Collection<ClanActor> getPlayers(){
-        return this.players.values();
+public interface PlayerManager {
 
-    }
-    public void saveProfiles(){
-
-    }
-
-    public CommandActor getConsole(){
-        return console;
-    }
+    /**
+     * Get player actor by uuid
+     * @param id actor's UUID
+     * @return actor if found, otherwise null
      */
+    PlayerActor getPlayerActor(UUID id);
+
+    /**
+     * Get player actor by his nickname
+     * @param nickname name
+     * @return actor if found (loaded), otherwise null
+     */
+    PlayerActor getPlayerActor(String nickname);
+
+    /**
+     * Register player actor.
+     * @param actor actor
+     */
+    void registerPlayerActor(PlayerActor actor);
+
+    /**
+     * Register player actor by uuid.
+     * @param id actor's UUID
+     */
+    void registerPlayerActor(UUID id);
+
+    /**
+     * Get player actor or register if not found. Maybe useful for chained calls in builder.
+     * @param actor actor
+     * @return player actor
+     */
+    PlayerActor getOrRegisterPlayerActor(PlayerActor actor);
+
+    /**
+     * Get player actor by UUID or register if not found.
+     * @param id actor's UUID.
+     * @return player actor
+     */
+    PlayerActor getOrRegisterPlayerActor(UUID id);
+
+    /**
+     * Update all actors.
+     */
+    void updateActors();
+
+    /**
+     * Switch actor's type to online - useful for fabric port. It doesn't have OfflinePlayer equivalent.
+     * @param id actor's UUID
+     */
+    void makeOnline(UUID id);
+
+    /**
+     * Switch actor's type to offline - useful for fabric port. It doesn't have OfflinePlayer equivalent.
+     * @param id actor's UUID
+     */
+    void makeOffline(UUID id);
+
+    /**
+     * Is player actor online. Same method exists on PlayerActor#isOnline
+     * @param id actor's uuid
+     * @return online status
+     */
+    boolean isOnline(UUID id);
+
+    /**
+     * Get all online actors.
+     * @return collection of actors.
+     */
+    Collection<PlayerActor> getOnlinePlayerActors();
+
+    /**
+     * Get console actor.
+     * @return console actor.
+     */
+    ConsoleActor getConsoleActor();
 }

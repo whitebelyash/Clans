@@ -1,4 +1,4 @@
-package ru.whbex.develop.clans.bukkit.wrap;
+package ru.whbex.develop.clans.bukkit.player;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -7,6 +7,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import ru.whbex.develop.clans.common.ClansPlugin;
+import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.misc.StringUtils;
@@ -67,6 +68,16 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     public Language getLanguage() {
         // TODO: Implement per-player locale support
         return ClansPlugin.Context.INSTANCE.plugin.getLanguage();
+    }
+
+    @Override
+    public Clan getClan() {
+        return null;
+    }
+
+    @Override
+    public boolean hasClan() {
+        return false;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package ru.whbex.develop.clans.bukkit.wrap;
+package ru.whbex.develop.clans.bukkit.player;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;

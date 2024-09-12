@@ -7,6 +7,7 @@ import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.misc.DisabledPlugin;
 import ru.whbex.develop.clans.common.misc.StringUtils;
 import ru.whbex.develop.clans.common.player.PlayerActor;
+import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.wrap.ConfigWrapper;
 import ru.whbex.develop.clans.common.wrap.ConsoleActor;
 import ru.whbex.develop.clans.common.wrap.Task;
@@ -29,6 +30,7 @@ public interface ClansPlugin {
         public Logger logger;
         public java.util.logging.Logger jlogger;
         public static final boolean DEBUG = true;
+        public static final String NAME = "clans";
         public void setContext(ClansPlugin plugin){
             this.plugin = plugin;
         }
@@ -40,11 +42,7 @@ public interface ClansPlugin {
         }
     }
 
-    ConsoleActor getConsoleActor();
-    PlayerActor getPlayerActor(UUID id);
-    PlayerActor getPlayerActor(String name);
-    PlayerActor getPlayerActorOrRegister(UUID id);
-    Collection<PlayerActor> getOnlineActors();
+    PlayerManager getPlayerManager();
     ClanManager getClanManager();
     Language getLanguage();
     SQLAdapter getSQLAdapter();
@@ -89,11 +87,11 @@ public interface ClansPlugin {
     static void log(Level level, String message, Object... args){
         if(Context.INSTANCE.logger == null) return;
         switch(level){
-            case INFO -> Context.INSTANCE.logger.info(message, args);
-            case WARN -> Context.INSTANCE.logger.warn(message, args);
-            case ERROR -> Context.INSTANCE.logger.error(message, args);
-            case DEBUG -> Context.INSTANCE.logger.debug(message, args);
-            case TRACE -> Context.INSTANCE.logger.trace(message, args);
+            case INFO -> Context.INSTANCE.logger.info(StringUtils.simpleformat(message, args));
+            case WARN -> Context.INSTANCE.logger.warn(StringUtils.simpleformat(message, args));
+            case ERROR -> Context.INSTANCE.logger.error(StringUtils.simpleformat(message, args));
+            case DEBUG -> Context.INSTANCE.logger.debug(StringUtils.simpleformat(message, args));
+            case TRACE -> Context.INSTANCE.logger.trace(StringUtils.simpleformat(message, args));
         }
 
     }
