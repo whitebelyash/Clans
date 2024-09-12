@@ -11,11 +11,12 @@ import java.sql.SQLException;
 
 public class H2SQLAdapter extends SQLAdapter {
     private final String path;
-    public H2SQLAdapter(File file) throws ClassNotFoundException, NoClassDefFoundError, IOException {
+    public H2SQLAdapter(ConnectionData data) throws ClassNotFoundException, NoClassDefFoundError, IOException {
         super(org.h2.Driver.class.getName());
-        if(!file.exists())
-            file.createNewFile();
-        this.path = SQLAdapter.JDBC_PREFIX + ":h2:" + file.getAbsolutePath();
+        File f = new File(data.dbAddress(), data.dbName());
+        if(!f.exists())
+            f.createNewFile();
+        this.path = SQLAdapter.JDBC_PREFIX + ":h2:" + f.getAbsolutePath();
     }
 
     @Override

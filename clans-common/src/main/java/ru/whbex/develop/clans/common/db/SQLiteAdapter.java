@@ -10,8 +10,9 @@ import java.sql.SQLException;
 
 public class SQLiteAdapter extends SQLAdapter {
     private final String path;
-    public SQLiteAdapter(File db) throws ClassNotFoundException, NoClassDefFoundError, IOException {
+    public SQLiteAdapter(ConnectionData data) throws ClassNotFoundException, NoClassDefFoundError, IOException {
         super(org.sqlite.JDBC.class.getName());
+        File db = new File(data.dbAddress(), data.dbName());
         if(!db.exists())
             db.createNewFile();
         this.path = SQLAdapter.JDBC_PREFIX + ":sqlite:" + db.getAbsolutePath();
