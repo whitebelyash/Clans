@@ -100,7 +100,8 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     @Override
     public void onDisable() {
         ClansPlugin.log(Level.INFO, "Shutting down");
-        clanManager.shutdown();
+        if(clanManager != null)
+            clanManager.shutdown();
         if(ad != null){
             try {
                 if(!ad.isClosed())
