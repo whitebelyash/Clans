@@ -61,26 +61,25 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         Context.INSTANCE.setContext(this);
 
         ClansPlugin.dbg("hello");
-        LOG.info("=== Clans ===");
-        LOG.info("Starting on " + Bukkit.getName());
+        ClansPlugin.log(Level.INFO, "=== Clans ===");
+        ClansPlugin.log(Level.INFO, "Starting on " + Bukkit.getName());
 
         this.saveDefaultConfig();
         config = new ConfigWrapperBukkit(this.getConfig());
 
-        LOG.info("Starting database executor");
         dbExecutor = Executors.newSingleThreadExecutor();
 
 
         /* Language init */
         // TODO: Implement multilocale - using single locale for now
+        ClansPlugin.log(Level.INFO, "Loading locales...");
         if(!(new File(getDataFolder(), "messages.lang")).exists())
             this.saveResource("messages.lang", false);
         LangFile lf = new LangFile(new File(getDataFolder(), "messages.lang"));
         lang = new Language(lf);
         databaseInit();
 
-
-        LOG.info("Stage 1 complete");
+        ClansPlugin.log(Level.INFO, "=== Load complete ===");
 
     }
     @Override
@@ -89,19 +88,18 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         SQLBridge br = new SQLBridge(ad);
         this.playerManager = new PlayerManagerBukkit(br);
         this.clanManager = new ClanManager(config, br);
-        LOG.info("Registering commands");
+        ClansPlugin.log(Level.INFO, "Registering commands");
         this.getCommand("clans").setExecutor(new TBD());
-        LOG.info("Registering event listeners");
+        ClansPlugin.log(Level.INFO, "Registering event listeners");
         Bukkit.getPluginManager().registerEvents(new ListenerBukkit(), this);
-        LOG.info("Registering services");
+        ClansPlugin.log(Level.INFO, "Registering ClanManager as service");
         Bukkit.getServicesManager().register(ClanManager.class, clanManager, this, ServicePriority.Normal);
-        LOG.info("Stage 2 complete");
-        LOG.info(StringUtils.simpleformat("{0} v{1} - enabled successfully", this.getDescription().getName(), this.getDescription().getVersion()));
+        ClansPlugin.log(Level.INFO, "{0} v{1} - enabled successfully", this.getDescription().getName(), this.getDescription().getVersion());
     }
 
     @Override
     public void onDisable() {
-        LOG.info("Shutting down");
+        ClansPlugin.log(Level.INFO, "Shutting down");
         clanManager.shutdown();
         if(ad != null){
             try {
@@ -111,7 +109,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
                 ClansPlugin.log(Level.ERROR, "Database disconnect failed, skipping");
             }
         }
-        LOG.info("OK");
     }
     private void databaseInit(){
         /* Database init */
@@ -131,20 +128,19 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         dbConnection = ad.connectAsynchronously(dbExecutor);
     }
     private void databaseEnable(){
-        if(!dbConnection.isDone()){
+        if(!dbConnection.isDone()) {
             ClansPlugin.log(Level.INFO, "Waiting for database...");
             try {
                 dbConnection.get(SQLAdapter.LOGIN_TIMEOUT, TimeUnit.SECONDS);
-            } catch (CancellationException | InterruptedException e){
+            } catch (CancellationException | InterruptedException e) {
                 ClansPlugin.log(Level.ERROR, "Database wait interrupted or cancelled!");
-            } catch (TimeoutException e){
+            } catch (TimeoutException e) {
                 ClansPlugin.log(Level.ERROR, "Timed out waiting for database connection");
-            } catch (ExecutionException e){
+            } catch (ExecutionException e) {
                 ClansPlugin.log(Level.ERROR, "Database connection failed: " + e.getLocalizedMessage());
                 ClansPlugin.dbg_printStacktrace(e);
             }
         }
-        else {
             try {
                 /*
                 ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP
@@ -160,7 +156,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             } catch (SQLException e) {
                 ClansPlugin.log(Level.ERROR, "Failed to execute initial SQL Update: " + e.getLocalizedMessage());
             }
-        }
     }
 
 
