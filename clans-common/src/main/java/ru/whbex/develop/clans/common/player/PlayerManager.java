@@ -22,6 +22,13 @@ public interface PlayerManager {
     PlayerActor getPlayerActor(String nickname);
 
     /**
+     * Get online player actor
+     * @param id actor's UUID
+     * @return player actor or null if offline
+     */
+    PlayerActor getOnlinePlayerActor(UUID id);
+
+    /**
      * Register player actor.
      * @param actor actor
      */
