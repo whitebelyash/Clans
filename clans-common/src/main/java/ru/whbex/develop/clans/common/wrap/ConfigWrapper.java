@@ -16,6 +16,10 @@ public interface ConfigWrapper {
         DatabaseType(Class<? extends SQLAdapter> clazz){
             this.clazz = clazz;
         }
+
+        public Class<? extends SQLAdapter> getImpl() {
+            return clazz;
+        }
     }
     boolean test();
 

@@ -2,6 +2,7 @@ package ru.whbex.develop.clans.common;
 
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.clan.ClanManager;
+import ru.whbex.develop.clans.common.db.H2SQLAdapter;
 import ru.whbex.develop.clans.common.db.SQLAdapter;
 import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.misc.DisabledPlugin;
@@ -12,6 +13,7 @@ import ru.whbex.develop.clans.common.wrap.ConfigWrapper;
 import ru.whbex.develop.clans.common.wrap.ConsoleActor;
 import ru.whbex.develop.clans.common.wrap.Task;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -46,6 +48,8 @@ public interface ClansPlugin {
     ClanManager getClanManager();
     Language getLanguage();
     SQLAdapter getSQLAdapter();
+
+    <T extends SQLAdapter> T newSQLAdapter(Class<T> clazz); // this will init new adapter with ConnectionData from main config
 
     Task run(Runnable task);
     Task runLater(long delay, Runnable task);

@@ -40,6 +40,10 @@ public class DisabledPlugin implements ClansPlugin {
     public SQLAdapter getSQLAdapter() {
         throw new NullPointerException(MESSAGE);
     }
+    @Override
+    public <T extends SQLAdapter> T newSQLAdapter(Class<T> clazz){
+        throw new NullPointerException(MESSAGE);
+    }
 
     @Override
     public Task run(Runnable task) {

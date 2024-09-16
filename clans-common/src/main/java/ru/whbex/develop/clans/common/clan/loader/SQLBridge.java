@@ -38,6 +38,26 @@ public class SQLBridge implements Bridge {
             return false;
         }
     }
+
+    @Override
+    public void init() {
+        try {
+                /*
+                ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP
+                 */
+            adapter.update("CREATE TABLE IF NOT EXISTS clans (id varchar(36), tag varchar(16), " +
+                    "name varchar(24), " +
+                    "description varchar(255), " +
+                    "creationEpoch LONG, " + // TODO: fixxx
+                    "leader varchar(36), " +
+                    "deleted TINYINT, " +
+                    "level INT, " +
+                    "exp INT);");
+        } catch (SQLException e) {
+            ClansPlugin.log(Level.ERROR, "Failed to execute initial SQL Update: " + e.getLocalizedMessage());
+        }
+    }
+
     public Clan fetchClan(String tag) {
         ClansPlugin.dbg("fetch clan {0}", tag);
         AtomicReference<Clan> clan = new AtomicReference<>();

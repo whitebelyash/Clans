@@ -7,7 +7,7 @@ import ru.whbex.develop.clans.common.misc.requests.Request;
 import java.util.UUID;
 
 public interface PlayerActor {
-
+    
     void sendMessage(String string);
     boolean isOnline();
     void teleport(int x, int y, int z, String world);

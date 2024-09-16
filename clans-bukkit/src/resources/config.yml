@@ -16,4 +16,4 @@ database:
   password: ''
 
   # Database address
-  address: ./
+  address: './'

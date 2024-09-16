@@ -240,5 +240,4 @@ public class TBD implements CommandExecutor {
             throw new CommandError("already loaded");
         cm.tmpImportClan(tag);
     }
-
 }

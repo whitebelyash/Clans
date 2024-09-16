@@ -16,8 +16,11 @@ import ru.whbex.develop.clans.bukkit.wrap.ConfigWrapperBukkit;
 import ru.whbex.develop.clans.bukkit.player.ConsoleActorBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.ClanManager;
+import ru.whbex.develop.clans.common.clan.loader.Bridge;
+import ru.whbex.develop.clans.common.clan.loader.NullBridge;
 import ru.whbex.develop.clans.common.clan.loader.SQLBridge;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
+import ru.whbex.develop.clans.common.db.ConnectionData;
 import ru.whbex.develop.clans.common.db.H2SQLAdapter;
 import ru.whbex.develop.clans.common.db.SQLAdapter;
 import ru.whbex.develop.clans.common.lang.LangFile;
@@ -31,6 +34,8 @@ import ru.whbex.develop.clans.common.wrap.Task;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.concurrent.*;
 
@@ -41,12 +46,12 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
 
     private ExecutorService dbExecutor;
-    private Future<Void> dbConnection;
 
     private ClanManager clanManager;
     private PlayerManager playerManager;
 
     private SQLAdapter ad = null;
+    private ConnectionData dbConfig;
 
     private Language lang;
 
@@ -77,22 +82,27 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             this.saveResource("messages.lang", false);
         LangFile lf = new LangFile(new File(getDataFolder(), "messages.lang"));
         lang = new Language(lf);
-        databaseInit();
-
+        try {
+            databaseInit();
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException |
+                 SQLException e) {
+            ClansPlugin.log(Level.INFO, "Database init failed: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
         ClansPlugin.log(Level.INFO, "=== Load complete ===");
 
     }
     @Override
     public void onEnable(){
         databaseEnable();
-        SQLBridge br = new SQLBridge(ad);
-        this.playerManager = new PlayerManagerBukkit(br);
-        this.clanManager = new ClanManager(config, br);
+        Bridge bridge = ad == null ? new NullBridge() : new SQLBridge(ad);
+        this.playerManager = new PlayerManagerBukkit(bridge);
+        this.clanManager = new ClanManager(config, bridge);
         ClansPlugin.log(Level.INFO, "Registering commands");
         this.getCommand("clans").setExecutor(new TBD());
         ClansPlugin.log(Level.INFO, "Registering event listeners");
         Bukkit.getPluginManager().registerEvents(new ListenerBukkit(), this);
-        ClansPlugin.log(Level.INFO, "Registering ClanManager as service");
+        ClansPlugin.log(Level.INFO, "Registering ClanManager as a service");
         Bukkit.getServicesManager().register(ClanManager.class, clanManager, this, ServicePriority.Normal);
         ClansPlugin.log(Level.INFO, "{0} v{1} - enabled successfully", this.getDescription().getName(), this.getDescription().getVersion());
     }
@@ -111,52 +121,25 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             }
         }
     }
-    private void databaseInit(){
-        /* Database init */
-        try {
-            // ad = new SQLiteAdapter(new File(getDataFolder(), "clans.db"));
-            ad = new H2SQLAdapter(new File(getDataFolder(), "clans.h2"));
-        } catch (ClassNotFoundException e) {
-            ClansPlugin.log(Level.ERROR, "Database init failed: no H2 driver found in classpath!!! Shutting down");
-            ClansPlugin.dbg_printStacktrace(e);
-        } catch (IOException e) {
-            ClansPlugin.log(Level.ERROR, "Database init failed: couldn't create sqlite db file!!! Shutting down");
-            ClansPlugin.dbg_printStacktrace(e);
-        } finally {
-            if(ad == null)
-                this.getPluginLoader().disablePlugin(this);
-        }
-        dbConnection = ad.connectAsynchronously(dbExecutor);
+    private void databaseInit() throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, SQLException {
+        ConnectionData data = new ConnectionData(
+                config.getDatabaseName(),
+                config.getDatabaseAddress(),
+                config.getDatabaseUser(),
+                config.getDatabasePassword());
+        this.dbConfig = data;
+        ConfigWrapper.DatabaseType type = config.getDatabaseBackend();
+        ClansPlugin.dbg("conn to db, addr: {0}, name: {1}, backend: {2}", data.dbAddress(), data.dbName(), type.getImpl().getSimpleName());
+        Constructor<? extends SQLAdapter> cst = type.getImpl().getConstructor(ConnectionData.class);
+        this.ad = cst.newInstance(data);
+        if(this.ad != null)
+            ad.connect();
+
     }
     private void databaseEnable(){
-        if(!dbConnection.isDone()) {
-            ClansPlugin.log(Level.INFO, "Waiting for database...");
-            try {
-                dbConnection.get(SQLAdapter.LOGIN_TIMEOUT, TimeUnit.SECONDS);
-            } catch (CancellationException | InterruptedException e) {
-                ClansPlugin.log(Level.ERROR, "Database wait interrupted or cancelled!");
-            } catch (TimeoutException e) {
-                ClansPlugin.log(Level.ERROR, "Timed out waiting for database connection");
-            } catch (ExecutionException e) {
-                ClansPlugin.log(Level.ERROR, "Database connection failed: " + e.getLocalizedMessage());
-                ClansPlugin.dbg_printStacktrace(e);
-            }
+        if(ad == null){
+            ClansPlugin.log(Level.WARN, "Database is not configured, skipping");
         }
-            try {
-                /*
-                ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP
-                 */
-                ad.update("CREATE TABLE IF NOT EXISTS clans (id varchar(36), tag varchar(16), " +
-                                "name varchar(24), " +
-                                "description varchar(255), " +
-                                "creationEpoch LONG, " + // TODO: fixxx
-                                "leader varchar(36), " +
-                                "deleted TINYINT, " +
-                                "level INT, " +
-                                "exp INT);");
-            } catch (SQLException e) {
-                ClansPlugin.log(Level.ERROR, "Failed to execute initial SQL Update: " + e.getLocalizedMessage());
-            }
     }
 
 
@@ -178,6 +161,19 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     public SQLAdapter getSQLAdapter() {
         return ad;
     }
+
+    // TODO: Add exception signature to the method on interface. Im lazy, sorry.
+    @Override
+    public <T extends SQLAdapter> T newSQLAdapter(Class<T> clazz) {
+        try {
+            return clazz.getConstructor(ConnectionData.class).newInstance(dbConfig);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e){
+            ClansPlugin.log(Level.ERROR, "Failed to create SQLAdapter " + clazz.getName());
+            throw new RuntimeException(e);
+        }
+    }
+
+
 
     @Override
     public Task run(Runnable task) {

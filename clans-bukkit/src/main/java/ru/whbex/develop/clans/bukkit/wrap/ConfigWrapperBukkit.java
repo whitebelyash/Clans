@@ -22,8 +22,8 @@ public class ConfigWrapperBukkit implements ConfigWrapper {
         String val = config.getString("database.type");
         DatabaseType ret;
         try {
-            ret = DatabaseType.valueOf(val);
-        } catch (IllegalArgumentException e){
+            ret = DatabaseType.valueOf(val.toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e){
             ClansPlugin.log(Level.ERROR, "Invalid database type {0}! Falling back to H2", val);
             ret = DatabaseType.H2;
         }
@@ -47,6 +47,6 @@ public class ConfigWrapperBukkit implements ConfigWrapper {
 
     @Override
     public String getDatabaseAddress() {
-        return config.getString("database.address");
+        return config.getString("database.address", "");
     }
 }

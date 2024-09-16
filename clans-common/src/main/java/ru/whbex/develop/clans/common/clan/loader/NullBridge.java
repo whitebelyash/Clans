@@ -13,6 +13,11 @@ public class NullBridge implements Bridge {
     }
 
     @Override
+    public void init() {
+
+    }
+
+    @Override
     public Clan fetchClan(String tag) {
         return null;
     }

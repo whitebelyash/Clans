@@ -9,6 +9,9 @@ public interface Bridge {
 
     boolean valid(); // exception is handled on method side, call this before calling other methods
 
+    void init();
+
+
     Clan fetchClan(String tag);
     Clan fetchClan(UUID id);
     Collection<Clan> fetchAll();

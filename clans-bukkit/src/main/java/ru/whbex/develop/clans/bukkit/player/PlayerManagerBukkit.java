@@ -33,19 +33,32 @@ public class PlayerManagerBukkit implements PlayerManager {
     }
 
     @Override
+    public PlayerActor getOnlinePlayerActor(UUID id) {
+        return onlineActors.get(id);
+    }
+
+    @Override
     public void registerPlayerActor(PlayerActor actor) {
         if(actors.containsKey(actor.getUniqueId()))
             return;
         actors.put(actor.getUniqueId(), actor);
+        if(actor.getName() != null)
+            actorsN.put(actor.getName(), actor);
+        if(actor.isOnline())
+            onlineActors.put(actor.getUniqueId(), actor);
         ClansPlugin.dbg("Registered actor " + actor);
     }
 
     @Override
     public void registerPlayerActor(UUID id) {
         if(actors.containsKey(id))
-            return;
+            makeOnline(id);
         PlayerActor p = new PlayerActorBukkit(id);
         actors.put(id, p);
+        if(p.getName() != null)
+            actorsN.put(p.getName(), p);
+        if(p.isOnline())
+            onlineActors.put(id, p);
         ClansPlugin.dbg("Registered actor " + p);
     }
 
@@ -53,7 +66,7 @@ public class PlayerManagerBukkit implements PlayerManager {
     public PlayerActor getOrRegisterPlayerActor(PlayerActor actor) {
         if(actors.containsKey(actor.getUniqueId()))
             return actor;
-        actors.put(actor.getUniqueId(), actor);
+        registerPlayerActor(actor);
         return actor;
     }
 
@@ -65,19 +78,30 @@ public class PlayerManagerBukkit implements PlayerManager {
 
     @Override
     public void updateActors() {
+        // Register all previously unregistered online actors
+        if(Bukkit.getOnlinePlayers().size() > onlineActors.values().size()){
+            ClansPlugin.dbg("bukkit online > onlineActors, updating");
+            Bukkit.getOnlinePlayers().forEach(p -> {
+                registerPlayerActor(p.getUniqueId());
+            });
+        }
 
     }
 
     @Override
     public void makeOnline(UUID id) {
-        if(actors.containsKey(id) && !onlineActors.containsKey(id) && actors.get(id).isOnline())
+        if(actors.containsKey(id) && !onlineActors.containsKey(id) && actors.get(id).isOnline()) {
             onlineActors.put(id, actors.get(id));
+            ClansPlugin.dbg("makeOnline() uuid: " + id);
+        }
     }
 
     @Override
     public void makeOffline(UUID id) {
-        if(actors.containsKey(id) && onlineActors.containsKey(id) && !actors.get(id).isOnline())
+        if(actors.containsKey(id) && onlineActors.containsKey(id) && !actors.get(id).isOnline()) {
             onlineActors.put(id, actors.get(id));
+            ClansPlugin.dbg("makeOffline() uuid: " + id);
+        }
     }
 
     @Override

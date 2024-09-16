@@ -34,6 +34,7 @@ public class ClanManager {
         this.bridge = bridge;
         // TODO: Fetch clans from ClanLoader
         try {
+            this.bridge.init();
             this.importAll(bridge).get();
         } catch (InterruptedException | ExecutionException e) {
             ClansPlugin.log(Level.ERROR, "Failed to import clans on ClanManager init!!!");
