@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.loader.Bridge;
+import ru.whbex.develop.clans.common.db.SQLAdapter;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.wrap.ConsoleActor;
@@ -51,8 +52,10 @@ public class PlayerManagerBukkit implements PlayerManager {
 
     @Override
     public void registerPlayerActor(UUID id) {
-        if(actors.containsKey(id))
+        if(actors.containsKey(id)) {
             makeOnline(id);
+            return;
+        }
         PlayerActor p = new PlayerActorBukkit(id);
         actors.put(id, p);
         if(p.getName() != null)
