@@ -13,6 +13,7 @@ public class ClanMeta {
     private String description;
     private UUID leader;
     private final long creationTime;
+    private ClanRank defaultRank;
 
     /* Settings */
     private boolean viewable = true;
@@ -23,12 +24,13 @@ public class ClanMeta {
     // Stored in runtime
     private final Map<String, Object> data = new HashMap<>();
 
-    public ClanMeta(String tag, String name, String description, UUID leader, long creationTime){
+    public ClanMeta(String tag, String name, String description, UUID leader, long creationTime, ClanRank defRank){
         this.tag = tag;
         this.name = name;
         this.description = description;
         this.leader = leader;
         this.creationTime = creationTime;
+        this.defaultRank = defRank;
         ClansPlugin.dbg("meta created for " + tag);
     }
 
@@ -79,6 +81,12 @@ public class ClanMeta {
             ClansPlugin.dbg("data has no key {0}. returning null", key);
         return data.get(key);
     }
+
+    public ClanRank getDefaultRank() {
+        return defaultRank;
+    }
+
+
 
     public boolean isViewable() {
         return viewable;

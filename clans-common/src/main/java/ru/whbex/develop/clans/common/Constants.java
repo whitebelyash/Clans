@@ -1,5 +1,7 @@
 package ru.whbex.develop.clans.common;
 
+import ru.whbex.develop.clans.common.clan.ClanRank;
+
 public class Constants {
 
     // Minecraft
@@ -13,6 +15,9 @@ public class Constants {
 
     // ClanManager creation
     public static final String CLAN_NAME_FORMAT = "{0} clan";
+
+    // Ranks
+    public static final ClanRank DEFAULT_RANK = ClanRank.NOVICE;
 
     // === Permissions ===
     // broadcast

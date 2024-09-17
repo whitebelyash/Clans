@@ -1,5 +1,7 @@
 package ru.whbex.develop.clans.common.clan.loader;
 
+import ru.whbex.develop.clans.common.Constants;
+import ru.whbex.develop.clans.common.clan.ClanRank;
 import ru.whbex.develop.clans.common.misc.StringUtils;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.Clan;
@@ -23,10 +25,10 @@ public class SQLBridge implements Bridge {
     private static final String TAG_QUERY_SQL = "SELECT * FROM clans WHERE tag=?;";
     private static final String UUID_QUERY_SQL = "SELECT * FROM clans WHERE id=?;";
     /*
-    ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP
+    ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP, DEFAULTRANK
      */
-    private static final String INSERT_SQL = "INSERT INTO clans VALUES(?, ?, ?, ?, ?, ?, ?, ? ,?);";
-    private static final String REPLACE_SQL = "REPLACE INTO clans(id, tag, name, description, creationEpoch, leader, deleted, level, exp) VALUES(?, ?, ?, ?, ?, ?, ?, ? ,?);";
+    private static final String INSERT_SQL = "INSERT INTO clans VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+    private static final String REPLACE_SQL = "REPLACE INTO clans(id, tag, name, description, creationEpoch, leader, deleted, level, exp, defaultRank) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
     public SQLBridge(SQLAdapter adapter){
         this.adapter = adapter;
     }
@@ -52,7 +54,8 @@ public class SQLBridge implements Bridge {
                     "leader varchar(36), " +
                     "deleted TINYINT, " +
                     "level INT, " +
-                    "exp INT);");
+                    "exp INT, " +
+                    "defaultRank INT);");
         } catch (SQLException e) {
             ClansPlugin.log(Level.ERROR, "Failed to execute initial SQL Update: " + e.getLocalizedMessage());
         }
@@ -73,6 +76,12 @@ public class SQLBridge implements Bridge {
                         String name = rs.getString("name");
                         String description = rs.getString("description");
                         long time = rs.getLong("creationEpoch");
+                        ClanRank rank;
+                        int rid = rs.getInt("defaultRank");
+                        if(rid < 0 || rid >= ClanRank.values().length){
+                            ClansPlugin.log(Level.ERROR, "Invalid default rank id! Using default");
+                            rank = Constants.DEFAULT_RANK;
+                        } else rank = ClanRank.values()[rid];
                         UUID lid;
                         if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
                             ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: leader UUID is null!");
@@ -82,7 +91,7 @@ public class SQLBridge implements Bridge {
                         int lvl = rs.getInt("level");
                         int exp = rs.getInt("exp");
                         ClanLevelling levelling = new ClanLevelling(lvl, exp);
-                        ClanMeta meta = new ClanMeta(tag, name, description, lid, time);
+                        ClanMeta meta = new ClanMeta(tag, name, description, lid, time, rank);
                         Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling, false);
                         clan.set(c);
                     } while(rs.next());
@@ -120,6 +129,12 @@ public class SQLBridge implements Bridge {
                         String name = rs.getString("name");
                         String description = rs.getString("description");
                         long time = rs.getLong("creationEpoch");
+                        ClanRank rank;
+                        int rid = rs.getInt("defaultRank");
+                        if(rid < 0 || rid >= ClanRank.values().length){
+                            ClansPlugin.log(Level.ERROR, "Invalid default rank id! Using default");
+                            rank = Constants.DEFAULT_RANK;
+                        } else rank = ClanRank.values()[rid];
                         UUID lid;
                         if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
                             ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: leader UUID is null!");
@@ -129,7 +144,7 @@ public class SQLBridge implements Bridge {
                         int lvl = rs.getInt("level");
                         int exp = rs.getInt("exp");
                         ClanLevelling levelling = new ClanLevelling(lvl, exp);
-                        ClanMeta meta = new ClanMeta(tag, name, description, lid, time);
+                        ClanMeta meta = new ClanMeta(tag, name, description, lid, time, rank);
                         Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling, false);
                         clan.set(c);
                     } while(rs.next());
@@ -208,6 +223,12 @@ public class SQLBridge implements Bridge {
                     String description = rs.getString("description");
                     boolean deleted = rs.getBoolean("deleted");
                     long time = rs.getLong("creationEpoch");
+                    ClanRank rank;
+                    int rid = rs.getInt("defaultRank");
+                    if(rid < 0 || rid >= ClanRank.values().length){
+                        ClansPlugin.log(Level.ERROR, "Invalid default rank id! Using default");
+                        rank = Constants.DEFAULT_RANK;
+                    } else rank = ClanRank.values()[rid];
                     UUID lid;
                     if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
                         ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: leader UUID is invalid!");
@@ -217,7 +238,7 @@ public class SQLBridge implements Bridge {
                     int lvl = rs.getInt("level");
                     int exp = rs.getInt("exp");
                     ClanLevelling levelling = new ClanLevelling(lvl, exp);
-                    ClanMeta meta = new ClanMeta(tag, name, description, lid, time);
+                    ClanMeta meta = new ClanMeta(tag, name, description, lid, time, rank);
                     Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling, false);
                     c.setDeleted(deleted);
                     clans.add(c);
@@ -245,6 +266,7 @@ public class SQLBridge implements Bridge {
                 rs.updateString("name", clan.getMeta().getName());
                 rs.updateString("description", clan.getMeta().getDescription());
                 rs.updateLong("creationEpoch", clan.getMeta().getCreationTime());
+                rs.updateInt("defaultRank", clan.getMeta().getDefaultRank().ordinal());
                 rs.updateString("leader", clan.getMeta().getLeader().toString());
                 rs.updateBoolean("deleted", clan.isDeleted());
                 rs.updateInt("level", clan.getLevelling().getLevel());
@@ -317,7 +339,7 @@ public class SQLBridge implements Bridge {
         try {
             adapter.queryPrepared(sqlb.toString(), sql, cb);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Caught exception updating clan collection!!");
+            ClansPlugin.log(Level.ERROR, "Caught exception updsunshine не вариант вообщating clan collection!!");
         }
 
          */
@@ -336,6 +358,7 @@ public class SQLBridge implements Bridge {
             ps.setBoolean(7, clan.isDeleted());
             ps.setInt(8, clan.getLevelling().getLevel());
             ps.setInt(9, clan.getLevelling().getExperience());
+            ps.setInt(10, clan.getMeta().getDefaultRank().ordinal());
             return true;
         };
         try {
@@ -365,6 +388,7 @@ public class SQLBridge implements Bridge {
                 ps.setBoolean(7, clan.isDeleted());
                 ps.setInt(8, clan.getLevelling().getLevel());
                 ps.setInt(9, clan.getLevelling().getExperience());
+                ps.setInt(10, clan.getMeta().getDefaultRank().ordinal());
                 ps.addBatch();
             }
             return true;

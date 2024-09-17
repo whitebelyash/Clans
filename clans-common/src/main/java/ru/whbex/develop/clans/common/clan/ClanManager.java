@@ -1,6 +1,7 @@
 package ru.whbex.develop.clans.common.clan;
 
 import org.slf4j.event.Level;
+import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.clan.loader.Bridge;
 import ru.whbex.develop.clans.common.wrap.ConfigWrapper;
 import ru.whbex.develop.clans.common.ClansPlugin;
@@ -49,7 +50,7 @@ public class ClanManager {
             return Error.CLAN_TAG_EXISTS;
         UUID id = UUID.randomUUID();
         ClansPlugin.dbg("creating clan (tag: {0}, name: {1}, leader: {2})", tag, name, leader);
-        ClanMeta cm = new ClanMeta(tag, name, null, leader, System.currentTimeMillis() / 1000L);
+        ClanMeta cm = new ClanMeta(tag, name, null, leader, System.currentTimeMillis() / 1000L, Constants.DEFAULT_RANK);
         ClanLevelling l = new ClanLevelling(1, 0);
         Clan clan = new Clan(this, id, cm, null, l, true);
         clans.put(id, clan);
