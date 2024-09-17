@@ -3,6 +3,7 @@ package ru.whbex.develop.clans.bukkit.cmd;
 import ru.whbex.develop.clans.bukkit.MainBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
+import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.cmd.CommandError;
 import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.misc.ClanUtils;
@@ -43,6 +44,7 @@ public class TBD implements CommandExecutor {
         cmd.put("addexp", this::addexp);
         cmd.put("export", this::export);
         cmd.put("import", this::_import);
+        cmd.put("profile", this::profile);
     }
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
@@ -239,5 +241,23 @@ public class TBD implements CommandExecutor {
         if(cm.clanExists(tag))
             throw new CommandError("already loaded");
         cm.tmpImportClan(tag);
+    }
+    private void profile(CommandActor p, String[] args){
+        if(args.length < 2)
+            throw new CommandError("meta.command.usage");
+        String tag = args[1];
+        if(!cm.clanExists(tag))
+            throw new CommandError("meta.command.unknown-clan");
+        Clan c = cm.getClan(tag);
+        p.sendMessage("--- Clan profile ---");
+        p.sendMessage("- tag: {0}", c.getMeta().getTag());
+        p.sendMessage("- name: {0}", c.getMeta().getName());
+        p.sendMessage("- descr: {0}", c.getMeta().getDescription());
+        p.sendMessage("- created on: {0}", StringUtils.epochAsString(null, c.getMeta().getCreationTime()));
+        p.sendMessage("- default rank: {0}", c.getMeta().getDefaultRank());
+        PlayerActor leader = ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getPlayerActor(c.getMeta().getLeader());
+        p.sendMessage("- leader: {0}", leader.getName());
+        p.sendMessage("- lvl/exp: {0}/{1}", c.getLevelling().getLevel(), c.getLevelling().getExperience());
+        p.sendMessage("--------------------");
     }
 }
