@@ -28,47 +28,6 @@ public class LangFile {
         ClansPlugin.dbg("Creating language file at " + file.getAbsolutePath());
         this.empty = !file.exists();
         this.file = file;
-
-        // locale init
-        /*
-
-        if(!empty){
-            // Catch IO exceptions and other
-            try (BufferedReader r = new BufferedReader(new FileReader(file))) {
-                String line;
-                int line_num = 0;
-                while ((line = r.readLine()) != null) {
-                    line_num++;
-                    // Catch line format errors here
-                    try {
-                        if(line.isEmpty())
-                            continue;
-                        // Ignore commented lines
-                        if (line.charAt(0) == '#')
-                            continue;
-                        // TODO: allow using spaces in key value separator
-                        if (line.length() < 3) {
-                            ctx.logger.warning(simpleformat("String length in language file {0} too small at {1} line, skipping", file.getAbsolutePath(), line_num));
-                            continue;
-                        }
-
-                        strings.put(key, value);
-                    } catch (Exception e) {
-                        ctx.logger.severe(simpleformat("Couldn't read line {0} ({1}): {2}, langfile: {3}", line, line_num, e.getMessage(), file.getAbsolutePath()));
-                    }
-                }
-            } catch (Exception e) {
-                ctx.logger.severe(simpleformat("Couldn't read language file {0}: {1}", file.getAbsolutePath(), e.getMessage()));
-                if (ClansPlugin.Context.DEBUG)
-                    e.printStackTrace();
-            }
-
-        }
-        else {
-            ctx.logger.warning(simpleformat("Couldn't load language file {0} because it doesn't exist or it's empty", file.getAbsolutePath()));
-            empty = true;
-        }
-         */
     }
     public void open() throws IOException {
         reader = new BufferedReader(new FileReader(file));
