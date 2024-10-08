@@ -32,27 +32,19 @@ public class Language {
                     file.next(); continue;
                 }
                 String[] phrase = file.getCurrentPhrase();
-                switch(phrase[0]){
-                    case "locale":
-                        name = phrase[0];
-                        break;
-                    case "locale.name":
-                        nameLocalized = phrase[1];
-                        break;
-                    case "locale.tag":
-                        locale = Locale.forLanguageTag(phrase[1]);
-                        break;
-                    default:
-                        break;
-                }
                 phrases.put(phrase[0], phrase[1]);
                 file.next();
             }
         } catch (Exception e) {
-            ClansPlugin.dbg("Fail reading LangFile at {0} line", file.getPosition());
-            e.printStackTrace();
+            ClansPlugin.log(Level.ERROR, "Failed reading LangFile {0} at {1} line", file.getFile().getName(), file.getPosition());
         }
-        ClansPlugin.dbg("Loaded Language at {0}", file.toString());
+        ClansPlugin.dbg("Loaded Language at {0}. Will load metadata now", file.toString());
+        if((name = phrases.get("locale")) == null)
+            ClansPlugin.log(Level.WARN, "Locale {0} has no name!", file.getFile().getName());
+        if((locale = Locale.forLanguageTag(phrases.get("locale.tag"))) == null)
+            ClansPlugin.log(Level.WARN, "Locale {0} has no locale tag, or it's invalid!", file.getFile().getName());
+        if((nameLocalized = phrases.get("locale.name")) == null)
+            ClansPlugin.log(Level.WARN, "Locale {0} has no localized name! Check locale.name tag in the file.", file.getFile().getName());
         try {
             file.close();
         } catch (IOException e) {
@@ -80,5 +72,14 @@ public class Language {
 
     public Map<String, String> getPhrases() {
         return phrases;
+    }
+
+    @Override
+    public String toString() {
+        return "Language{" +
+                "locale=" + locale +
+                ", nameLocalized='" + nameLocalized + '\'' +
+                ", name='" + name + '\'' +
+                '}';
     }
 }
