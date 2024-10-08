@@ -19,6 +19,23 @@ import org.slf4j.Logger;
 
 public class DisabledPlugin implements ClansPlugin {
     private static final String MESSAGE = "Plugin is disabled!";
+
+    @Override
+    public String getName() {
+        throw new NullPointerException(MESSAGE);
+
+    }
+
+    @Override
+    public String getDescription() {
+        throw new NullPointerException(MESSAGE);
+    }
+
+    @Override
+    public String getVersionString() {
+        throw new NullPointerException(MESSAGE);
+    }
+
     @Override
     public PlayerManager getPlayerManager() {
         throw new NullPointerException(MESSAGE);

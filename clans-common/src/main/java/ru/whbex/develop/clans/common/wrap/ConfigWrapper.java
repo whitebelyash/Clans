@@ -23,6 +23,8 @@ public interface ConfigWrapper {
     }
     boolean test();
 
+    void reload();
+
     DatabaseType getDatabaseBackend();
     String getDatabaseName();
     String getDatabaseUser();

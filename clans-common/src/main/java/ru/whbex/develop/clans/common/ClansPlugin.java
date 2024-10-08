@@ -44,6 +44,10 @@ public interface ClansPlugin {
         }
     }
 
+    String getName();
+    String getDescription();
+    String getVersionString();
+
     PlayerManager getPlayerManager();
     ClanManager getClanManager();
     // returns system language

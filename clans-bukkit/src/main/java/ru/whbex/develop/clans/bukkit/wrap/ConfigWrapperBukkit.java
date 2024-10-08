@@ -17,6 +17,10 @@ public class ConfigWrapperBukkit implements ConfigWrapper {
         return false;
     }
 
+    public void reload(){
+        throw new UnsupportedOperationException("WIP");
+    }
+
     @Override
     public DatabaseType getDatabaseBackend() {
         String val = config.getString("database.type");

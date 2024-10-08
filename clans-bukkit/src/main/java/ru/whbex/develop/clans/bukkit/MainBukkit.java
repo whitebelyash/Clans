@@ -146,6 +146,12 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     public ClanManager getClanManager() {
         return clanManager;
     }
+
+    @Override
+    public String getVersionString() {
+        return getDescription().getVersion();
+    }
+
     @Override
     public PlayerManager getPlayerManager(){
         return playerManager;
@@ -212,7 +218,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     @Override
     public void reloadConfigs() throws Exception {
-        ClansPlugin.dbg("Config reload not implemented");
 
     }
 
