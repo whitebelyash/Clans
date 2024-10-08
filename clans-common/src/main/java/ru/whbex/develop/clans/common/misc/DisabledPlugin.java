@@ -76,7 +76,7 @@ public class DisabledPlugin implements ClansPlugin {
     }
 
     @Override
-    public void reloadLocales() throws Exception {
+    public void reloadLangFiles() throws Exception {
         throw new NullPointerException(MESSAGE);
 
     }

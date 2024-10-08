@@ -46,11 +46,14 @@ public interface ClansPlugin {
 
     PlayerManager getPlayerManager();
     ClanManager getClanManager();
+    // returns system language
     Language getLanguage();
     SQLAdapter getSQLAdapter();
 
     <T extends SQLAdapter> T newSQLAdapter(Class<T> clazz); // this will init new adapter with ConnectionData from main config
 
+    /* Task management */
+    // TODO: Move to TaskManager/TaskScheduler/TaskDispatcher interface?
     Task run(Runnable task);
     Task runLater(long delay, Runnable task);
     Task runAsync(Runnable task);
@@ -58,10 +61,10 @@ public interface ClansPlugin {
     <T> Future<T> runCallable(Callable<T> callable);
     ExecutorService getDatabaseExecutor();
 
-    void reloadLocales() throws Exception;
+
+    void reloadLangFiles() throws Exception;
     void reloadConfigs() throws Exception;
     ConfigWrapper getConfigWrapped();
-
 
 
     static void dbg(String m, Object... args){
@@ -97,6 +100,5 @@ public interface ClansPlugin {
             case DEBUG -> Context.INSTANCE.logger.debug(StringUtils.simpleformat(message, args));
             case TRACE -> Context.INSTANCE.logger.trace(StringUtils.simpleformat(message, args));
         }
-
     }
 }

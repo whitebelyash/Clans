@@ -1,5 +1,6 @@
 package ru.whbex.develop.clans.bukkit;
 
+
 import com.djaytan.bukkit.slf4j.BukkitLoggerFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -104,7 +105,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         Bukkit.getPluginManager().registerEvents(new ListenerBukkit(), this);
         ClansPlugin.log(Level.INFO, "Registering ClanManager as a service");
         Bukkit.getServicesManager().register(ClanManager.class, clanManager, this, ServicePriority.Normal);
-        ClansPlugin.log(Level.INFO, "{0} v{1} - enabled successfully", this.getDescription().getName(), this.getDescription().getVersion());
     }
 
     @Override
@@ -129,7 +129,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
                 config.getDatabasePassword());
         this.dbConfig = data;
         ConfigWrapper.DatabaseType type = config.getDatabaseBackend();
-        ClansPlugin.dbg("conn to db, addr: {0}, name: {1}, backend: {2}", data.dbAddress(), data.dbName(), type.getImpl().getSimpleName());
         Constructor<? extends SQLAdapter> cst = type.getImpl().getConstructor(ConnectionData.class);
         this.ad = cst.newInstance(data);
         if(this.ad != null)
@@ -206,7 +205,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     }
 
     @Override
-    public void reloadLocales() throws Exception {
+    public void reloadLangFiles() throws Exception {
         ClansPlugin.dbg("Locale reload not implemented");
 
     }
