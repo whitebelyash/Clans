@@ -21,18 +21,18 @@ public class DisabledPlugin implements ClansPlugin {
     private static final String MESSAGE = "Plugin is disabled!";
 
     @Override
-    public String getName() {
+    public String _getName() {
         throw new NullPointerException(MESSAGE);
 
     }
 
     @Override
-    public String getDescription() {
+    public String _getDescription() {
         throw new NullPointerException(MESSAGE);
     }
 
     @Override
-    public String getVersionString() {
+    public String _getVersionString() {
         throw new NullPointerException(MESSAGE);
     }
 

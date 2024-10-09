@@ -148,8 +148,16 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     }
 
     @Override
-    public String getVersionString() {
+    public String _getVersionString() {
         return getDescription().getVersion();
+    }
+    public String _getDescription(){
+        // real shit
+        return getDescription().getDescription();
+    }
+    @Override
+    public String _getName(){
+        return getName();
     }
 
     @Override
@@ -233,4 +241,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     public ConfigWrapper getConfigWrapped(){
         return config;
     }
+    @Override
+    public 
 }

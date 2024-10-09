@@ -44,9 +44,9 @@ public interface ClansPlugin {
         }
     }
 
-    String getName();
-    String getDescription();
-    String getVersionString();
+    String _getName();
+    String _getDescription();
+    String _getVersionString();
 
     PlayerManager getPlayerManager();
     ClanManager getClanManager();
