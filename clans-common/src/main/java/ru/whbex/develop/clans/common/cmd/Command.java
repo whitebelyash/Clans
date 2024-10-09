@@ -9,4 +9,8 @@ public interface Command {
     default String permission() {
         return ClansPlugin.Context.NAME + '.' + name();
     }
+
+    default boolean isRoot(){
+        return false;
+    }
 }

@@ -53,4 +53,9 @@ public class ConfigWrapperBukkit implements ConfigWrapper {
     public String getDatabaseAddress() {
         return config.getString("database.address", "");
     }
+
+    @Override
+    public long getClanFlushDelay() {
+        return config.getLong("clan.flush-delay", 5000);
+    }
 }

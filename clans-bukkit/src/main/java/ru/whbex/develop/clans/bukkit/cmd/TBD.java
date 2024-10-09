@@ -69,39 +69,10 @@ public class TBD implements CommandExecutor {
     }
 
     private void list(CommandActor p, String[] args){
-        if(cm.getClans().isEmpty()){
-            p.sendMessageT("command.list.no-clans");
-            return;
-        }
-        p.sendMessageT("command.list.header");
-        StringBuilder msg = new StringBuilder();
-        p.sendMessage("&cisDeleted");
-        p.sendMessage(" ");
-        cm.getClans().forEach(c -> {
-            ClanMeta m = c.getMeta();
-            if(c.isDeleted())
-                msg.append("&c");
-            msg.append(String.join(", ", c.getId().toString(), m.getTag(), m.getName(),
-                    String.valueOf(c.getLevelling().getLevel()), String.valueOf(m.getCreationTime()), m.getLeader().toString()));
-            msg.append('\n');
-        });
 
-        p.sendMessage(msg.toString());
     }
     private void create(CommandActor p, String[] args){
-        if(args.length < 2)
-            throw new CommandError("meta.command.usage");
-        if(!p.isPlayer())
-            throw new CommandError("meta.command.player-required");
-        PlayerActor pa = (PlayerActor) p;
-        if(ClanUtils.isClanMember(pa.getUniqueId()))
-            throw new CommandError("command.create.leave");
-        String tag = args[1];
-        String name = StringUtils.simpleformat(Constants.CLAN_NAME_FORMAT, tag);
-        if(cm.clanExists(tag))
-            throw new CommandError("command.create.clan-exists", tag);
-        cm.createClan(tag, name, ((PlayerActor) p).getUniqueId());
-        p.sendMessageT("command.create.success", tag);
+
     }
     private void seen(CommandActor p, String[] args){
         /*

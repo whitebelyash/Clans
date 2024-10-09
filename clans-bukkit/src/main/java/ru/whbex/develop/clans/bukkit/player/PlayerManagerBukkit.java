@@ -1,8 +1,11 @@
 package ru.whbex.develop.clans.bukkit.player;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.loader.Bridge;
+import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.wrap.ConsoleActor;
@@ -121,5 +124,9 @@ public class PlayerManagerBukkit implements PlayerManager {
     @Override
     public ConsoleActor getConsoleActor() {
         return consoleActor;
+    }
+
+    public CommandActor asCommandActor(CommandSender sender){
+        return sender instanceof Player ? (CommandActor)this.getOrRegisterPlayerActor(((Player) sender).getUniqueId()) : (CommandActor) consoleActor;
     }
 }
