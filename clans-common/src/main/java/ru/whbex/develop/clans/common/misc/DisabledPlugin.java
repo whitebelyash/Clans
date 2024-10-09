@@ -1,5 +1,6 @@
 package ru.whbex.develop.clans.common.misc;
 
+import ru.whbex.develop.clans.common.TaskScheduler;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.wrap.ConsoleActor;
@@ -48,6 +49,11 @@ public class DisabledPlugin implements ClansPlugin {
     }
 
     @Override
+    public TaskScheduler getTaskScheduler() {
+        throw new NullPointerException(MESSAGE);
+    }
+
+    @Override
     public Language getLanguage() {
         throw new NullPointerException(MESSAGE);
 
@@ -62,35 +68,6 @@ public class DisabledPlugin implements ClansPlugin {
         throw new NullPointerException(MESSAGE);
     }
 
-    @Override
-    public Task run(Runnable task) {
-        throw new NullPointerException(MESSAGE);
-    }
-
-    @Override
-    public Task runLater(long delay, Runnable task) {
-        throw new NullPointerException(MESSAGE);
-    }
-
-    @Override
-    public Task runAsync(Runnable task) {
-        throw new NullPointerException(MESSAGE);
-    }
-
-    @Override
-    public Task runAsyncLater(long delay, Runnable task) {
-        throw new NullPointerException(MESSAGE);
-    }
-
-    @Override
-    public <T> Future<T> runCallable(Callable<T> callable) {
-        throw new NullPointerException(MESSAGE);
-    }
-
-    @Override
-    public ExecutorService getDatabaseExecutor() {
-        throw new NullPointerException(MESSAGE);
-    }
 
     @Override
     public void reloadLangFiles() throws Exception {

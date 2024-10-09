@@ -3,6 +3,8 @@ package ru.whbex.develop.clans.bukkit.wrap;
 import org.bukkit.scheduler.BukkitTask;
 import ru.whbex.develop.clans.common.wrap.Task;
 
+import java.util.concurrent.Future;
+
 public class TaskBukkit implements Task {
     private final BukkitTask task;
     public TaskBukkit(BukkitTask task){
@@ -29,4 +31,6 @@ public class TaskBukkit implements Task {
     public int id() {
         return task.getTaskId();
     }
+
+
 }

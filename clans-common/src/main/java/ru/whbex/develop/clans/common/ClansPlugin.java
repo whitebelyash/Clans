@@ -50,20 +50,12 @@ public interface ClansPlugin {
 
     PlayerManager getPlayerManager();
     ClanManager getClanManager();
+    TaskScheduler getTaskScheduler();
     // returns system language
     Language getLanguage();
+
     SQLAdapter getSQLAdapter();
-
     <T extends SQLAdapter> T newSQLAdapter(Class<T> clazz); // this will init new adapter with ConnectionData from main config
-
-    /* Task management */
-    // TODO: Move to TaskManager/TaskScheduler/TaskDispatcher interface?
-    Task run(Runnable task);
-    Task runLater(long delay, Runnable task);
-    Task runAsync(Runnable task);
-    Task runAsyncLater(long delay, Runnable task);
-    <T> Future<T> runCallable(Callable<T> callable);
-    ExecutorService getDatabaseExecutor();
 
 
     void reloadLangFiles() throws Exception;

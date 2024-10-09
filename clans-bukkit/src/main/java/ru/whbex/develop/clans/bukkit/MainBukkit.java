@@ -15,7 +15,9 @@ import ru.whbex.develop.clans.bukkit.player.PlayerManagerBukkit;
 import ru.whbex.develop.clans.bukkit.wrap.TaskBukkit;
 import ru.whbex.develop.clans.bukkit.wrap.ConfigWrapperBukkit;
 import ru.whbex.develop.clans.bukkit.player.ConsoleActorBukkit;
+import ru.whbex.develop.clans.bukkit.wrap.TaskSchedulerBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
+import ru.whbex.develop.clans.common.TaskScheduler;
 import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.clan.loader.Bridge;
 import ru.whbex.develop.clans.common.clan.loader.NullBridge;
@@ -50,6 +52,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     private ClanManager clanManager;
     private PlayerManager playerManager;
+    private TaskScheduler taskScheduler;
 
     private SQLAdapter ad = null;
     private ConnectionData dbConfig;
@@ -69,6 +72,8 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         ClansPlugin.dbg("hello");
         ClansPlugin.log(Level.INFO, "=== Clans ===");
         ClansPlugin.log(Level.INFO, "Starting on " + Bukkit.getName());
+
+        this.taskScheduler = new TaskSchedulerBukkit();
 
         this.saveDefaultConfig();
         config = new ConfigWrapperBukkit(this.getConfig());
@@ -105,6 +110,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         Bukkit.getPluginManager().registerEvents(new ListenerBukkit(), this);
         ClansPlugin.log(Level.INFO, "Registering ClanManager as a service");
         Bukkit.getServicesManager().register(ClanManager.class, clanManager, this, ServicePriority.Normal);
+        ClansPlugin.log(Level.INFO, "Startup completed");
     }
 
     @Override
@@ -148,6 +154,11 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     }
 
     @Override
+    public TaskScheduler getTaskScheduler() {
+        return new TaskSchedulerBukkit();
+    }
+
+    @Override
     public String _getVersionString() {
         return getDescription().getVersion();
     }
@@ -185,39 +196,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             throw new RuntimeException(e);
         }
     }
-
-
-
-    @Override
-    public Task run(Runnable task) {
-        return new TaskBukkit(Bukkit.getScheduler().runTask(this, task));
-    }
-
-    @Override
-    public Task runLater(long delay, Runnable task) {
-        return new TaskBukkit(Bukkit.getScheduler().runTaskLater(this, task, delay));
-    }
-
-    @Override
-    public Task runAsync(Runnable task) {
-        return new TaskBukkit(Bukkit.getScheduler().runTaskAsynchronously(this, task));
-    }
-
-    @Override
-    public Task runAsyncLater(long delay, Runnable task) {
-        return new TaskBukkit(Bukkit.getScheduler().runTaskLaterAsynchronously(this, task, delay));
-    }
-
-    @Override
-    public <T> Future<T> runCallable(Callable<T> callable) {
-        return dbExecutor.submit(callable);
-    }
-
-    @Override
-    public ExecutorService getDatabaseExecutor() {
-        return dbExecutor;
-    }
-
     @Override
     public void reloadLangFiles() throws Exception {
         ClansPlugin.dbg("Locale reload not implemented");
@@ -241,6 +219,5 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     public ConfigWrapper getConfigWrapped(){
         return config;
     }
-    @Override
-    public 
+
 }

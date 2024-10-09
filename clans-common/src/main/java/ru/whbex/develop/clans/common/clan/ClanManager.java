@@ -111,6 +111,7 @@ public class ClanManager {
     }
 
     public Future<Void> importAll(Bridge bridge){
+        ClansPlugin.log(Level.INFO, "Importing clans from " + bridge.getClass().getSimpleName());
         Callable<Void> call = () -> {
             ClansPlugin.log(Level.INFO, "Loading clans...");
             Collection<Clan> fetched = bridge.fetchAll();
@@ -133,12 +134,13 @@ public class ClanManager {
                     ClansPlugin.log(Level.ERROR, "Loaded clan with insert enabled, this is not ok !!!!");
                 }
             });
-            ClansPlugin.log(Level.INFO, "Loaded {0}/{1} clans", clans.size(), tagClans.size());
+            ClansPlugin.log(Level.INFO, "Import complete! Loaded {0}/{1} clans", clans.size(), tagClans.size());
             return null;
         };
-        return ClansPlugin.Context.INSTANCE.plugin.runCallable(call);
+        return ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runCallable(call);
     }
     public Future<Void> exportAll(Bridge bridge){
+        ClansPlugin.log(Level.INFO, "Exporting clans to " + bridge.getClass().getSimpleName());
         Callable<Void> call = () -> {
             if(clans.isEmpty())
                 return null;
@@ -147,7 +149,7 @@ public class ClanManager {
             ClansPlugin.log(Level.INFO, "Complete!");
             return null;
         };
-        return ClansPlugin.Context.INSTANCE.plugin.runCallable(call);
+        return ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runCallable(call);
     }
     public void shutdown(){
         try {
