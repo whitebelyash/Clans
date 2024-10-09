@@ -33,7 +33,6 @@ public class ClanManager {
     public ClanManager(ConfigWrapper config, Bridge bridge){
         ClansPlugin.dbg("init clanmanager");
         this.bridge = bridge;
-        // TODO: Fetch clans from ClanLoader
         try {
             this.bridge.init();
             this.importAll(bridge).get();
@@ -41,7 +40,9 @@ public class ClanManager {
             ClansPlugin.log(Level.ERROR, "Failed to import clans on ClanManager init!!!");
             throw new RuntimeException(e);
         }
-
+        long flushDelay = ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay();
+        if(ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay() > 1)
+            ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runRepeating(() -> exportAll(this.bridge), flushDelay, flushDelay);
     }
 
 

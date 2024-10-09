@@ -31,5 +31,7 @@ public interface ConfigWrapper {
     String getDatabasePassword();
     String getDatabaseAddress();
 
+    long getClanFlushDelay();
+
 
 }
