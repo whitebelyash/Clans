@@ -1,7 +1,7 @@
 package ru.whbex.develop.clans.common.clan.member;
 
-import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.clan.Clan;
+import ru.whbex.develop.clans.common.clan.ClanManager;
 
 import java.util.Collection;
 import java.util.HashMap;

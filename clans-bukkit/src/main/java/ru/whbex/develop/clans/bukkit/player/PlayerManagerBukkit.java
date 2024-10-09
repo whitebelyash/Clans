@@ -1,20 +1,21 @@
 package ru.whbex.develop.clans.bukkit.player;
 
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.loader.Bridge;
-import ru.whbex.develop.clans.common.db.SQLAdapter;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.wrap.ConsoleActor;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class PlayerManagerBukkit implements PlayerManager {
-    private Map<UUID, PlayerActor> actors = new HashMap<>();
-    private Map<String, PlayerActor> actorsN = new HashMap<>();
-    private Map<UUID, PlayerActor> onlineActors = new HashMap<>();
+    private final Map<UUID, PlayerActor> actors = new HashMap<>();
+    private final Map<String, PlayerActor> actorsN = new HashMap<>();
+    private final Map<UUID, PlayerActor> onlineActors = new HashMap<>();
 
     private final ConsoleActorBukkit consoleActor = new ConsoleActorBukkit();
 

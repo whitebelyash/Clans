@@ -1,21 +1,24 @@
 package ru.whbex.develop.clans.common.clan.loader;
 
-import ru.whbex.develop.clans.common.Constants;
-import ru.whbex.develop.clans.common.clan.ClanRank;
-import ru.whbex.develop.clans.common.misc.StringUtils;
+import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
+import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.clan.ClanLevelling;
 import ru.whbex.develop.clans.common.clan.ClanMeta;
+import ru.whbex.develop.clans.common.clan.ClanRank;
 import ru.whbex.develop.clans.common.db.SQLAdapter;
 import ru.whbex.develop.clans.common.db.SQLCallback;
+import ru.whbex.develop.clans.common.misc.StringUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import org.slf4j.event.Level;
 
 /* SQLAdapter bridge to ClanManager */
 /* Anything here must be run in the same thread as the SQLAdapter. */

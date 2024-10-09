@@ -32,7 +32,7 @@ public class ClanSettings {
         }
     }
 
-    private EnumMap<Setting, Boolean> settings;
+    private final EnumMap<Setting, Boolean> settings;
 
     private ClanSettings(){
         settings = new EnumMap<>(Setting.class);

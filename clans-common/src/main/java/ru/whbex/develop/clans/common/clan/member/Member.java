@@ -1,18 +1,18 @@
 package ru.whbex.develop.clans.common.clan.member;
 
-import ru.whbex.develop.clans.common.player.PlayerActor;
-import ru.whbex.develop.clans.common.clan.ClanRank;
 import ru.whbex.develop.clans.common.clan.Clan;
+import ru.whbex.develop.clans.common.clan.ClanRank;
+import ru.whbex.develop.clans.common.player.PlayerActor;
 
 import java.util.UUID;
 
 public class Member {
-    private PlayerActor actor;
+    private final PlayerActor actor;
     private Clan clan;
-    private int exp;
+    private final int exp;
     private int kills = 0;
     private int deaths = 0;
-    private ClanRank rank;
+    private final ClanRank rank;
 
     public Member(PlayerActor actor, Clan clan, int exp, int kills, int deaths, ClanRank rank){
         this.actor = actor;

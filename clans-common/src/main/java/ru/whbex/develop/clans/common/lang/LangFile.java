@@ -1,9 +1,12 @@
 package ru.whbex.develop.clans.common.lang;
 
-import ru.whbex.develop.clans.common.misc.StringUtils;
 import ru.whbex.develop.clans.common.ClansPlugin;
+import ru.whbex.develop.clans.common.misc.StringUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 // === Language file ===
 // path.example=Legit
@@ -23,7 +26,7 @@ public class LangFile {
 
     private boolean empty = false;
     // TODO: Separate LangFile instance create and load
-    private boolean loaded = true;
+    private final boolean loaded = true;
     public LangFile(File file) {
         ClansPlugin.dbg("Creating language file at " + file.getAbsolutePath());
         this.empty = !file.exists();

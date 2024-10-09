@@ -1,17 +1,14 @@
 package ru.whbex.develop.clans.common.db;
 
+import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 
 import java.sql.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import org.slf4j.event.Level;
 
 /* JDBC adapter. Supports query/update, preparedstatement query/update, batched update */
 public abstract class SQLAdapter {
     private volatile Connection con;
-    private boolean err = true;
+    private final boolean err = true;
 
     public static final String JDBC_PREFIX = "jdbc";
     public static final int LOGIN_TIMEOUT = 3;

@@ -13,7 +13,7 @@ public class ClanMeta {
     private String description;
     private UUID leader;
     private final long creationTime;
-    private ClanRank defaultRank;
+    private final ClanRank defaultRank;
 
     /* Settings */
     private boolean viewable = true;

@@ -1,16 +1,16 @@
 package ru.whbex.develop.clans.common.clan;
 
+import org.slf4j.Logger;
 import org.slf4j.event.Level;
+import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.clan.loader.Bridge;
 import ru.whbex.develop.clans.common.wrap.ConfigWrapper;
-import ru.whbex.develop.clans.common.ClansPlugin;
 
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import org.slf4j.Logger;
 
 // simple clan manager
 public class ClanManager {

@@ -1,31 +1,19 @@
 package ru.whbex.develop.clans.common;
 
+import org.slf4j.Logger;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.clan.ClanManager;
-import ru.whbex.develop.clans.common.db.H2SQLAdapter;
 import ru.whbex.develop.clans.common.db.SQLAdapter;
 import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.misc.DisabledPlugin;
 import ru.whbex.develop.clans.common.misc.StringUtils;
-import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.wrap.ConfigWrapper;
-import ru.whbex.develop.clans.common.wrap.ConsoleActor;
-import ru.whbex.develop.clans.common.wrap.Task;
-
-import java.sql.SQLException;
-import java.util.Collection;
-import java.util.UUID;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-
-import org.slf4j.Logger;
 
 // Poorly written clans plugin
 // Goal - copy VanillaCraft clans functionality with some additions (because original is private & proprietary)
 public interface ClansPlugin {
-    public enum Context {
+    enum Context {
         INSTANCE;
 
         public ClansPlugin plugin = new DisabledPlugin();

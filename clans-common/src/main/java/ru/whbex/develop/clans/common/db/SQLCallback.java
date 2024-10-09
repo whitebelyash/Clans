@@ -1,6 +1,5 @@
 package ru.whbex.develop.clans.common.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 @FunctionalInterface

@@ -11,10 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.bukkit.cmd.TBD;
 import ru.whbex.develop.clans.bukkit.listener.ListenerBukkit;
-import ru.whbex.develop.clans.bukkit.player.PlayerManagerBukkit;
-import ru.whbex.develop.clans.bukkit.wrap.TaskBukkit;
-import ru.whbex.develop.clans.bukkit.wrap.ConfigWrapperBukkit;
 import ru.whbex.develop.clans.bukkit.player.ConsoleActorBukkit;
+import ru.whbex.develop.clans.bukkit.player.PlayerManagerBukkit;
+import ru.whbex.develop.clans.bukkit.wrap.ConfigWrapperBukkit;
 import ru.whbex.develop.clans.bukkit.wrap.TaskSchedulerBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.TaskScheduler;
@@ -24,27 +23,23 @@ import ru.whbex.develop.clans.common.clan.loader.NullBridge;
 import ru.whbex.develop.clans.common.clan.loader.SQLBridge;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.db.ConnectionData;
-import ru.whbex.develop.clans.common.db.H2SQLAdapter;
 import ru.whbex.develop.clans.common.db.SQLAdapter;
 import ru.whbex.develop.clans.common.lang.LangFile;
 import ru.whbex.develop.clans.common.lang.Language;
-import ru.whbex.develop.clans.common.misc.StringUtils;
-
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.wrap.ConfigWrapper;
 import ru.whbex.develop.clans.common.wrap.ConsoleActor;
-import ru.whbex.develop.clans.common.wrap.Task;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainBukkit extends JavaPlugin implements ClansPlugin {
     private java.util.logging.Logger LOG;
-    private ConsoleActor console = new ConsoleActorBukkit();
+    private final ConsoleActor console = new ConsoleActorBukkit();
     private ConfigWrapper config;
 
 

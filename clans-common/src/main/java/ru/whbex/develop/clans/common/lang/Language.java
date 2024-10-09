@@ -10,9 +10,9 @@ import java.util.Map;
 
 public class Language {
 
-    private String name;
-    private String nameLocalized;
-    private Locale locale;
+    private final String name;
+    private final String nameLocalized;
+    private final Locale locale;
 
     private final Map<String, String> phrases = new HashMap<>();
 
