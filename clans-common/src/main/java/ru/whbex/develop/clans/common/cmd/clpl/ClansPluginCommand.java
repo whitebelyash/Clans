@@ -5,7 +5,7 @@ import ru.whbex.develop.clans.common.cmd.ActorProxy;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.exec.RootCommand;
 
-public abstract class ClansPluginCommand<T> extends RootCommand<T> implements ActorProxy<T> {
+public abstract class ClansPluginCommand<T> extends RootCommand<T>{
 
     @Override
     protected void registerAll() {
