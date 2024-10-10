@@ -19,17 +19,6 @@ public class Constants {
     // Ranks
     public static final ClanRank DEFAULT_RANK = ClanRank.NOVICE;
 
-    // === Permissions ===
-    // broadcast
-    public static final String BC_CLAN_CREATE = "clans.broadcast.create";
-    public static final String BC_CLAN_DISBAND_PLAYER = "clans.broadcast.disbandplayer";
-    public static final String BC_CLAN_DISBAND_STAFF = "clans.broadcast.disbandstaff";
-    // chats
-    public static final String CLAN_CHAT = "clans.clanchat";
-    public static final String ALLY_CHAT = "clans.allychat";
-    public static final String CLAN_CHAT_SPY = "clans.clanchat.spy";
-    public static final String ALLY_CHAT_SPY = "clans.allychat.spy";
-
     // misc
     public static final String LANGUAGE_FILE_NAME = "messages.lang";
 

@@ -17,8 +17,8 @@ public interface PlayerActor {
 
     Clan getClan();
     boolean hasClan();
-    // REQUESTS
 
+    // REQUESTS
     void addRequest(Request request);
     void removeRequest(Request request);
     void removeRequest(PlayerActor sender);

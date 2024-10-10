@@ -2,7 +2,6 @@ package ru.whbex.develop.clans.common.clan;
 
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
-import ru.whbex.develop.clans.common.misc.LevellingUtils;
 
 public class ClanLevelling {
     public ClanLevelling(int level, int experience){
@@ -48,7 +47,7 @@ public class ClanLevelling {
 
     // recalculate level based on experience. Returns true if level was updated
     public boolean recalcLevel(){
-        int expNext = LevellingUtils.getToNextExp(level);
+        int expNext = Constants.NEXT_LEVEL_REQ + level * Constants.NEXT_LEVEL_STEP;
         ClansPlugin.dbg("toNextExp: " + expNext);
         if(expNext <= experience){
             ClansPlugin.dbg("detected lvlup!!");

@@ -135,8 +135,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         ConfigWrapper.DatabaseType type = config.getDatabaseBackend();
         Constructor<? extends SQLAdapter> cst = type.getImpl().getConstructor(ConnectionData.class);
         this.ad = cst.newInstance(data);
-        if(this.ad != null)
-            ad.connect();
+        ad.connect();
 
     }
     private void databaseEnable(){
@@ -203,15 +202,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     @Override
     public void reloadConfigs() throws Exception {
 
-    }
-
-    // Actor management
-
-
-
-
-    public CommandActor asCommandActor(CommandSender sender){
-        return sender instanceof Player ? (CommandActor) playerManager.getOrRegisterPlayerActor(((Player) sender).getUniqueId()) : (CommandActor) console;
     }
 
     public ConfigWrapper getConfigWrapped(){

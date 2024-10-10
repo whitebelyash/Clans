@@ -15,7 +15,7 @@ public class Clan {
 
     private boolean insert = true;
 
-    public Clan(ClanManager cm, UUID clanId, ClanMeta meta, ClanSettings settings, ClanLevelling levelling, boolean insert){
+    public Clan(ClanManager cm, UUID clanId, ClanMeta meta, ClanLevelling levelling, boolean insert){
         this.cm = cm;
         this.clanId = clanId;
         this.meta = meta;

@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+// TODO: Huge refactor
 public class PlayerManagerBukkit implements PlayerManager {
     private final Map<UUID, PlayerActor> actors = new HashMap<>();
     private final Map<String, PlayerActor> actorsN = new HashMap<>();

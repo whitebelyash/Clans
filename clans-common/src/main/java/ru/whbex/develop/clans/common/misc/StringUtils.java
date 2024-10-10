@@ -39,7 +39,6 @@ public class StringUtils {
         try {
             id = UUID.fromString(uuid);
         } catch (IllegalArgumentException e){
-            ClansPlugin.dbg("inval uuid input: " + uuid); // TODO: Remove this sometime
             return null;
         }
         return id;

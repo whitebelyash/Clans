@@ -95,7 +95,7 @@ public class SQLBridge implements Bridge {
                         int exp = rs.getInt("exp");
                         ClanLevelling levelling = new ClanLevelling(lvl, exp);
                         ClanMeta meta = new ClanMeta(tag, name, description, lid, time, rank);
-                        Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling, false);
+                        Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, levelling, false);
                         clan.set(c);
                     } while(rs.next());
                 else {
@@ -148,7 +148,7 @@ public class SQLBridge implements Bridge {
                         int exp = rs.getInt("exp");
                         ClanLevelling levelling = new ClanLevelling(lvl, exp);
                         ClanMeta meta = new ClanMeta(tag, name, description, lid, time, rank);
-                        Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling, false);
+                        Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, levelling, false);
                         clan.set(c);
                     } while(rs.next());
                 else {
@@ -242,7 +242,7 @@ public class SQLBridge implements Bridge {
                     int exp = rs.getInt("exp");
                     ClanLevelling levelling = new ClanLevelling(lvl, exp);
                     ClanMeta meta = new ClanMeta(tag, name, description, lid, time, rank);
-                    Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, null, levelling, false);
+                    Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, levelling, false);
                     c.setDeleted(deleted);
                     clans.add(c);
                 }

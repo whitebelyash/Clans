@@ -12,7 +12,6 @@ import java.io.IOException;
 // path.example=Legit
 // path.example = Legit (not supported yet)
 public class LangFile {
-    private final ClansPlugin.Context ctx = ClansPlugin.Context.INSTANCE;
 
 
     private final File file;
