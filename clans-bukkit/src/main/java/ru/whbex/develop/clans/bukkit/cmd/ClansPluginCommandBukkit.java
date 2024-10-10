@@ -19,7 +19,7 @@ public class ClansPluginCommandBukkit extends ClansPluginCommand<CommandSender> 
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        this.execute(asActor(commandSender), cmds.get("clansplugin"), s, strings);
+        this.execute(asActor(commandSender), this, s, strings);
         return true;
     }
 

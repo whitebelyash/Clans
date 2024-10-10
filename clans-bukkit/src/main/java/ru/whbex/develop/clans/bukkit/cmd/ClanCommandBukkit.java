@@ -19,7 +19,7 @@ public class ClanCommandBukkit extends ClanCommand<CommandSender> implements Com
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
-        this.execute(asActor(commandSender), cmds.get("clan"), s, strings);
+        this.execute(asActor(commandSender), this, s, strings);
         return true;
     }
 
