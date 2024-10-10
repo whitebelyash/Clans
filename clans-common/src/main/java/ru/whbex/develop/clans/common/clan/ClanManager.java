@@ -6,6 +6,7 @@ import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.clan.loader.Bridge;
 import ru.whbex.develop.clans.common.wrap.ConfigWrapper;
+import ru.whbex.develop.clans.common.wrap.Task;
 
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -18,18 +19,19 @@ public class ClanManager {
         CLAN_NOT_FOUND,
         CLAN_TAG_EXISTS
     }
-
     private final Logger log = ClansPlugin.Context.INSTANCE.logger;
 
 
 
     // Main clan map
     private final Map<UUID, Clan> clans = new HashMap<>();
-
-    private final Bridge bridge;
-
     // Tag to uuid map
     private final Map<String, Clan> tagClans = new HashMap<>();
+
+    private final Bridge bridge;
+    private final Task flushTask;
+
+
     public ClanManager(ConfigWrapper config, Bridge bridge){
         ClansPlugin.dbg("init clanmanager");
         this.bridge = bridge;
@@ -42,7 +44,8 @@ public class ClanManager {
         }
         long flushDelay = ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay();
         if(ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay() > 1)
-            ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runRepeating(() -> exportAll(this.bridge), flushDelay * 20, flushDelay * 20);
+            this.flushTask = ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runRepeating(() -> exportAll(this.bridge), flushDelay * 20, flushDelay * 20);
+        else flushTask = null;
     }
 
 
@@ -153,6 +156,8 @@ public class ClanManager {
         return ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runCallable(call);
     }
     public void shutdown(){
+        if(this.flushTask != null && !flushTask.cancelled())
+            flushTask.cancel();
         try {
             this.exportAll(bridge).get();
         } catch (InterruptedException | ExecutionException e) {
