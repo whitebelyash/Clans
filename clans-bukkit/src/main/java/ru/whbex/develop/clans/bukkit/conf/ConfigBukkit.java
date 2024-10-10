@@ -3,13 +3,13 @@ package ru.whbex.develop.clans.bukkit.conf;
 import org.bukkit.configuration.Configuration;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
-import ru.whbex.develop.clans.common.conf.ConfigWrapper;
+import ru.whbex.develop.clans.common.conf.Config;
 
 import java.util.Objects;
 
-public class ConfigWrapperBukkit implements ConfigWrapper {
+public class ConfigBukkit implements Config {
     private final Configuration config;
-    public ConfigWrapperBukkit(Configuration conf){
+    public ConfigBukkit(Configuration conf){
         this.config = conf;
     }
     @Override

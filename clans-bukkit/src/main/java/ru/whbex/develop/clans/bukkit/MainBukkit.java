@@ -12,7 +12,7 @@ import ru.whbex.develop.clans.bukkit.cmd.TBD;
 import ru.whbex.develop.clans.bukkit.listener.ListenerBukkit;
 import ru.whbex.develop.clans.bukkit.player.ConsoleActorBukkit;
 import ru.whbex.develop.clans.bukkit.player.PlayerManagerBukkit;
-import ru.whbex.develop.clans.bukkit.conf.ConfigWrapperBukkit;
+import ru.whbex.develop.clans.bukkit.conf.ConfigBukkit;
 import ru.whbex.develop.clans.bukkit.task.TaskSchedulerBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.task.TaskScheduler;
@@ -25,7 +25,7 @@ import ru.whbex.develop.clans.common.db.SQLAdapter;
 import ru.whbex.develop.clans.common.lang.LangFile;
 import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.player.PlayerManager;
-import ru.whbex.develop.clans.common.conf.ConfigWrapper;
+import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.player.ConsoleActor;
 
 import java.io.File;
@@ -38,7 +38,7 @@ import java.util.concurrent.Executors;
 public class MainBukkit extends JavaPlugin implements ClansPlugin {
     private java.util.logging.Logger LOG;
     private final ConsoleActor console = new ConsoleActorBukkit();
-    private ConfigWrapper config;
+    private Config config;
 
 
     private ExecutorService dbExecutor;
@@ -69,7 +69,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         this.taskScheduler = new TaskSchedulerBukkit();
 
         this.saveDefaultConfig();
-        config = new ConfigWrapperBukkit(this.getConfig());
+        config = new ConfigBukkit(this.getConfig());
 
         dbExecutor = Executors.newSingleThreadExecutor();
 
@@ -128,7 +128,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
                 config.getDatabaseUser(),
                 config.getDatabasePassword());
         this.dbConfig = data;
-        ConfigWrapper.DatabaseType type = config.getDatabaseBackend();
+        Config.DatabaseType type = config.getDatabaseBackend();
         Constructor<? extends SQLAdapter> cst = type.getImpl().getConstructor(ConnectionData.class);
         this.ad = cst.newInstance(data);
         ad.connect();
@@ -200,7 +200,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     }
 
-    public ConfigWrapper getConfigWrapped(){
+    public Config getConfigWrapped(){
         return config;
     }
 

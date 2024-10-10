@@ -5,7 +5,7 @@ import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.clan.bridge.Bridge;
-import ru.whbex.develop.clans.common.conf.ConfigWrapper;
+import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.task.Task;
 
 import java.util.*;
@@ -32,7 +32,7 @@ public class ClanManager {
     private final Task flushTask;
 
 
-    public ClanManager(ConfigWrapper config, Bridge bridge){
+    public ClanManager(Config config, Bridge bridge){
         ClansPlugin.dbg("init clanmanager");
         this.bridge = bridge;
         try {

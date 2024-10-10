@@ -9,7 +9,7 @@ import ru.whbex.develop.clans.common.misc.DisabledPlugin;
 import ru.whbex.develop.clans.common.misc.StringUtils;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.task.TaskScheduler;
-import ru.whbex.develop.clans.common.conf.ConfigWrapper;
+import ru.whbex.develop.clans.common.conf.Config;
 
 // Poorly written clans plugin
 // Goal - copy VanillaCraft clans functionality with some additions (because original is private & proprietary)
@@ -49,7 +49,7 @@ public interface ClansPlugin {
 
     void reloadLangFiles() throws Exception;
     void reloadConfigs() throws Exception;
-    ConfigWrapper getConfigWrapped();
+    Config getConfigWrapped();
 
 
     static void dbg(String m, Object... args){

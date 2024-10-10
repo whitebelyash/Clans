@@ -6,7 +6,7 @@ import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.db.SQLAdapter;
 import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.player.PlayerManager;
-import ru.whbex.develop.clans.common.conf.ConfigWrapper;
+import ru.whbex.develop.clans.common.conf.Config;
 
 public class DisabledPlugin implements ClansPlugin {
     private static final String MESSAGE = "Plugin is disabled!";
@@ -72,7 +72,7 @@ public class DisabledPlugin implements ClansPlugin {
     }
 
     @Override
-    public ConfigWrapper getConfigWrapped() {
+    public Config getConfigWrapped() {
         throw new NullPointerException(MESSAGE);
     }
 }

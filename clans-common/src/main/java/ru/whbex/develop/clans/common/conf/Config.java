@@ -5,7 +5,7 @@ import ru.whbex.develop.clans.common.db.SQLAdapter;
 import ru.whbex.develop.clans.common.db.impl.SQLiteAdapter;
 
 /* Simple config wrapper, i won't write overengineered shit here, don't even ask me */
-public interface ConfigWrapper {
+public interface Config {
 
     enum DatabaseType {
         H2(H2SQLAdapter.class),
