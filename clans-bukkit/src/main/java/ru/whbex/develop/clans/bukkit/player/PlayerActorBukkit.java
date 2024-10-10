@@ -152,6 +152,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     public String toString() {
         return "PlayerActorBukkit{" +
                 "id=" + id +
+                "online="+ isOnline() +
                 '}';
     }
 }
