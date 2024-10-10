@@ -8,7 +8,7 @@ import java.util.Collection;
 public class ClanHelpCommand implements Command {
     private final Collection<String> commands;
     ClanHelpCommand(Collection<Command> commands){
-        this.commands = commands.stream().filter(c -> !c.isRoot()).map(Command::name).toList();
+        this.commands = commands.stream().map(Command::name).toList();
     }
     @Override
     public void execute(CommandActor actor, Command command, String label, String... args) {

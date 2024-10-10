@@ -11,7 +11,6 @@ import java.util.Map;
 public abstract class RootCommand<T> implements ActorProxy<T>, Command {
 
     public RootCommand(){
-        register(this);
         registerAll();
     }
 
