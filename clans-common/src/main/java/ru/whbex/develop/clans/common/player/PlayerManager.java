@@ -1,7 +1,5 @@
 package ru.whbex.develop.clans.common.player;
 
-import ru.whbex.develop.clans.common.wrap.ConsoleActor;
-
 import java.util.Collection;
 import java.util.UUID;
 

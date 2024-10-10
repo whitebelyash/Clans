@@ -9,7 +9,7 @@ import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
-import ru.whbex.develop.clans.common.cmd.CommandError;
+import ru.whbex.develop.clans.common.cmd.exec.CommandError;
 import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.misc.StringUtils;
 import ru.whbex.develop.clans.common.player.PlayerActor;

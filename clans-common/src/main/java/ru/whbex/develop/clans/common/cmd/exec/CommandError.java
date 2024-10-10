@@ -1,4 +1,4 @@
-package ru.whbex.develop.clans.common.cmd;
+package ru.whbex.develop.clans.common.cmd.exec;
 
 public class CommandError extends RuntimeException {
     private final String message;

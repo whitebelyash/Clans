@@ -3,11 +3,11 @@ package ru.whbex.develop.clans.common.cmd.clan;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.clan.ClanMeta;
-import ru.whbex.develop.clans.common.cmd.Command;
+import ru.whbex.develop.clans.common.cmd.exec.Command;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 
 public class ClanListCommand implements Command {
-    private ClanManager cm = ClansPlugin.Context.INSTANCE.plugin.getClanManager();
+    private final ClanManager cm = ClansPlugin.Context.INSTANCE.plugin.getClanManager();
     @Override
     public void execute(CommandActor actor, Command command, String label, String... args) {
         if(cm.getClans().isEmpty()){

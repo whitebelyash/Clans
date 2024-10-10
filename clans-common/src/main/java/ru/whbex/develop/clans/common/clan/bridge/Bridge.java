@@ -1,4 +1,4 @@
-package ru.whbex.develop.clans.common.clan.loader;
+package ru.whbex.develop.clans.common.clan.bridge;
 
 import ru.whbex.develop.clans.common.clan.Clan;
 

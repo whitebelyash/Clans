@@ -1,8 +1,8 @@
-package ru.whbex.develop.clans.common.wrap;
+package ru.whbex.develop.clans.common.conf;
 
-import ru.whbex.develop.clans.common.db.H2SQLAdapter;
+import ru.whbex.develop.clans.common.db.impl.H2SQLAdapter;
 import ru.whbex.develop.clans.common.db.SQLAdapter;
-import ru.whbex.develop.clans.common.db.SQLiteAdapter;
+import ru.whbex.develop.clans.common.db.impl.SQLiteAdapter;
 
 /* Simple config wrapper, i won't write overengineered shit here, don't even ask me */
 public interface ConfigWrapper {

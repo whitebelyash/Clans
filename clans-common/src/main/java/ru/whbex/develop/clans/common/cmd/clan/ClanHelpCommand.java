@@ -1,10 +1,9 @@
 package ru.whbex.develop.clans.common.cmd.clan;
 
-import ru.whbex.develop.clans.common.cmd.Command;
+import ru.whbex.develop.clans.common.cmd.exec.Command;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 public class ClanHelpCommand implements Command {
     private final Collection<String> commands;

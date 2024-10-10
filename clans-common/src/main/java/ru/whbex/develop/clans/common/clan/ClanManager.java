@@ -4,9 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
-import ru.whbex.develop.clans.common.clan.loader.Bridge;
-import ru.whbex.develop.clans.common.wrap.ConfigWrapper;
-import ru.whbex.develop.clans.common.wrap.Task;
+import ru.whbex.develop.clans.common.clan.bridge.Bridge;
+import ru.whbex.develop.clans.common.conf.ConfigWrapper;
+import ru.whbex.develop.clans.common.task.Task;
 
 import java.util.*;
 import java.util.concurrent.Callable;

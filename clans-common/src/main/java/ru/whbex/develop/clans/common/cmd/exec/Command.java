@@ -1,6 +1,7 @@
-package ru.whbex.develop.clans.common.cmd;
+package ru.whbex.develop.clans.common.cmd.exec;
 
 import ru.whbex.develop.clans.common.ClansPlugin;
+import ru.whbex.develop.clans.common.cmd.CommandActor;
 
 public interface Command {
 

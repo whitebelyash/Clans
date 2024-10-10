@@ -1,11 +1,11 @@
-package ru.whbex.develop.clans.bukkit.wrap;
+package ru.whbex.develop.clans.bukkit.task;
 
 import org.bukkit.Bukkit;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.bukkit.MainBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
-import ru.whbex.develop.clans.common.TaskScheduler;
-import ru.whbex.develop.clans.common.wrap.Task;
+import ru.whbex.develop.clans.common.task.TaskScheduler;
+import ru.whbex.develop.clans.common.task.Task;
 
 import java.util.concurrent.*;
 

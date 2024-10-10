@@ -3,9 +3,9 @@ package ru.whbex.develop.clans.common.cmd.clan;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.clan.ClanManager;
-import ru.whbex.develop.clans.common.cmd.Command;
+import ru.whbex.develop.clans.common.cmd.exec.Command;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
-import ru.whbex.develop.clans.common.cmd.CommandError;
+import ru.whbex.develop.clans.common.cmd.exec.CommandError;
 import ru.whbex.develop.clans.common.misc.StringUtils;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 

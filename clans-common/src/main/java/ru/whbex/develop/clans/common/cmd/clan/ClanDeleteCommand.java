@@ -1,6 +1,6 @@
 package ru.whbex.develop.clans.common.cmd.clan;
 
-import ru.whbex.develop.clans.common.cmd.Command;
+import ru.whbex.develop.clans.common.cmd.exec.Command;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 
 public class ClanDeleteCommand implements Command {

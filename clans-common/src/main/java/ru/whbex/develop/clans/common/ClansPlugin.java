@@ -8,7 +8,8 @@ import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.misc.DisabledPlugin;
 import ru.whbex.develop.clans.common.misc.StringUtils;
 import ru.whbex.develop.clans.common.player.PlayerManager;
-import ru.whbex.develop.clans.common.wrap.ConfigWrapper;
+import ru.whbex.develop.clans.common.task.TaskScheduler;
+import ru.whbex.develop.clans.common.conf.ConfigWrapper;
 
 // Poorly written clans plugin
 // Goal - copy VanillaCraft clans functionality with some additions (because original is private & proprietary)

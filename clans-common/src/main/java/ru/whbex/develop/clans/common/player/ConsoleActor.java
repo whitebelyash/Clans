@@ -1,4 +1,4 @@
-package ru.whbex.develop.clans.common.wrap;
+package ru.whbex.develop.clans.common.player;
 
 public interface ConsoleActor {
     void sendMessage(String s);

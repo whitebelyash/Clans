@@ -1,9 +1,9 @@
-package ru.whbex.develop.clans.bukkit.wrap;
+package ru.whbex.develop.clans.bukkit.conf;
 
 import org.bukkit.configuration.Configuration;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
-import ru.whbex.develop.clans.common.wrap.ConfigWrapper;
+import ru.whbex.develop.clans.common.conf.ConfigWrapper;
 
 import java.util.Objects;
 

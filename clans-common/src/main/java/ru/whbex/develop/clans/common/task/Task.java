@@ -1,4 +1,4 @@
-package ru.whbex.develop.clans.common.wrap;
+package ru.whbex.develop.clans.common.task;
 
 public interface Task {
 

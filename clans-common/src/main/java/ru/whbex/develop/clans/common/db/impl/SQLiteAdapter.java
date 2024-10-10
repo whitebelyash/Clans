@@ -1,6 +1,8 @@
-package ru.whbex.develop.clans.common.db;
+package ru.whbex.develop.clans.common.db.impl;
 
 import ru.whbex.develop.clans.common.ClansPlugin;
+import ru.whbex.develop.clans.common.db.ConnectionData;
+import ru.whbex.develop.clans.common.db.SQLAdapter;
 
 import java.io.File;
 import java.io.IOException;

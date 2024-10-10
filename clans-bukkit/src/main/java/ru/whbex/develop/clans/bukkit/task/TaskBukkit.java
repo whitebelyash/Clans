@@ -1,7 +1,7 @@
-package ru.whbex.develop.clans.bukkit.wrap;
+package ru.whbex.develop.clans.bukkit.task;
 
 import org.bukkit.scheduler.BukkitTask;
-import ru.whbex.develop.clans.common.wrap.Task;
+import ru.whbex.develop.clans.common.task.Task;
 
 public class TaskBukkit implements Task {
     private final BukkitTask task;

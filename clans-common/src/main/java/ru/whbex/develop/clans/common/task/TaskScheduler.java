@@ -1,6 +1,4 @@
-package ru.whbex.develop.clans.common;
-
-import ru.whbex.develop.clans.common.wrap.Task;
+package ru.whbex.develop.clans.common.task;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;

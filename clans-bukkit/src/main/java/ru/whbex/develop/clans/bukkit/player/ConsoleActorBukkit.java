@@ -5,7 +5,7 @@ import org.bukkit.command.CommandSender;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.misc.StringUtils;
-import ru.whbex.develop.clans.common.wrap.ConsoleActor;
+import ru.whbex.develop.clans.common.player.ConsoleActor;
 
 public class ConsoleActorBukkit implements ConsoleActor, CommandActor {
     private final CommandSender sender = Bukkit.getConsoleSender();

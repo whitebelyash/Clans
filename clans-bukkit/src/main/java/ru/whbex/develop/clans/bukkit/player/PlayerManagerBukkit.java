@@ -4,11 +4,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import ru.whbex.develop.clans.common.ClansPlugin;
-import ru.whbex.develop.clans.common.clan.loader.Bridge;
+import ru.whbex.develop.clans.common.clan.bridge.Bridge;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.player.PlayerManager;
-import ru.whbex.develop.clans.common.wrap.ConsoleActor;
+import ru.whbex.develop.clans.common.player.ConsoleActor;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -128,6 +128,6 @@ public class PlayerManagerBukkit implements PlayerManager {
     }
 
     public CommandActor asCommandActor(CommandSender sender){
-        return sender instanceof Player ? (CommandActor)this.getOrRegisterPlayerActor(((Player) sender).getUniqueId()) : (CommandActor) consoleActor;
+        return sender instanceof Player ? (CommandActor)this.getOrRegisterPlayerActor(((Player) sender).getUniqueId()) : consoleActor;
     }
 }
