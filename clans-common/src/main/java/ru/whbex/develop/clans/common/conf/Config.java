@@ -23,7 +23,7 @@ public interface Config {
     }
     boolean test();
 
-    void reload();
+    void reload() throws Exception;
 
     DatabaseType getDatabaseBackend();
     String getDatabaseName();

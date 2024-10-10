@@ -3,6 +3,7 @@ package ru.whbex.develop.clans.bukkit;
 
 import com.djaytan.bukkit.slf4j.BukkitLoggerFactory;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.player.ConsoleActor;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
@@ -39,9 +41,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     private java.util.logging.Logger LOG;
     private final ConsoleActor console = new ConsoleActorBukkit();
     private Config config;
-
-
-    private ExecutorService dbExecutor;
 
     private ClanManager clanManager;
     private PlayerManager playerManager;
@@ -67,11 +66,14 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         ClansPlugin.log(Level.INFO, "Starting on " + Bukkit.getName());
 
         this.taskScheduler = new TaskSchedulerBukkit();
+        File configFile = new File(this.getDataFolder(), "config.yml");
 
-        this.saveDefaultConfig();
-        config = new ConfigBukkit(this.getConfig());
-
-        dbExecutor = Executors.newSingleThreadExecutor();
+        try {
+            config = new ConfigBukkit(configFile);
+        } catch (IOException | InvalidConfigurationException e) {
+            ClansPlugin.log(Level.ERROR, "Config load failed: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
 
 
         /* Language init */
@@ -97,13 +99,17 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         Bridge bridge = ad == null ? new NullBridge() : new SQLBridge(ad);
         this.playerManager = new PlayerManagerBukkit(bridge);
         this.clanManager = new ClanManager(config, bridge);
+
         ClansPlugin.log(Level.INFO, "Registering commands");
         this.getCommand("clans").setExecutor(new TBD());
         this.getCommand("clan").setExecutor(new ClanCommandBukkit());
+
         ClansPlugin.log(Level.INFO, "Registering event listeners");
         Bukkit.getPluginManager().registerEvents(new ListenerBukkit(), this);
+
         ClansPlugin.log(Level.INFO, "Registering ClanManager as a service");
         Bukkit.getServicesManager().register(ClanManager.class, clanManager, this, ServicePriority.Normal);
+
         ClansPlugin.log(Level.INFO, "Startup completed");
     }
 
@@ -197,6 +203,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     @Override
     public void reloadConfigs() throws Exception {
+        this.config.reload();
 
     }
 
