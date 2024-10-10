@@ -9,6 +9,7 @@ public abstract class ClansPluginCommand<T> extends RootCommand<T>{
 
     @Override
     protected void registerAll() {
+        register(new ReloadCommand());
 
     }
 
