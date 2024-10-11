@@ -17,13 +17,11 @@ public class Language {
     private final Map<String, String> phrases = new HashMap<>();
 
     public Language(LangFile file){
-        if(file.isEmpty())
-            throw new IllegalArgumentException("LangFile is empty!");
         try {
             file.open();
         } catch (IOException e) {
-            ClansPlugin.log(Level.INFO, "Failed to initialize language file at " + file.getFile().getPath());
-            ClansPlugin.dbg_printStacktrace(e);
+            ClansPlugin.log(Level.ERROR, "Failed to initialize language file at " + file.getFile().getPath());
+            e.printStackTrace();
         }
         // LangFile is now pointing at first line
         try {
