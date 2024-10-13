@@ -74,7 +74,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             config = new ConfigBukkit(configFile);
         } catch (IOException | InvalidConfigurationException e) {
             ClansPlugin.log(Level.ERROR, "Config load failed: " + e.getLocalizedMessage());
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
 
@@ -89,7 +89,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             databaseInit();
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException |
                  SQLException e) {
-            ClansPlugin.log(Level.INFO, "Database init failed: " + e.getLocalizedMessage());
+            ClansPlugin.log(Level.INFO, "Failed to connect to the database: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
         ClansPlugin.log(Level.INFO, "=== Load complete ===");
@@ -145,7 +145,8 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     }
     private void databaseEnable(){
         if(ad == null){
-            ClansPlugin.log(Level.WARN, "Database is not configured, skipping");
+            ClansPlugin.log(Level.WARN, "!!! Database is not configured !!!");
+            ClansPlugin.log(Level.WARN, "Consider fixing this, using NullBridge for now. No clans will be loaded and saved on storage");
         }
     }
 
