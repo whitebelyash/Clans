@@ -17,9 +17,9 @@ AFAIK, there are some servers, which are using modified version of vc's clans, b
 ## Install
 
 ```bash
-user@MacBookPro ~ % git clone https://github.com/whitebelyash/Clans
-user@MacBookPro ~ % cd Clans
-user@MacBookPro ~ % mvn package
+$ git clone https://github.com/whitebelyash/Clans
+$ cd Clans
+$ mvn package
 ```
 Plugin jar will be in `./clans-bukkit/target/clans-bukkit-0.1-SNAPSHOT.jar`, if build was successful. If not - sorry, I can't do much - it works for me(TM).
 
