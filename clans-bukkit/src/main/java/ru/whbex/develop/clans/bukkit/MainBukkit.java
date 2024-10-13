@@ -67,6 +67,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         ClansPlugin.log(Level.INFO, "Starting on " + Bukkit.getName());
 
         this.taskScheduler = new TaskSchedulerBukkit();
+        this.saveDefaultConfig();
         File configFile = new File(this.getDataFolder(), "config.yml");
 
         try {
