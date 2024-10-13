@@ -33,16 +33,16 @@ Ports to other platforms are possible, just not now.
 
 ## TODO
 
-- [+] Basic clan management (add/remove)
-- [+] Command system
-- [+] Config wrapper
-- [+] Switch to SLF4J - required for Fabric port
-- [+] Locale/Language system instead of hardcoded strings
+- [x] Basic clan management (add/remove)
+- [x] Command system
+- [x] Config wrapper
+- [x] Switch to SLF4J - required for Fabric port
+- [x] Locale/Language system instead of hardcoded strings
 - - [ ] Multilocale support (consider getting language from player's settings?)
 - - [ ] Improve PlayerActor/ConsoleActor message sending code
-- [+] Databases (SQL)
-- - [+] SQLite backend
-- - [-] H2 backend - clan exporting broken now.
+- [x] Databases (SQL)
+- - [x] SQLite backend
+- - [x] H2 backend - clan exporting broken now.
 - - [ ] MySQL/MariaDB
 - - [ ] other databases, maybe even not SQL...
 - [ ] Member management
