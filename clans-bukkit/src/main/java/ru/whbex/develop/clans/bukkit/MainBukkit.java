@@ -55,42 +55,18 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     @Override
     public void onLoad(){
-        /* Logging setup */
-        LOG = this.getLogger();
-        BukkitLoggerFactory.provideBukkitLogger(LOG);
-        Context.INSTANCE.setLogger(LoggerFactory.getLogger(this.getName()));
-        Context.INSTANCE.setJavaLogger(LOG);
-        Context.INSTANCE.setContext(this);
+        setupLogging();
 
         ClansPlugin.dbg("hello");
         ClansPlugin.log(Level.INFO, "=== Clans ===");
         ClansPlugin.log(Level.INFO, "Starting on " + Bukkit.getName());
 
         this.taskScheduler = new TaskSchedulerBukkit();
-        File configFile = new File(this.getDataFolder(), "config.yml");
 
-        try {
-            config = new ConfigBukkit(configFile);
-        } catch (IOException | InvalidConfigurationException e) {
-            ClansPlugin.log(Level.ERROR, "Config load failed: " + e.getLocalizedMessage());
-            e.printStackTrace();
-        }
+        setupConfig();
+        setupLocales();
+        setupDatabase();
 
-
-        /* Language init */
-        // TODO: Implement multilocale - using single locale for now
-        ClansPlugin.log(Level.INFO, "Loading locales...");
-        if(!(new File(getDataFolder(), "messages.lang")).exists())
-            this.saveResource("messages.lang", false);
-        LangFile lf = new LangFile(new File(getDataFolder(), "messages.lang"));
-        lang = new Language(lf);
-        try {
-            databaseInit();
-        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException |
-                 SQLException e) {
-            ClansPlugin.log(Level.INFO, "Database init failed: " + e.getLocalizedMessage());
-            e.printStackTrace();
-        }
         ClansPlugin.log(Level.INFO, "=== Load complete ===");
 
     }
@@ -129,18 +105,55 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             }
         }
     }
-    private void databaseInit() throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException, SQLException {
-        ConnectionData data = new ConnectionData(
-                config.getDatabaseName(),
-                config.getDatabaseAddress(),
-                config.getDatabaseUser(),
-                config.getDatabasePassword());
-        this.dbConfig = data;
-        Config.DatabaseType type = config.getDatabaseBackend();
-        Constructor<? extends SQLAdapter> cst = type.getImpl().getConstructor(ConnectionData.class);
-        this.ad = cst.newInstance(data);
-        ad.connect();
+    private void setupDatabase(){
+        try {
+            ConnectionData data = new ConnectionData(
+                    config.getDatabaseName(),
+                    config.getDatabaseAddress(),
+                    config.getDatabaseUser(),
+                    config.getDatabasePassword());
+            this.dbConfig = data;
+            Config.DatabaseType type = config.getDatabaseBackend();
+            Constructor<? extends SQLAdapter> cst = type.getImpl().getConstructor(ConnectionData.class);
+            this.ad = cst.newInstance(data);
+            ad.connect();
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException e){
+            ClansPlugin.log(Level.ERROR, "Failed to create database adapter, contact developer");
+            e.printStackTrace();
+        } catch (InvocationTargetException e){
+            ClansPlugin.log(Level.ERROR, "Failed to create database adapter, reason: " + e.getTargetException().getLocalizedMessage());
+            e.printStackTrace();
+        } catch (SQLException e){
+            ClansPlugin.log(Level.ERROR, "Connection to database failed, reason: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+    }
+    private void setupLogging(){
+        /* Logging setup */
+        LOG = this.getLogger();
+        BukkitLoggerFactory.provideBukkitLogger(LOG);
+        Context.INSTANCE.setLogger(LoggerFactory.getLogger(this.getName()));
+        Context.INSTANCE.setJavaLogger(LOG);
+        Context.INSTANCE.setContext(this);
 
+    }
+    private void setupConfig(){
+        File configFile = new File(this.getDataFolder(), "config.yml");
+        try {
+            config = new ConfigBukkit(configFile);
+        } catch (IOException | InvalidConfigurationException e) {
+            ClansPlugin.log(Level.ERROR, "Failed to load configuration. Startup cannot be continued");
+            throw new RuntimeException(e);
+        }
+    }
+    private void setupLocales(){
+        /* Language init */
+        // TODO: Implement multilocale - using single locale for now
+        ClansPlugin.log(Level.INFO, "Loading locales...");
+        if(!(new File(getDataFolder(), "messages.lang")).exists())
+            this.saveResource("messages.lang", false);
+        LangFile lf = new LangFile(new File(getDataFolder(), "messages.lang"));
+        lang = new Language(lf);
     }
     private void databaseEnable(){
         if(ad == null){
