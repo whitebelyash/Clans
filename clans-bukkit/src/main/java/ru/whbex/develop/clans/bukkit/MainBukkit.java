@@ -17,6 +17,7 @@ import ru.whbex.develop.clans.bukkit.player.PlayerManagerBukkit;
 import ru.whbex.develop.clans.bukkit.conf.ConfigBukkit;
 import ru.whbex.develop.clans.bukkit.task.TaskSchedulerBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
+import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.task.TaskScheduler;
 import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.clan.bridge.Bridge;
@@ -150,9 +151,9 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         /* Language init */
         // TODO: Implement multilocale - using single locale for now
         ClansPlugin.log(Level.INFO, "Loading locales...");
-        if(!(new File(getDataFolder(), "messages.lang")).exists())
-            this.saveResource("messages.lang", false);
-        LangFile lf = new LangFile(new File(getDataFolder(), "messages.lang"));
+        if(!(new File(getDataFolder(), Constants.LANGUAGE_FILE_NAME)).exists())
+            this.saveResource(Constants.LANGUAGE_FILE_NAME, false);
+        LangFile lf = new LangFile(new File(getDataFolder(), Constants.LANGUAGE_FILE_NAME));
         lang = new Language(lf);
     }
     private void databaseEnable(){
