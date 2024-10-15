@@ -18,7 +18,7 @@ public class LocaleInfoCommand implements Command {
         actor.sendMessage(nameLocalized);
         actor.sendMessage(localeTag);
         actor.sendMessage(content);
-        actor.sendMessage(" === ");
+        actor.sendMessage(" =================== ");
 
     }
 
