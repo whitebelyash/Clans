@@ -139,6 +139,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     }
     private void setupConfig(){
+        this.saveDefaultConfig();
         File configFile = new File(this.getDataFolder(), "config.yml");
         try {
             config = new ConfigBukkit(configFile);
@@ -158,7 +159,8 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     }
     private void databaseEnable(){
         if(ad == null){
-            ClansPlugin.log(Level.WARN, "Database is not configured, skipping");
+            ClansPlugin.log(Level.WARN, "!!! Database is not configured !!!");
+            ClansPlugin.log(Level.WARN, "Consider fixing this, using NullBridge for now. No clans will be loaded and saved on storage");
         }
     }
 
