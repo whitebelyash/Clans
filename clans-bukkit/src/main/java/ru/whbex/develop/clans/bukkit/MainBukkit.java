@@ -119,13 +119,13 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             this.ad = cst.newInstance(data);
             ad.connect();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException e){
-            ClansPlugin.log(Level.ERROR, "Failed to create database adapter, contact developer");
+            ClansPlugin.log(Level.ERROR, "Failed to create database adapter, contact plgugin developer");
             e.printStackTrace();
         } catch (InvocationTargetException e){
-            ClansPlugin.log(Level.ERROR, "Failed to create database adapter, reason: " + e.getTargetException().getLocalizedMessage());
+            ClansPlugin.log(Level.ERROR, "Failed to initialize database adapter, reason: " + e.getTargetException().getLocalizedMessage());
             e.printStackTrace();
         } catch (SQLException e){
-            ClansPlugin.log(Level.ERROR, "Connection to database failed, reason: " + e.getLocalizedMessage());
+            ClansPlugin.log(Level.ERROR, "Failed to initialize database connection, reason: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
     }
