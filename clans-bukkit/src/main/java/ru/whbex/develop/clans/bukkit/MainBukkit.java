@@ -119,7 +119,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             this.ad = cst.newInstance(data);
             ad.connect();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException e){
-            ClansPlugin.log(Level.ERROR, "Failed to create database adapter, contact plgugin developer");
+            ClansPlugin.log(Level.ERROR, "Failed to create database adapter, contact plugin developer");
             e.printStackTrace();
         } catch (InvocationTargetException e){
             ClansPlugin.log(Level.ERROR, "Failed to initialize database adapter, reason: " + e.getTargetException().getLocalizedMessage());
