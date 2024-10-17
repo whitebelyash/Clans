@@ -8,9 +8,9 @@ public abstract class ClanCommand<T> extends RootCommand<T> {
     @Override
     protected void registerAll() {
         register(new ClanCreateCommand());
-        register(new ClanHelpCommand(cmds.values()));
         register(new ClanListCommand());
         register(new ClanDeleteCommand());
+        register(new ClanHelpCommand(cmds.values()));
     }
 
     protected void root(CommandActor a){
