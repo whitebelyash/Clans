@@ -1,6 +1,7 @@
 package ru.whbex.develop.clans.common.clan.bridge;
 
 import ru.whbex.develop.clans.common.clan.Clan;
+import ru.whbex.develop.clans.common.clan.member.Member;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -25,4 +26,15 @@ public interface Bridge {
 
     boolean insertClan(Clan clan, boolean replace);
     boolean insertAll(Collection<Clan> clans, boolean replace);
+
+    Member fetchMember(UUID id);
+    Collection<Member> fetchMembers(Clan clan);
+
+    boolean updateMember(UUID id);
+    boolean updateMembers(Clan clan);
+
+    boolean insertMember(Member member);
+    boolean insertMembers(Collection<Member> members);
+
+
 }

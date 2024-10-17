@@ -1,6 +1,7 @@
 package ru.whbex.develop.clans.common.clan.bridge;
 
 import ru.whbex.develop.clans.common.clan.Clan;
+import ru.whbex.develop.clans.common.clan.member.Member;
 
 import java.util.Collection;
 import java.util.List;
@@ -59,6 +60,36 @@ public class NullBridge implements Bridge {
 
     @Override
     public boolean insertAll(Collection<Clan> clans, boolean replace) {
+        return false;
+    }
+
+    @Override
+    public Member fetchMember(UUID id) {
+        return null;
+    }
+
+    @Override
+    public Collection<Member> fetchMembers(Clan clan) {
+        return List.of();
+    }
+
+    @Override
+    public boolean updateMember(UUID id) {
+        return false;
+    }
+
+    @Override
+    public boolean updateMembers(Clan clan) {
+        return false;
+    }
+
+    @Override
+    public boolean insertMember(Member member) {
+        return false;
+    }
+
+    @Override
+    public boolean insertMembers(Collection<Member> members) {
         return false;
     }
 }

@@ -7,6 +7,7 @@ import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.clan.ClanLevelling;
 import ru.whbex.develop.clans.common.clan.ClanMeta;
 import ru.whbex.develop.clans.common.clan.ClanRank;
+import ru.whbex.develop.clans.common.clan.member.Member;
 import ru.whbex.develop.clans.common.db.SQLAdapter;
 import ru.whbex.develop.clans.common.db.SQLCallback;
 import ru.whbex.develop.clans.common.misc.StringUtils;
@@ -405,5 +406,35 @@ public class SQLBridge implements Bridge {
         }
 
 
+    }
+
+    @Override
+    public Member fetchMember(UUID id) {
+        return null;
+    }
+
+    @Override
+    public Collection<Member> fetchMembers(Clan clan) {
+        return List.of();
+    }
+
+    @Override
+    public boolean updateMember(UUID id) {
+        return false;
+    }
+
+    @Override
+    public boolean updateMembers(Clan clan) {
+        return false;
+    }
+
+    @Override
+    public boolean insertMember(Member member) {
+        return false;
+    }
+
+    @Override
+    public boolean insertMembers(Collection<Member> members) {
+        return false;
     }
 }
