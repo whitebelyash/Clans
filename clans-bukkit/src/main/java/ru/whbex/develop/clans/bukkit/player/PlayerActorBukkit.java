@@ -55,7 +55,6 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     @Override
     public void sendMessageT(String s, Object... args) {
         if(!isOnline()) return;
-
         this.sendMessage(StringUtils.simpleformat(ClansPlugin.Context.INSTANCE.plugin.getLanguage().getPhrase(s), args));
     }
 
@@ -72,12 +71,12 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
 
     @Override
     public Clan getClan() {
-        return null;
+        ;
     }
 
     @Override
     public boolean hasClan() {
-        return false;
+        return ClansPlugin.Context.INSTANCE.plugin.getClanManager().isClanMember(id);
     }
 
     @Override

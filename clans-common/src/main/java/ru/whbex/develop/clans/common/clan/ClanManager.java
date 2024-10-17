@@ -5,7 +5,10 @@ import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.clan.bridge.Bridge;
+import ru.whbex.develop.clans.common.clan.member.Member;
+import ru.whbex.develop.clans.common.clan.member.MemberManager;
 import ru.whbex.develop.clans.common.conf.Config;
+import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.task.Task;
 
 import java.util.*;
@@ -28,8 +31,10 @@ public class ClanManager {
     // Tag to uuid map
     private final Map<String, Clan> tagClans = new HashMap<>();
 
+
     private final Bridge bridge;
     private final Task flushTask;
+    private final MemberManager mm = new MemberManager(this);
 
 
     public ClanManager(Config config, Bridge bridge){
@@ -59,11 +64,19 @@ public class ClanManager {
         Clan clan = new Clan(this, id, cm, l, true);
         clans.put(id, clan);
         tagClans.put(tag.toLowerCase(Locale.ROOT), clan);
+        PlayerActor actor = ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOrRegisterPlayerActor(leader);
+        Member leaderMember = mm.hasMember(leader) ? mm.getMember(leader) : new Member(actor);
+        clan.addMember(leader);
+        leaderMember.setClan(clan);
+        mm.addMember(leader);
         ClansPlugin.dbg("ok, not requesting clan flush,wait for scheduled");
         return null;
     }
     public Error removeClan(UUID uuid){
         ClansPlugin.dbg("removing clan {0}", clans.get(uuid));
+        if(!clans.containsKey(uuid))
+            return Error.CLAN_NOT_FOUND;
+        clans.get(uuid).getMembers().forEach(i -> mm.getMember(i).setClan(null));
         clans.remove(uuid);
         ClansPlugin.dbg("done");
         return null;
@@ -100,6 +113,14 @@ public class ClanManager {
         return tagClans.values();
     }
 
+    public Map<UUID, Member> getMembers() {
+        return mm.getMembers();
+    }
+
+    public MemberManager getMemberManager() {
+        return mm;
+    }
+
     public void tmpExportClan(Clan clan){
         bridge.insertClan(clan, true);
     }
@@ -132,6 +153,8 @@ public class ClanManager {
                 }
                 // TODO: Check leader collide
                 clans.put(c.getId(), c);
+                UUID ld = c.getMeta().getLeader();
+                if(mm.hasMember(ld))
                 if(!c.isDeleted())
                     tagClans.put(c.getMeta().getTag().toLowerCase(), c);
                 if(c.insert()){
