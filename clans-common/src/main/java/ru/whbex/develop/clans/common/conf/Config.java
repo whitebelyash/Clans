@@ -1,5 +1,8 @@
 package ru.whbex.develop.clans.common.conf;
 
+import ru.whbex.develop.clans.common.clan.bridge.sql.H2Bridge;
+import ru.whbex.develop.clans.common.clan.bridge.sql.SQLBridge;
+import ru.whbex.develop.clans.common.clan.bridge.sql.SQLiteBridge;
 import ru.whbex.develop.clans.common.db.impl.H2SQLAdapter;
 import ru.whbex.develop.clans.common.db.SQLAdapter;
 import ru.whbex.develop.clans.common.db.impl.SQLiteAdapter;
@@ -8,17 +11,23 @@ import ru.whbex.develop.clans.common.db.impl.SQLiteAdapter;
 public interface Config {
 
     enum DatabaseType {
-        H2(H2SQLAdapter.class),
-        SQLITE(SQLiteAdapter.class);
+        H2(H2SQLAdapter.class, H2Bridge.class),
+        SQLITE(SQLiteAdapter.class, SQLiteBridge.class);
 
-        private final Class<? extends SQLAdapter> clazz;
+        private final Class<? extends SQLAdapter> adapter;
+        private final Class<? extends SQLBridge> bridge;
 
-        DatabaseType(Class<? extends SQLAdapter> clazz){
-            this.clazz = clazz;
+        DatabaseType(Class<? extends SQLAdapter> adapter, Class<? extends SQLBridge> bridge){
+            this.adapter = adapter;
+            this.bridge = bridge;
         }
 
-        public Class<? extends SQLAdapter> getImpl() {
-            return clazz;
+        public Class<? extends SQLAdapter> adapter() {
+            return adapter;
+        }
+
+        public Class<? extends SQLBridge> bridge() {
+            return bridge;
         }
     }
     boolean test();

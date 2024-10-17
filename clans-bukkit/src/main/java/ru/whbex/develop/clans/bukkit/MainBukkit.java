@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.checkerframework.checker.units.qual.N;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.bukkit.cmd.ClanCommandBukkit;
@@ -22,7 +23,7 @@ import ru.whbex.develop.clans.common.task.TaskScheduler;
 import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.clan.bridge.Bridge;
 import ru.whbex.develop.clans.common.clan.bridge.NullBridge;
-import ru.whbex.develop.clans.common.clan.bridge.SQLBridge;
+import ru.whbex.develop.clans.common.clan.bridge.sql.SQLBridge;
 import ru.whbex.develop.clans.common.db.ConnectionData;
 import ru.whbex.develop.clans.common.db.SQLAdapter;
 import ru.whbex.develop.clans.common.lang.LangFile;
@@ -36,8 +37,6 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class MainBukkit extends JavaPlugin implements ClansPlugin {
     private java.util.logging.Logger LOG;
@@ -45,6 +44,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     private Config config;
 
     private ClanManager clanManager;
+    private Bridge bridge;
     private PlayerManager playerManager;
     private TaskScheduler taskScheduler;
 
@@ -74,7 +74,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     @Override
     public void onEnable(){
         databaseEnable();
-        Bridge bridge = ad == null ? new NullBridge() : new SQLBridge(ad);
         this.playerManager = new PlayerManagerBukkit(bridge);
         this.clanManager = new ClanManager(config, bridge);
 
@@ -115,7 +114,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
                     config.getDatabasePassword());
             this.dbConfig = data;
             Config.DatabaseType type = config.getDatabaseBackend();
-            Constructor<? extends SQLAdapter> cst = type.getImpl().getConstructor(ConnectionData.class);
+            Constructor<? extends SQLAdapter> cst = type.adapter().getConstructor(ConnectionData.class);
             this.ad = cst.newInstance(data);
             ad.connect();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException e){
@@ -158,9 +157,22 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         lang = new Language(lf);
     }
     private void databaseEnable(){
-        if(ad == null){
+        if(ad != null) {
+            try {
+                bridge = config.getDatabaseBackend().bridge().getConstructor(ad.getClass()).newInstance(ad);
+            } catch (InstantiationException | NoSuchMethodException | IllegalAccessException e) {
+                ClansPlugin.log(Level.ERROR, "Failed to create database bridge, contact developer");
+                ClansPlugin.dbg_printStacktrace(e);
+            } catch (InvocationTargetException e) {
+                ClansPlugin.log(Level.ERROR, "Failed to initialize database bridge");
+                e.printStackTrace();
+            }
+        }
+        if(bridge == null)
+        {
             ClansPlugin.log(Level.WARN, "!!! Database is not configured !!!");
             ClansPlugin.log(Level.WARN, "Consider fixing this, using NullBridge for now. No clans will be loaded and saved on storage");
+            bridge = new NullBridge();
         }
     }
 
