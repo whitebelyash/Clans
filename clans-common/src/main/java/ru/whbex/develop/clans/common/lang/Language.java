@@ -10,9 +10,9 @@ import java.util.Map;
 
 public class Language {
 
-    private final String name;
-    private final String nameLocalized;
-    private final Locale locale;
+    private String name;
+    private String nameLocalized;
+    private Locale locale;
 
     private final Map<String, String> phrases = new HashMap<>();
 
@@ -37,17 +37,21 @@ public class Language {
             ClansPlugin.log(Level.ERROR, "Failed reading LangFile {0} at {1} line", file.getFile().getName(), file.getPosition());
         }
         ClansPlugin.dbg("Loaded Language at {0}. Will load metadata now", file.toString());
+        this.loadMetadata();
+        try {
+            file.close();
+        } catch (IOException e) {
+            ClansPlugin.dbg("Failed to close LangFile {0}!", file.toString());
+        }
+    }
+
+    private void loadMetadata(){
         if((name = phrases.get("locale")) == null)
             ClansPlugin.log(Level.WARN, "Locale {0} has no name!", file.getFile().getName());
         if((locale = Locale.forLanguageTag(phrases.get("locale.tag"))) == null)
             ClansPlugin.log(Level.WARN, "Locale {0} has no locale tag, or it's invalid!", file.getFile().getName());
         if((nameLocalized = phrases.get("locale.name")) == null)
             ClansPlugin.log(Level.WARN, "Locale {0} has no localized name! Check locale.name tag in the file.", file.getFile().getName());
-        try {
-            file.close();
-        } catch (IOException e) {
-            ClansPlugin.dbg("Failed to close LangFile {0}!", file.toString());
-        }
     }
 
     public String getName() {
