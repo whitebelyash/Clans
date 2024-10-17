@@ -8,6 +8,7 @@ import ru.whbex.develop.clans.common.player.PlayerActor;
 public class MemberListCommand implements Command {
     @Override
     public void execute(CommandActor actor, Command command, String label, String... args) {
+        throw new UnsupportedOperationException("WIP");
 
 
     }
