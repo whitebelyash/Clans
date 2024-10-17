@@ -68,15 +68,16 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
         // TODO: Implement per-player locale support
         return ClansPlugin.Context.INSTANCE.plugin.getLanguage();
     }
-
+    // TODO: implement this, stubbing to fix compiling
     @Override
     public Clan getClan() {
-        ;
+        return null;
     }
 
     @Override
     public boolean hasClan() {
-        return ClansPlugin.Context.INSTANCE.plugin.getClanManager().isClanMember(id);
+     //   return ClansPlugin.Context.INSTANCE.plugin.getClanManager().getMemberManager().hasMember()
+        return false;
     }
 
     @Override

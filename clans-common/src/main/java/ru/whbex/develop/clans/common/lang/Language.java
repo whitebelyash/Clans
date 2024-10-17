@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class Language {
+    private final LangFile file;
 
     private String name;
     private String nameLocalized;
@@ -23,6 +24,7 @@ public class Language {
             ClansPlugin.log(Level.ERROR, "Failed to initialize language file at " + file.getFile().getPath());
             e.printStackTrace();
         }
+        this.file = file;
         // LangFile is now pointing at first line
         try {
             while(file.hasNextLine()){
