@@ -50,7 +50,7 @@ public class Language {
     private void loadMetadata(){
         if((name = phrases.get("locale")) == null)
             ClansPlugin.log(Level.WARN, "Locale {0} has no name!", file.getFile().getName());
-        if((locale = Locale.forLanguageTag(phrases.get("locale.tag"))) == null)
+        if((locale = Locale.forLanguageTag(phrases.getOrDefault("locale.tag", ""))) == null)
             ClansPlugin.log(Level.WARN, "Locale {0} has no locale tag, or it's invalid!", file.getFile().getName());
         if((nameLocalized = phrases.get("locale.name")) == null)
             ClansPlugin.log(Level.WARN, "Locale {0} has no localized name! Check locale.name tag in the file.", file.getFile().getName());
