@@ -159,7 +159,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     private void databaseEnable(){
         if(ad != null) {
             try {
-                bridge = config.getDatabaseBackend().bridge().getConstructor(ad.getClass()).newInstance(ad);
+                bridge = config.getDatabaseBackend().bridge().getConstructor(SQLAdapter.class).newInstance(ad);
             } catch (InstantiationException | NoSuchMethodException | IllegalAccessException e) {
                 ClansPlugin.log(Level.ERROR, "Failed to create database bridge, contact developer");
                 ClansPlugin.dbg_printStacktrace(e);
