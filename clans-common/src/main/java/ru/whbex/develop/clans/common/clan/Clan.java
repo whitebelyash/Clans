@@ -3,6 +3,7 @@ package ru.whbex.develop.clans.common.clan;
 
 import ru.whbex.develop.clans.common.player.PlayerActor;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,6 +27,7 @@ public class Clan {
         this.meta = meta;
         this.levelling = levelling;
         this.insert = insert;
+        this.members = new HashSet<>();
     }
 
     public UUID getId() {
