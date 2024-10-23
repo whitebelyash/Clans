@@ -55,18 +55,22 @@ public abstract class SQLBridge implements Bridge {
         ClanRank rank;
         int rid = rs.getInt("defaultRank");
         if (rid < 0 || rid >= ClanRank.values().length) {
-            ClansPlugin.log(Level.ERROR, "Invalid default rank id! Using default");
+            ClansPlugin.log(Level.ERROR, "Invalid default rank id {0}!", rid);
             rank = Constants.DEFAULT_RANK;
         } else rank = ClanRank.values()[rid];
+        String lid_s = rs.getString("leader");
         UUID lid;
-        if ((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null) {
-            ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: leader UUID is null!");
+        if ((lid = StringUtils.UUIDFromString(lid_s)) == null) {
+            ClansPlugin.log(Level.ERROR, "Invalid leader UUID {0}!", lid_s);
             return null;
         }
-        ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOrRegisterPlayerActor(lid).sendMessage("Clan load!"); // TODO: remove
         boolean deleted = rs.getBoolean("deleted");
         int lvl = rs.getInt("level");
         int exp = rs.getInt("exp");
+        if(lvl < 0 || exp < 0){
+            ClansPlugin.log(Level.ERROR, "Invalid level/experience data {0}/{1}!", lvl, exp);
+            lvl = 0; exp = 0;
+        }
         ClanLevelling levelling = new ClanLevelling(lvl, exp);
         ClanMeta meta = new ClanMeta(tag, name, description, lid, time, rank);
         Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, levelling, false);
@@ -99,7 +103,7 @@ public abstract class SQLBridge implements Bridge {
                 do {
                     UUID id;
                     if ((id = StringUtils.UUIDFromString(rs.getString("id"))) == null) {
-                        ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: UUID is null!");
+                        ClansPlugin.log(Level.ERROR, "UUID of clan {0} is null!", tag);
                         return false;
                     }
                     Clan c;
@@ -108,7 +112,7 @@ public abstract class SQLBridge implements Bridge {
                     clan.set(c);
                 } while (rs.next());
             else {
-                ClansPlugin.log(Level.ERROR, "No clan with tag " + tag + " was found!");
+                ClansPlugin.log(Level.ERROR, "No clan with tag {0} was found!", tag);
                 return false;
             }
             return true;
@@ -118,7 +122,7 @@ public abstract class SQLBridge implements Bridge {
         try {
             ret = adapter.queryPrepared(TAG_QUERY_SQL, sql, cb);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Clan fetch failed: " + e.getLocalizedMessage());
+            ClansPlugin.log(Level.ERROR, "Failed to fetch clan, {0}", e.getLocalizedMessage());
             ClansPlugin.dbg_printStacktrace(e);
         }
         if (!ret) ClansPlugin.log(Level.ERROR, "Failed to fetch clan with tag {0}!", tag);
@@ -138,7 +142,7 @@ public abstract class SQLBridge implements Bridge {
                 do {
                     String tag;
                     if ((tag = rs.getString("tag")) == null) {
-                        ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: tag is null!");
+                        ClansPlugin.log(Level.ERROR, "Tag of clan with UUID {0} is null!", id);
                         return false;
                     }
                     Clan c;
@@ -147,7 +151,7 @@ public abstract class SQLBridge implements Bridge {
                     clan.set(c);
                 } while (rs.next());
             else {
-                ClansPlugin.log(Level.ERROR, "No clan with id " + id + " was found!");
+                ClansPlugin.log(Level.ERROR, "No clan with UUID {0} was found!", id);
                 return false;
             }
             return true;
@@ -157,7 +161,7 @@ public abstract class SQLBridge implements Bridge {
         try {
             ret = adapter.queryPrepared(UUID_QUERY_SQL, sql, cb);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Clan fetch failed: " + e.getLocalizedMessage());
+            ClansPlugin.log(Level.ERROR, "Failed to fetch clan, {0}", e.getLocalizedMessage());
             ClansPlugin.dbg_printStacktrace(e);
         }
         if (!ret) ClansPlugin.log(Level.ERROR, "Failed to fetch clan with UUID {0}!", id);
@@ -219,11 +223,11 @@ public abstract class SQLBridge implements Bridge {
                 String tag;
                 UUID id;
                 if ((tag = rs.getString("tag")) == null) {
-                    ClansPlugin.log(Level.ERROR, "Tag fetch failed: Invalid clan data on row " + rs.getRow());
+                    ClansPlugin.log(Level.ERROR, "Invalid tag data on row {0}!",  rs.getRow());
                     continue;
                 }
                 if ((id = StringUtils.UUIDFromString(rs.getString("id"))) == null) {
-                    ClansPlugin.log(Level.ERROR, "UUID fetch failed: Invalid clan data on row " + rs.getRow());
+                    ClansPlugin.log(Level.ERROR, "Invalid UUID data on row {0}!", rs.getRow());
                     continue;
                 }
                 Clan c;
@@ -237,10 +241,10 @@ public abstract class SQLBridge implements Bridge {
         try {
             ret = adapter.query(sql, cb);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Caught exception on clan loading!!!");
+            ClansPlugin.log(Level.ERROR, "Failed to query clans from db, {0}", e.getLocalizedMessage());
             ret = false;
         }
-        if (!ret) ClansPlugin.log(Level.ERROR, "Clan fetch was unsuccessful, beware"); // fix
+        if (!ret) ClansPlugin.log(Level.ERROR, "Failed to query clans!"); // fix
         return clans;
     }
 
@@ -256,7 +260,7 @@ public abstract class SQLBridge implements Bridge {
             ClansPlugin.dbg("affected rows after insert: {0}", rows);
             return true;
         } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Caught exception inserting clan " + clan.getId());
+            ClansPlugin.log(Level.ERROR, "Failed inserting clan {0}/{1}", clan.getId(), clan.getMeta().getTag());
             return false;
         }
     }
@@ -278,7 +282,7 @@ public abstract class SQLBridge implements Bridge {
             adapter.updateBatched(replace ? REPLACE_SQL : INSERT_SQL, sql);
             return true;
         } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Caught exception inserting clans!!");
+            ClansPlugin.log(Level.ERROR, "Failed to insert clans, {0}", e.getLocalizedMessage());
             return false;
         }
     }
