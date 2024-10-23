@@ -46,6 +46,44 @@ public abstract class SQLBridge implements Bridge {
         }
     }
 
+    protected Clan clanFromQuery(UUID id, String tag, ResultSet rs) throws SQLException {
+        String name = rs.getString("name");
+        String description = rs.getString("description");
+        long time = rs.getLong("creationEpoch");
+        ClanRank rank;
+        int rid = rs.getInt("defaultRank");
+        if(rid < 0 || rid >= ClanRank.values().length){
+            ClansPlugin.log(Level.ERROR, "Invalid default rank id! Using default");
+            rank = Constants.DEFAULT_RANK;
+        } else rank = ClanRank.values()[rid];
+        UUID lid;
+        if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
+            ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: leader UUID is null!");
+            return null;
+        }
+        ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOrRegisterPlayerActor(lid).sendMessage("Clan load!"); // TODO: remove
+        boolean deleted = rs.getBoolean("deleted");
+        int lvl = rs.getInt("level");
+        int exp = rs.getInt("exp");
+        ClanLevelling levelling = new ClanLevelling(lvl, exp);
+        ClanMeta meta = new ClanMeta(tag, name, description, lid, time, rank);
+        Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, levelling, false);
+        c.setDeleted(deleted);
+        return c;
+    }
+    protected void clanToPrepStatement(PreparedStatement ps, Clan clan) throws SQLException {
+        ps.setString(1, clan.getId().toString());
+        ps.setString(2, clan.getMeta().getTag());
+        ps.setString(3, clan.getMeta().getName());
+        ps.setString(4, clan.getMeta().getDescription());
+        ps.setLong(5, clan.getMeta().getCreationTime());
+        ps.setString(6, clan.getMeta().getLeader().toString());
+        ps.setBoolean(7, clan.isDeleted());
+        ps.setInt(8, clan.getLevelling().getLevel());
+        ps.setInt(9, clan.getLevelling().getExperience());
+        ps.setInt(10, clan.getMeta().getDefaultRank().ordinal());
+    }
+
     @Override
     public void init() {
         try {
@@ -78,26 +116,10 @@ public abstract class SQLBridge implements Bridge {
                             ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: UUID is null!");
                             return false;
                         }
-                        String name = rs.getString("name");
-                        String description = rs.getString("description");
-                        long time = rs.getLong("creationEpoch");
-                        ClanRank rank;
-                        int rid = rs.getInt("defaultRank");
-                        if(rid < 0 || rid >= ClanRank.values().length){
-                            ClansPlugin.log(Level.ERROR, "Invalid default rank id! Using default");
-                            rank = Constants.DEFAULT_RANK;
-                        } else rank = ClanRank.values()[rid];
-                        UUID lid;
-                        if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
-                            ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: leader UUID is null!");
+                        Clan c = clanFromQuery(id, tag, rs);
+                        if(c == null){
                             return false;
                         }
-                        ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOrRegisterPlayerActor(lid).sendMessage("Clan load!"); // TODO: remove
-                        int lvl = rs.getInt("level");
-                        int exp = rs.getInt("exp");
-                        ClanLevelling levelling = new ClanLevelling(lvl, exp);
-                        ClanMeta meta = new ClanMeta(tag, name, description, lid, time, rank);
-                        Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, levelling, false);
                         clan.set(c);
                     } while(rs.next());
                 else {
@@ -131,26 +153,9 @@ public abstract class SQLBridge implements Bridge {
                             ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: tag is null!");
                             return false;
                         }
-                        String name = rs.getString("name");
-                        String description = rs.getString("description");
-                        long time = rs.getLong("creationEpoch");
-                        ClanRank rank;
-                        int rid = rs.getInt("defaultRank");
-                        if(rid < 0 || rid >= ClanRank.values().length){
-                            ClansPlugin.log(Level.ERROR, "Invalid default rank id! Using default");
-                            rank = Constants.DEFAULT_RANK;
-                        } else rank = ClanRank.values()[rid];
-                        UUID lid;
-                        if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
-                            ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: leader UUID is null!");
+                        Clan c = clanFromQuery(id, tag, rs);
+                        if(c == null)
                             return false;
-                        }
-                        ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOrRegisterPlayerActor(lid).sendMessage("Clan loaded!"); // TODO: remove
-                        int lvl = rs.getInt("level");
-                        int exp = rs.getInt("exp");
-                        ClanLevelling levelling = new ClanLevelling(lvl, exp);
-                        ClanMeta meta = new ClanMeta(tag, name, description, lid, time, rank);
-                        Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, levelling, false);
                         clan.set(c);
                     } while(rs.next());
                 else {
@@ -224,28 +229,10 @@ public abstract class SQLBridge implements Bridge {
                         ClansPlugin.log(Level.ERROR, "UUID fetch failed: Invalid clan data on row " + rs.getRow());
                         continue;
                     }
-                    String name = rs.getString("name");
-                    String description = rs.getString("description");
-                    boolean deleted = rs.getBoolean("deleted");
-                    long time = rs.getLong("creationEpoch");
-                    ClanRank rank;
-                    int rid = rs.getInt("defaultRank");
-                    if(rid < 0 || rid >= ClanRank.values().length){
-                        ClansPlugin.log(Level.ERROR, "Invalid default rank id! Using default");
-                        rank = Constants.DEFAULT_RANK;
-                    } else rank = ClanRank.values()[rid];
-                    UUID lid;
-                    if((lid = StringUtils.UUIDFromString(rs.getString("leader"))) == null){
-                        ClansPlugin.log(Level.ERROR, "Failed to load clan {0}: leader UUID is invalid!");
+
+                    Clan c = clanFromQuery(id, tag, rs);
+                    if(c == null)
                         continue;
-                    }
-                    ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOrRegisterPlayerActor(lid).sendMessage("Clan loaded!"); // TODO: remove
-                    int lvl = rs.getInt("level");
-                    int exp = rs.getInt("exp");
-                    ClanLevelling levelling = new ClanLevelling(lvl, exp);
-                    ClanMeta meta = new ClanMeta(tag, name, description, lid, time, rank);
-                    Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, levelling, false);
-                    c.setDeleted(deleted);
                     clans.add(c);
                 }
                 return ret;
@@ -267,16 +254,7 @@ public abstract class SQLBridge implements Bridge {
         SQLCallback<PreparedStatement> sql = ps -> {ps.setString(1, clan.getId().toString()); return true;};
         SQLCallback<ResultSet> cb = rs -> {
             if (rs.next()) do {
-                rs.updateString("tag", clan.getMeta().getTag());
-                rs.updateString("name", clan.getMeta().getName());
-                rs.updateString("description", clan.getMeta().getDescription());
-                rs.updateLong("creationEpoch", clan.getMeta().getCreationTime());
-                rs.updateInt("defaultRank", clan.getMeta().getDefaultRank().ordinal());
-                rs.updateString("leader", clan.getMeta().getLeader().toString());
-                rs.updateBoolean("deleted", clan.isDeleted());
-                rs.updateInt("level", clan.getLevelling().getLevel());
-                rs.updateInt("exp", clan.getLevelling().getExperience());
-                rs.updateRow();
+
                 return true;
             } while (rs.next());
             else {
@@ -354,16 +332,7 @@ public abstract class SQLBridge implements Bridge {
     public boolean insertClan(Clan clan, boolean replace) {
         ClansPlugin.dbg("clan {0} insert", clan.getId());
         SQLCallback<PreparedStatement> sql = ps -> {
-            ps.setString(1, clan.getId().toString());
-            ps.setString(2, clan.getMeta().getTag());
-            ps.setString(3, clan.getMeta().getName());
-            ps.setString(4, clan.getMeta().getDescription());
-            ps.setLong(5, clan.getMeta().getCreationTime());
-            ps.setString(6, clan.getMeta().getLeader().toString());
-            ps.setBoolean(7, clan.isDeleted());
-            ps.setInt(8, clan.getLevelling().getLevel());
-            ps.setInt(9, clan.getLevelling().getExperience());
-            ps.setInt(10, clan.getMeta().getDefaultRank().ordinal());
+            clanToPrepStatement(ps, clan);
             return true;
         };
         try {
@@ -384,16 +353,7 @@ public abstract class SQLBridge implements Bridge {
         }
         SQLCallback<PreparedStatement> sql = ps -> {
             for (Clan clan : clans) {
-                ps.setString(1, clan.getId().toString());
-                ps.setString(2, clan.getMeta().getTag());
-                ps.setString(3, clan.getMeta().getName());
-                ps.setString(4, clan.getMeta().getDescription());
-                ps.setLong(5, clan.getMeta().getCreationTime());
-                ps.setString(6, clan.getMeta().getLeader().toString());
-                ps.setBoolean(7, clan.isDeleted());
-                ps.setInt(8, clan.getLevelling().getLevel());
-                ps.setInt(9, clan.getLevelling().getExperience());
-                ps.setInt(10, clan.getMeta().getDefaultRank().ordinal());
+                clanToPrepStatement(ps, clan);
                 ps.addBatch();
             }
             return true;
