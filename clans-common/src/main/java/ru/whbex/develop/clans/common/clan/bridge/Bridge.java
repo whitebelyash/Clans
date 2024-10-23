@@ -20,21 +20,7 @@ public interface Bridge {
     UUID fetchUUIDFromTag(String tag);
     String fetchTagFromUUID(UUID id);
 
-
-    boolean updateClan(Clan clan);
-    boolean updateAll(Collection<Clan> clans);
-
     boolean insertClan(Clan clan, boolean replace);
     boolean insertAll(Collection<Clan> clans, boolean replace);
-
-    Member fetchMember(UUID id);
-    Collection<Member> fetchMembers(Clan clan);
-
-    boolean updateMember(UUID id);
-    boolean updateMembers(Clan clan);
-
-    boolean insertMember(Member member);
-    boolean insertMembers(Collection<Member> members);
-
 
 }

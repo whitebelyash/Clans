@@ -44,52 +44,12 @@ public class NullBridge implements Bridge {
     }
 
     @Override
-    public boolean updateClan(Clan clan) {
-        return false;
-    }
-
-    @Override
-    public boolean updateAll(Collection<Clan> clans) {
-        return false;
-    }
-
-    @Override
     public boolean insertClan(Clan clan, boolean replace) {
         return false;
     }
 
     @Override
     public boolean insertAll(Collection<Clan> clans, boolean replace) {
-        return false;
-    }
-
-    @Override
-    public Member fetchMember(UUID id) {
-        return null;
-    }
-
-    @Override
-    public Collection<Member> fetchMembers(Clan clan) {
-        return List.of();
-    }
-
-    @Override
-    public boolean updateMember(UUID id) {
-        return false;
-    }
-
-    @Override
-    public boolean updateMembers(Clan clan) {
-        return false;
-    }
-
-    @Override
-    public boolean insertMember(Member member) {
-        return false;
-    }
-
-    @Override
-    public boolean insertMembers(Collection<Member> members) {
         return false;
     }
 }
