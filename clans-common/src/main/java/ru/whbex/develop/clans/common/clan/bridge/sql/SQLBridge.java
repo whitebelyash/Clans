@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /* SQLAdapter bridge to ClanManager */
 /* Anything here must be run in the same thread as the SQLAdapter. */
 public abstract class SQLBridge implements Bridge {
-    private final SQLAdapter adapter;
+    protected final SQLAdapter adapter;
 
     private static final String TAG_QUERY_SQL = "SELECT * FROM clans WHERE tag=?;";
     private static final String UUID_QUERY_SQL = "SELECT * FROM clans WHERE id=?;";
@@ -85,26 +85,6 @@ public abstract class SQLBridge implements Bridge {
         ps.setInt(8, clan.getLevelling().getLevel());
         ps.setInt(9, clan.getLevelling().getExperience());
         ps.setInt(10, clan.getMeta().getDefaultRank().ordinal());
-    }
-
-    @Override
-    public void init() {
-        try {
-                /*
-                ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP
-                 */
-            adapter.update("CREATE TABLE IF NOT EXISTS clans (id varchar(36), tag varchar(16), " +
-                    "name varchar(24), " +
-                    "description varchar(255), " +
-                    "creationEpoch LONG, " + // TODO: fixxx
-                    "leader varchar(36), " +
-                    "deleted TINYINT, " +
-                    "level INT, " +
-                    "exp INT, " +
-                    "defaultRank INT);");
-        } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Failed to execute initial SQL Update: " + e.getLocalizedMessage());
-        }
     }
 
     public Clan fetchClan(String tag) {
