@@ -16,6 +16,8 @@ AFAIK, there are some servers, which are using modified version of vc's clans, b
 
 ## Install
 
+1. Install [WholesomeLib](https://github.com/whitebelyash/WholesomeLib)
+2. 
 ```bash
 git clone https://github.com/whitebelyash/Clans
 cd Clans

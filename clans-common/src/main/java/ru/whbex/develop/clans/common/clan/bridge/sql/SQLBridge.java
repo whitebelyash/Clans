@@ -121,7 +121,6 @@ public abstract class SQLBridge implements Bridge {
         try {
             ret = adapter.queryPrepared(TAG_QUERY_SQL, sql, cb);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Failed to fetch clan, {0}", e.getLocalizedMessage());
             ClansPlugin.dbg_printStacktrace(e);
         }
         if (!ret) ClansPlugin.log(Level.ERROR, "Failed to fetch clan with tag {0}!", tag);
@@ -160,7 +159,6 @@ public abstract class SQLBridge implements Bridge {
         try {
             ret = adapter.queryPrepared(UUID_QUERY_SQL, sql, cb);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Failed to fetch clan, {0}", e.getLocalizedMessage());
             ClansPlugin.dbg_printStacktrace(e);
         }
         if (!ret) ClansPlugin.log(Level.ERROR, "Failed to fetch clan with UUID {0}!", id);
@@ -184,7 +182,7 @@ public abstract class SQLBridge implements Bridge {
         try {
             adapter.queryPrepared(TAG_QUERY_SQL, sql, cb);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Failed to fetch UUID from tag {0}!", tag);
+            ClansPlugin.dbg_printStacktrace(e);
         }
         return uuid.get();
     }
@@ -206,7 +204,7 @@ public abstract class SQLBridge implements Bridge {
         try {
             adapter.queryPrepared(UUID_QUERY_SQL, sql, cb);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Failed to fetch tag from UUID {0}!", id);
+            ClansPlugin.dbg_printStacktrace(e);
         }
         return tag.get();
     }
@@ -281,7 +279,7 @@ public abstract class SQLBridge implements Bridge {
             adapter.updateBatched(replace ? REPLACE_SQL : INSERT_SQL, sql);
             return true;
         } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Failed to insert clans, {0}", e.getLocalizedMessage());
+            ClansPlugin.dbg_printStacktrace(e);
             return false;
         }
     }
