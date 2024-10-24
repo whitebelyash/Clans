@@ -29,6 +29,7 @@ import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.player.ConsoleActor;
 import ru.whbex.lib.lang.LangFile;
 import ru.whbex.lib.lang.Language;
+import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.sql.ConnectionData;
 import ru.whbex.lib.sql.SQLAdapter;
 
@@ -131,6 +132,8 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         /* Logging setup */
         LOG = this.getLogger();
         BukkitLoggerFactory.provideBukkitLogger(LOG);
+        LogContext.provideLogger(LoggerFactory.getLogger(this.getName()));
+        // TODO: Use WholesomeLib logger
         Context.INSTANCE.setLogger(LoggerFactory.getLogger(this.getName()));
         Context.INSTANCE.setJavaLogger(LOG);
         Context.INSTANCE.setContext(this);
