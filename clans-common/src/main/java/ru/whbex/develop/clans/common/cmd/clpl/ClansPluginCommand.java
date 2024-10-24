@@ -13,6 +13,7 @@ public abstract class ClansPluginCommand<T> extends RootCommand<T>{
         register(new pageviewtest());
         register(new LocaleInfoCommand());
         register(new LocaleTestCommand());
+        register(new ActorListCommand());
 
     }
 

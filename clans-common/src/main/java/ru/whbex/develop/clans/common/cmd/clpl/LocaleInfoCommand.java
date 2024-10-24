@@ -3,7 +3,7 @@ package ru.whbex.develop.clans.common.cmd.clpl;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.exec.Command;
-import ru.whbex.develop.clans.common.lang.Language;
+import ru.whbex.lib.lang.Language;
 
 public class LocaleInfoCommand implements Command {
     @Override

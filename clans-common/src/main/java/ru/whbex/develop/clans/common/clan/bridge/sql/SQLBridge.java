@@ -8,10 +8,9 @@ import ru.whbex.develop.clans.common.clan.ClanLevelling;
 import ru.whbex.develop.clans.common.clan.ClanMeta;
 import ru.whbex.develop.clans.common.clan.ClanRank;
 import ru.whbex.develop.clans.common.clan.bridge.Bridge;
-import ru.whbex.develop.clans.common.clan.member.Member;
-import ru.whbex.develop.clans.common.db.SQLAdapter;
-import ru.whbex.develop.clans.common.db.SQLCallback;
-import ru.whbex.develop.clans.common.misc.StringUtils;
+import ru.whbex.lib.sql.SQLAdapter;
+import ru.whbex.lib.sql.SQLCallback;
+import ru.whbex.lib.string.StringUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

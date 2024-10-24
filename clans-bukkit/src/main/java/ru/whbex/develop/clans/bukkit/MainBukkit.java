@@ -24,13 +24,13 @@ import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.clan.bridge.Bridge;
 import ru.whbex.develop.clans.common.clan.bridge.NullBridge;
 import ru.whbex.develop.clans.common.clan.bridge.sql.SQLBridge;
-import ru.whbex.develop.clans.common.db.ConnectionData;
-import ru.whbex.develop.clans.common.db.SQLAdapter;
-import ru.whbex.develop.clans.common.lang.LangFile;
-import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.player.ConsoleActor;
+import ru.whbex.lib.lang.LangFile;
+import ru.whbex.lib.lang.Language;
+import ru.whbex.lib.sql.ConnectionData;
+import ru.whbex.lib.sql.SQLAdapter;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +40,6 @@ import java.sql.SQLException;
 
 public class MainBukkit extends JavaPlugin implements ClansPlugin {
     private java.util.logging.Logger LOG;
-    private final ConsoleActor console = new ConsoleActorBukkit();
     private Config config;
 
     private ClanManager clanManager;
@@ -74,7 +73,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     @Override
     public void onEnable(){
         databaseEnable();
-        this.playerManager = new PlayerManagerBukkit(bridge);
+        setupPM();
         this.clanManager = new ClanManager(config, bridge);
 
         ClansPlugin.log(Level.INFO, "Registering commands");
@@ -106,14 +105,14 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         }
     }
     private void setupDatabase(){
+        ConnectionData data = new ConnectionData(
+                config.getDatabaseName(),
+                config.getDatabaseAddress(),
+                config.getDatabaseUser(),
+                config.getDatabasePassword());
+        this.dbConfig = data;
+        Config.DatabaseType type = config.getDatabaseBackend();
         try {
-            ConnectionData data = new ConnectionData(
-                    config.getDatabaseName(),
-                    config.getDatabaseAddress(),
-                    config.getDatabaseUser(),
-                    config.getDatabasePassword());
-            this.dbConfig = data;
-            Config.DatabaseType type = config.getDatabaseBackend();
             Constructor<? extends SQLAdapter> cst = type.adapter().getConstructor(ConnectionData.class);
             this.ad = cst.newInstance(data);
             ad.connect();
@@ -136,6 +135,14 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         Context.INSTANCE.setJavaLogger(LOG);
         Context.INSTANCE.setContext(this);
 
+    }
+    private void setupPM(){
+        try {
+            this.playerManager = new PlayerManagerBukkit(ad);
+        } catch (SQLException e) {
+            ClansPlugin.log(Level.ERROR, "Failed to initialize PlayerManager!");
+            throw new RuntimeException(e);
+        }
     }
     private void setupConfig(){
         this.saveDefaultConfig();

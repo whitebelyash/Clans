@@ -3,9 +3,9 @@ package ru.whbex.develop.clans.common.conf;
 import ru.whbex.develop.clans.common.clan.bridge.sql.H2Bridge;
 import ru.whbex.develop.clans.common.clan.bridge.sql.SQLBridge;
 import ru.whbex.develop.clans.common.clan.bridge.sql.SQLiteBridge;
-import ru.whbex.develop.clans.common.db.impl.H2SQLAdapter;
-import ru.whbex.develop.clans.common.db.SQLAdapter;
-import ru.whbex.develop.clans.common.db.impl.SQLiteAdapter;
+import ru.whbex.lib.sql.SQLAdapter;
+import ru.whbex.lib.sql.impl.H2SQLAdapter;
+import ru.whbex.lib.sql.impl.SQLiteAdapter;
 
 /* Simple config wrapper, i won't write overengineered shit here, don't even ask me */
 public interface Config {

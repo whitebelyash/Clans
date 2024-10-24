@@ -2,7 +2,7 @@ package ru.whbex.develop.clans.common.clan.bridge.sql;
 
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
-import ru.whbex.develop.clans.common.db.SQLAdapter;
+import ru.whbex.lib.sql.SQLAdapter;
 
 import java.sql.SQLException;
 

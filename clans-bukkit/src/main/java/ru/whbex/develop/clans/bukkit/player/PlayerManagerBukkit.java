@@ -9,7 +9,9 @@ import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.player.ConsoleActor;
+import ru.whbex.lib.sql.SQLAdapter;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,10 +24,19 @@ public class PlayerManagerBukkit implements PlayerManager {
     private final Map<UUID, PlayerActor> onlineActors = new HashMap<>();
 
     private final ConsoleActorBukkit consoleActor = new ConsoleActorBukkit();
+    private final SQLAdapter adapter;
+    public PlayerManagerBukkit(SQLAdapter adapter) throws SQLException {
+        this.adapter = adapter;
+        ClansPlugin.dbg("Creating players table...");
+        int aff = adapter.update("CREATE TABLE IF NOT EXISTS players(" +
+                "id varchar(36), " +
+                "name varchar(16)" +
+                ");");
+        ClansPlugin.dbg("Affected {0} rows", aff);
+    }
 
-    private final Bridge bridge;
-    public PlayerManagerBukkit(Bridge bridge){
-        this.bridge = bridge;
+    SQLAdapter getAdapter(){
+        return adapter;
     }
 
     @Override
@@ -52,7 +63,7 @@ public class PlayerManagerBukkit implements PlayerManager {
             actorsN.put(actor.getName(), actor);
         if(actor.isOnline())
             onlineActors.put(actor.getUniqueId(), actor);
-        ClansPlugin.dbg("Registered actor " + actor);
+        ClansPlugin.dbg("Registered actor {0}", actor);
     }
 
     @Override
@@ -68,6 +79,15 @@ public class PlayerManagerBukkit implements PlayerManager {
         if(p.isOnline())
             onlineActors.put(id, p);
         ClansPlugin.dbg("Registered actor " + p);
+    }
+    public void unregisterPlayerActor(UUID id) throws SQLException {
+        if(!actors.containsKey(id))
+            return;
+        adapter.updatePrepared("INSERT INTO player VALUES (?, ?);", ps -> {
+            ps.setString(0, id.toString());
+            ps.setString(1, actors.get(id).getName());
+            return true;
+        });
     }
 
     @Override

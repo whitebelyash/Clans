@@ -69,8 +69,51 @@
                 <version>1.7.36</version>
                 <scope>provided</scope>
             </dependency>
+            <dependency>
+                <groupId>ru.whbex.lib</groupId>
+                <artifactId>wlib-string</artifactId>
+                <version>0.1-SNAPSHOT</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ru.whbex.lib</groupId>
+                <artifactId>wlib-log</artifactId>
+                <version>0.1-SNAPSHOT</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ru.whbex.lib</groupId>
+                <artifactId>wlib-sql</artifactId>
+                <version>0.1-SNAPSHOT</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ru.whbex.lib</groupId>
+                <artifactId>wlib-lang</artifactId>
+                <version>0.1-SNAPSHOT</version>
+                <scope>compile</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>ru.whbex.lib</groupId>
+            <artifactId>wlib-string</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.whbex.lib</groupId>
+            <artifactId>wlib-log</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.whbex.lib</groupId>
+            <artifactId>wlib-sql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.whbex.lib</groupId>
+            <artifactId>wlib-lang</artifactId>
+        </dependency>
+    </dependencies>
     <modules>
         <module>clans-bukkit</module>
         <module>clans-common</module>

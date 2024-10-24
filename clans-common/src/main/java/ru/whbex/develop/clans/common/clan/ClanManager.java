@@ -5,6 +5,7 @@ import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.clan.bridge.Bridge;
+import ru.whbex.develop.clans.common.clan.bridge.NullBridge;
 import ru.whbex.develop.clans.common.clan.member.Member;
 import ru.whbex.develop.clans.common.clan.member.MemberManager;
 import ru.whbex.develop.clans.common.conf.Config;
@@ -33,7 +34,7 @@ public class ClanManager {
 
 
     private final Bridge bridge;
-    private final Task flushTask;
+    private Task flushTask;
     private final MemberManager mm = new MemberManager(this);
 
 
@@ -44,24 +45,35 @@ public class ClanManager {
             this.bridge.init();
             this.importAll(bridge).get();
         } catch (InterruptedException | ExecutionException e) {
-            ClansPlugin.log(Level.ERROR, "Failed to import clans on ClanManager init!!!");
+            ClansPlugin.log(Level.ERROR, "Failed to import clans");
             throw new RuntimeException(e);
         }
+        startFlushTask();
+
+    }
+
+    private void startFlushTask(){
         long flushDelay = ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay();
-        if(ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay() > 1)
+        if(ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay() > 1 && !(bridge instanceof NullBridge))
             this.flushTask = ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runRepeating(() -> exportAll(this.bridge), flushDelay * 20, flushDelay * 20);
         else flushTask = null;
     }
 
 
     public Error createClan(String tag, String name, UUID leader){
+        // Do not create clan it tag already taken
         if(tagClans.containsKey(tag))
             return Error.CLAN_TAG_EXISTS;
+
         UUID id = UUID.randomUUID();
         ClansPlugin.dbg("creating clan (tag: {0}, name: {1}, leader: {2})", tag, name, leader);
+
+        // Create clan object
         ClanMeta cm = new ClanMeta(tag, name, null, leader, System.currentTimeMillis() / 1000L, Constants.DEFAULT_RANK);
         ClanLevelling l = new ClanLevelling(1, 0);
         Clan clan = new Clan(this, id, cm, l, true);
+
+        // Put clan object
         clans.put(id, clan);
         tagClans.put(tag.toLowerCase(Locale.ROOT), clan);
         PlayerActor actor = ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOrRegisterPlayerActor(leader);

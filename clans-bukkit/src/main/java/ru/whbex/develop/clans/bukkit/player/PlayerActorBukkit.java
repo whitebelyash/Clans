@@ -3,64 +3,103 @@ package ru.whbex.develop.clans.bukkit.player;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
-import ru.whbex.develop.clans.common.lang.Language;
-import ru.whbex.develop.clans.common.misc.StringUtils;
 import ru.whbex.develop.clans.common.misc.requests.Request;
 import ru.whbex.develop.clans.common.player.PlayerActor;
+import ru.whbex.lib.lang.Language;
+import ru.whbex.lib.sql.SQLAdapter;
+import ru.whbex.lib.sql.SQLCallback;
+import ru.whbex.lib.string.StringUtils;
 
 import javax.annotation.Nullable;
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.Future;
 
 public class PlayerActorBukkit implements PlayerActor, CommandActor {
-    private final UUID id;
-    private final OfflinePlayer offline;
+    private UUID id;
+    private String name;
+    private Future<Void> fetch;
     private final Map<PlayerActor, Request> requests = new HashMap<>();
 
-    public PlayerActorBukkit(UUID id) {
-        this.id = id;
-        this.offline = Bukkit.getOfflinePlayer(id);
-
+    private final void initPlayer(Player player){
+        this.id = player.getUniqueId();
+        this.name = player.getName();
     }
 
+    /* Create PlayerActor from online player */
+    public PlayerActorBukkit(Player player) {
+        if(!player.isOnline())
+            throw new UnsupportedOperationException("Creating player from offline Player object is not supported");
+        this.initPlayer(player);
+    }
+    /* Create PlayerActor from offline player */
+    public PlayerActorBukkit(UUID id){
+        if(Bukkit.getPlayer(id) != null){
+            this.initPlayer(Bukkit.getPlayer(id));
+            return;
+        }
+        this.id = id;
+        SQLAdapter adapter = ((PlayerManagerBukkit) ClansPlugin.Context.INSTANCE.plugin.getPlayerManager()).getAdapter();
+        ClansPlugin.log(Level.INFO, "Loading player data...");
+        SQLCallback<ResultSet> callback = rs -> {
+            this.name = rs.getString("name");
+            // Add other values
+            ClansPlugin.log(Level.INFO, "Data load complete!");
+            return true;
+        };
+        fetch = ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runCallable(() -> {
+            adapter.queryPrepared("SELECT * FROM players WHERE id=?;", ps -> {
+                ps.setString(1, id.toString());
+                return true;
+            }, callback);
+            return null;
+        });
+        ClansPlugin.dbg("Registered actor, player load in progress");
+    }
+
+
+    private void sendMsg(String s){
+        s = ChatColor.translateAlternateColorCodes('&', s);
+        Bukkit.getPlayer(id).sendMessage(s);
+    }
     @Override
     public void sendMessage(String string) {
         if(!isOnline()) return;
-        string = ChatColor.translateAlternateColorCodes('&', string);
-        offline.getPlayer().sendMessage(string);
+        sendMsg(string);
+
     }
 
     @Override
     public void sendMessage(String s, Object... args) {
         if(!isOnline()) return;
-
-        this.sendMessage(StringUtils.simpleformat(s, args));
+        this.sendMsg(StringUtils.simpleformat(s, args));
     }
 
     @Override
     public void sendMessageT(String s) {
         if(!isOnline()) return;
 
-        this.sendMessage(ClansPlugin.Context.INSTANCE.plugin.getLanguage().getPhrase(s));
+        this.sendMsg(ClansPlugin.Context.INSTANCE.plugin.getLanguage().getPhrase(s));
     }
 
     @Override
     public void sendMessageT(String s, Object... args) {
         if(!isOnline()) return;
-        this.sendMessage(StringUtils.simpleformat(ClansPlugin.Context.INSTANCE.plugin.getLanguage().getPhrase(s), args));
+        this.sendMsg(StringUtils.simpleformat(ClansPlugin.Context.INSTANCE.plugin.getLanguage().getPhrase(s), args));
     }
 
     @Override
     public String getName() {
-        return offline.getName();
+        return name;
     }
 
     @Override
@@ -120,8 +159,8 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
 
     @Override
     public boolean isOnline() {
-        return offline.isOnline();
-    }
+        return Bukkit.getPlayer(id) != null;
+     }
 
     @Override
     public UUID getUniqueId() {
@@ -130,8 +169,8 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
 
     @Override
     public void teleport(int x, int y, int z, String world) {
-        if(offline.isOnline())
-            offline.getPlayer().teleport(new Location(Objects.requireNonNull(Bukkit.getWorld(world), "world"), x, y, z), PlayerTeleportEvent.TeleportCause.PLUGIN);
+        if(isOnline())
+            Bukkit.getPlayer(id).teleport(new Location(Objects.requireNonNull(Bukkit.getWorld(world), "world"), x, y, z), PlayerTeleportEvent.TeleportCause.PLUGIN);
     }
 
     @Override
@@ -139,13 +178,9 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
         return true;
     }
 
-    public OfflinePlayer getOfflinePlayer() {
-        return offline;
-    }
-
     @Nullable
     public Player getPlayer() {
-        return offline.getPlayer();
+        return Bukkit.getPlayer(id);
     }
 
     @Override
@@ -154,5 +189,16 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
                 "id=" + id +
                 "online="+ isOnline() +
                 '}';
+    }
+
+    public void setName(String name){
+        this.name = name;
+    }
+    public void setFetcher(Future<Void> fetcher){
+        this.fetch = fetch;
+    }
+
+    public Future<Void> getFetcher() {
+        return fetch;
     }
 }

@@ -3,10 +3,10 @@ package ru.whbex.develop.clans.common.misc;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.task.TaskScheduler;
 import ru.whbex.develop.clans.common.clan.ClanManager;
-import ru.whbex.develop.clans.common.db.SQLAdapter;
-import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.conf.Config;
+import ru.whbex.lib.lang.Language;
+import ru.whbex.lib.sql.SQLAdapter;
 
 public class DisabledPlugin implements ClansPlugin {
     private static final String MESSAGE = "Plugin is disabled!";

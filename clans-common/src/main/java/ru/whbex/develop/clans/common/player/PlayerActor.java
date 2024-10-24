@@ -1,8 +1,8 @@
 package ru.whbex.develop.clans.common.player;
 
 import ru.whbex.develop.clans.common.clan.Clan;
-import ru.whbex.develop.clans.common.lang.Language;
 import ru.whbex.develop.clans.common.misc.requests.Request;
+import ru.whbex.lib.lang.Language;
 
 import java.util.UUID;
 

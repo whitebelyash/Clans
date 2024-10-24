@@ -10,9 +10,9 @@ import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.exec.CommandError;
-import ru.whbex.develop.clans.common.lang.Language;
-import ru.whbex.develop.clans.common.misc.StringUtils;
 import ru.whbex.develop.clans.common.player.PlayerActor;
+import ru.whbex.lib.lang.Language;
+import ru.whbex.lib.string.StringUtils;
 
 import java.lang.reflect.Field;
 import java.sql.SQLException;
