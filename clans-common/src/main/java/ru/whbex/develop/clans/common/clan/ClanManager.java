@@ -21,7 +21,8 @@ import java.util.concurrent.Future;
 public class ClanManager {
     public enum Error {
         CLAN_NOT_FOUND,
-        CLAN_TAG_EXISTS
+        CLAN_TAG_EXISTS,
+        CLAN_REC_EXISTS
     }
     private final Logger log = ClansPlugin.Context.INSTANCE.logger;
 
@@ -61,7 +62,7 @@ public class ClanManager {
 
 
     public Error createClan(String tag, String name, UUID leader){
-        // Do not create clan it tag already taken
+        // Do not create clan if tag is already taken
         if(tagClans.containsKey(tag))
             return Error.CLAN_TAG_EXISTS;
 
@@ -85,18 +86,52 @@ public class ClanManager {
         return null;
     }
     public Error removeClan(UUID uuid){
-        ClansPlugin.dbg("removing clan {0}", clans.get(uuid));
         if(!clans.containsKey(uuid))
             return Error.CLAN_NOT_FOUND;
         clans.get(uuid).getMembers().forEach(i -> mm.getMember(i).setClan(null));
         clans.remove(uuid);
-        ClansPlugin.dbg("done");
+        ClansPlugin.dbg("removed clan {0}", clans.get(uuid));
         return null;
     }
     public Error removeClan(String tag){
         if(!tagClans.containsKey(tag.toLowerCase()))
             return Error.CLAN_NOT_FOUND;
         return this.removeClan(tagClans.get(tag.toLowerCase()).getId());
+    }
+    public Error disbandClan(Clan clan){
+        if(clan.isDeleted() || !clans.containsKey(clan.getId()))
+            return Error.CLAN_NOT_FOUND;
+        clan.setDeleted(true);
+        tagClans.remove(clan.getMeta().getTag().toLowerCase());
+        ClansPlugin.log(Level.INFO, "Disbanded clan {0}", clan.getMeta().getTag());
+        return null;
+    }
+    public Error recoverClan(Clan clan, String newTag){
+        // A bit changed copy of disband logic now, need to check for leader and other shit
+        if(!clans.containsKey(clan.getId()))
+            return Error.CLAN_NOT_FOUND;
+        if(!clan.isDeleted())
+            return Error.CLAN_REC_EXISTS;
+        if(tagClans.containsKey(clan.getMeta().getTag().toLowerCase())) {
+            if (newTag == null)
+                return Error.CLAN_TAG_EXISTS;
+            else {
+                clan.getMeta().setTag(newTag);
+                clan.setDeleted(false);
+                tagClans.put(newTag, clan);
+                return null;
+            }
+        }
+        clan.setDeleted(false);
+        tagClans.put(clan.getMeta().getTag(), clan);
+        ClansPlugin.log(Level.INFO, "Recovered clan {0}", clan.getMeta().getTag());
+        return null;
+
+    }
+    public Error disbandClan(String tag){
+        if(!tagClans.containsKey(tag.toLowerCase()))
+            return Error.CLAN_NOT_FOUND;
+        return disbandClan(tagClans.get(tag));
     }
     public Clan getClan(UUID id){
         return clans.get(id);

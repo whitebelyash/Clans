@@ -47,6 +47,10 @@ command.profile.lvl = TBD
 command.profile.exp = TBD
 command.profile.members = TBD
 
+# disband
+command.disband.success=Клан &c{0}&r успешно распущен. Отменить - /clan recover [тег]
+command.disband.success-self=Вы распустили ваш клан. Для отмены действия используйте /clan recover
+
 
 # create
 command.create.leave=&cВы должны покинуть клан, чтобы создать новый!
