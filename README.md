@@ -44,7 +44,7 @@ Ports to other platforms are possible, just not now.
 - - [ ] Improve PlayerActor/ConsoleActor message sending code
 - [x] Databases (SQL)
 - - [x] SQLite backend
-- - [x] H2 backend - clan exporting broken now.
+- - [x] H2 backend
 - - [ ] MySQL/MariaDB
 - - [ ] other databases, maybe even not SQL...
 - [ ] Member management
