@@ -28,11 +28,6 @@ public abstract class SQLBridge implements Bridge {
 
     private static final String TAG_QUERY_SQL = "SELECT * FROM clans WHERE tag=?;";
     private static final String UUID_QUERY_SQL = "SELECT * FROM clans WHERE id=?;";
-    /*
-    ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP, DEFAULTRANK
-     */
-    private static final String INSERT_SQL = "INSERT INTO clans VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-    private static final String REPLACE_SQL = "REPLACE INTO clans(id, tag, name, description, creationEpoch, leader, deleted, level, exp, defaultRank) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
     public SQLBridge(SQLAdapter adapter) {
         this.adapter = adapter;
@@ -244,43 +239,7 @@ public abstract class SQLBridge implements Bridge {
         if (!ret) ClansPlugin.log(Level.ERROR, "Failed to query clans!"); // fix
         return clans;
     }
+    public abstract boolean insertClan(Clan clan, boolean replace);
+    public abstract boolean insertAll(Collection<Clan> clans, boolean replace);
 
-    @Override
-    public boolean insertClan(Clan clan, boolean replace) {
-        ClansPlugin.dbg("clan {0} insert", clan.getId());
-        SQLCallback<PreparedStatement> sql = ps -> {
-            clanToPrepStatement(ps, clan);
-            return true;
-        };
-        try {
-            int rows = adapter.updatePrepared(replace ? INSERT_SQL : REPLACE_SQL, sql);
-            ClansPlugin.dbg("affected rows after insert: {0}", rows);
-            return true;
-        } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Failed inserting clan {0}/{1}", clan.getId(), clan.getMeta().getTag());
-            return false;
-        }
-    }
-
-    @Override
-    public boolean insertAll(Collection<Clan> clans, boolean replace) {
-        if (clans.isEmpty()) {
-            ClansPlugin.log(Level.WARN, "Tried to insert empty clan collection");
-            return false;
-        }
-        SQLCallback<PreparedStatement> sql = ps -> {
-            for (Clan clan : clans) {
-                clanToPrepStatement(ps, clan);
-                ps.addBatch();
-            }
-            return true;
-        };
-        try {
-            adapter.updateBatched(replace ? REPLACE_SQL : INSERT_SQL, sql);
-            return true;
-        } catch (SQLException e) {
-            ClansPlugin.dbg_printStacktrace(e);
-            return false;
-        }
-    }
 }
