@@ -6,6 +6,7 @@ import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.cmd.exec.Command;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.exec.CommandError;
+import ru.whbex.develop.clans.common.cmd.exec.CommandUsageError;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.lib.string.StringUtils;
 
@@ -14,7 +15,7 @@ public class ClanCreateCommand implements Command {
     @Override
     public void execute(CommandActor actor, Command command, String label, String... args) {
         if(args.length < 2)
-            throw new CommandError("meta.command.usage");
+            throw new CommandUsageError();
         if(!actor.isPlayer())
             throw new CommandError("meta.command.player-required");
         PlayerActor pa = (PlayerActor) actor;

@@ -1,5 +1,5 @@
 package ru.whbex.develop.clans.common.cmd.exec;
-
+/* Shouldn't affect performance, I promise */
 public class CommandError extends RuntimeException {
     private final String message;
     private final Object[] args;
