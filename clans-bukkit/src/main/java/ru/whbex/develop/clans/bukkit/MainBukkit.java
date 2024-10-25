@@ -30,6 +30,7 @@ import ru.whbex.develop.clans.common.player.ConsoleActor;
 import ru.whbex.lib.lang.LangFile;
 import ru.whbex.lib.lang.Language;
 import ru.whbex.lib.log.LogContext;
+import ru.whbex.lib.log.LogDebug;
 import ru.whbex.lib.sql.ConnectionData;
 import ru.whbex.lib.sql.SQLAdapter;
 
@@ -106,13 +107,15 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         }
     }
     private void setupDatabase(){
+        Config.DatabaseType type = config.getDatabaseBackend();
         ConnectionData data = new ConnectionData(
                 config.getDatabaseName(),
-                config.getDatabaseAddress(),
+                // Create db in plugin folder if db is file-backed
+                type.isFile() ? new File(getDataFolder(), config.getDatabaseAddress()).getAbsolutePath() : config.getDatabaseAddress(),
                 config.getDatabaseUser(),
                 config.getDatabasePassword());
+        ClansPlugin.dbg("database address: {0}", data.dbAddress());
         this.dbConfig = data;
-        Config.DatabaseType type = config.getDatabaseBackend();
         try {
             Constructor<? extends SQLAdapter> cst = type.adapter().getConstructor(ConnectionData.class);
             this.ad = cst.newInstance(data);

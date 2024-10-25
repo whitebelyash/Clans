@@ -11,15 +11,17 @@ import ru.whbex.lib.sql.impl.SQLiteAdapter;
 public interface Config {
 
     enum DatabaseType {
-        H2(H2SQLAdapter.class, H2Bridge.class),
-        SQLITE(SQLiteAdapter.class, SQLiteBridge.class);
+        H2(H2SQLAdapter.class, H2Bridge.class, true),
+        SQLITE(SQLiteAdapter.class, SQLiteBridge.class, true);
 
         private final Class<? extends SQLAdapter> adapter;
         private final Class<? extends SQLBridge> bridge;
+        private final boolean file;
 
-        DatabaseType(Class<? extends SQLAdapter> adapter, Class<? extends SQLBridge> bridge){
+        DatabaseType(Class<? extends SQLAdapter> adapter, Class<? extends SQLBridge> bridge, boolean file){
             this.adapter = adapter;
             this.bridge = bridge;
+            this.file = file;
         }
 
         public Class<? extends SQLAdapter> adapter() {
@@ -28,6 +30,10 @@ public interface Config {
 
         public Class<? extends SQLBridge> bridge() {
             return bridge;
+        }
+
+        public boolean isFile() {
+            return file;
         }
     }
     boolean test();
