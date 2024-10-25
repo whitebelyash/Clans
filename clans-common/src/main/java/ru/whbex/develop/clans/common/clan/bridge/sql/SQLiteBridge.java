@@ -17,11 +17,13 @@ public class SQLiteBridge extends SQLBridge {
                 /*
                 ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP
                  */
-            adapter.update("CREATE TABLE IF NOT EXISTS clans (id varchar(36), tag varchar(16), " +
+            adapter.update("CREATE TABLE IF NOT EXISTS clans (" +
+                    "id varchar(36) NOT NULL UNIQUE PRIMARY KEY, " +
+                    "tag varchar(16) NOT NULL, " +
                     "name varchar(24), " +
                     "description varchar(255), " +
                     "creationEpoch LONG, " + // TODO: fixxx
-                    "leader varchar(36), " +
+                    "leader varchar(36) NOT NULL, " +
                     "deleted TINYINT, " +
                     "level INT, " +
                     "exp INT, " +

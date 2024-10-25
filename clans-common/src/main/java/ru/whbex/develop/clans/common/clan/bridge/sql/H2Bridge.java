@@ -18,7 +18,9 @@ public class H2Bridge extends SQLBridge{
                 /*
                 ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP
                  */
-            adapter.update("CREATE TABLE IF NOT EXISTS clans (id varchar(36), tag varchar(16), " +
+            adapter.update("CREATE TABLE IF NOT EXISTS clans (" +
+                    "id varchar(36) NOT NULL UNIQUE PRIMARY KEY, " +
+                    "tag varchar(16), " +
                     "name varchar(24), " +
                     "description varchar(255), " +
                     "creationEpoch LONG, " + // TODO: fixxx
@@ -28,7 +30,7 @@ public class H2Bridge extends SQLBridge{
                     "exp INT, " +
                     "defaultRank INT);");
         } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Failed to execute initial SQL Update: " + e.getLocalizedMessage());
+            ClansPlugin.log(Level.ERROR, "Failed to execute initial SQL Update");
         }
     }
 }
