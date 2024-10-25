@@ -30,7 +30,7 @@ ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP, DEFAULTR
                  */
             adapter.update("CREATE TABLE IF NOT EXISTS clans (" +
                     "id varchar(36) NOT NULL UNIQUE PRIMARY KEY, " +
-                    "tag varchar(16) NOT NULL, " +
+                    "tag varchar(16) NOT NULL, " + // this can't be unique as deleted clans can have same tag
                     "name varchar(24), " +
                     "description varchar(255), " +
                     "creationEpoch LONG, " + // TODO: fixxx

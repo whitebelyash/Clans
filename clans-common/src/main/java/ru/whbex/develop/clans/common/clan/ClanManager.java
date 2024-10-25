@@ -111,7 +111,7 @@ public class ClanManager {
     }
 
     public boolean clanExists(String tag){
-        return tagClans.containsKey(tag.toLowerCase()) && clans.containsKey(tagClans.get(tag).getId());
+        return tagClans.containsKey(tag.toLowerCase()) && clans.containsKey(tagClans.get(tag.toLowerCase()).getId());
     }
     public boolean clanExists(UUID id){
         return clans.containsKey(id);
@@ -156,24 +156,20 @@ public class ClanManager {
             // TODO: Discover concurrency issues here
             fetched.forEach(c -> {
                 if(clans.containsKey(c.getId())) {
-                    ClansPlugin.log(Level.ERROR, "Clan UUID collide detected: {0} with {1}, skipping", c.getMeta().getTag(), clans.get(c.getId()).getMeta().getTag());
+                    ClansPlugin.log(Level.ERROR, "Clan with UUID {0} is already loaded, skipping", c.getMeta().getTag(), clans.get(c.getId()).getMeta().getTag());
                     return;
                 }
                 if(!c.isDeleted() && clanExists(c.getMeta().getTag())){
-                    ClansPlugin.log(Level.ERROR, "Clan tag conflict detected: {0} with {1}, skipping", c.getMeta().getTag(), tagClans.get(c.getMeta().getTag()).getMeta().getTag());
+                    ClansPlugin.log(Level.ERROR, "Clan tag conflict while loading {0} (conflicts with: {1}), skipping", c.getId(), getClan(c.getMeta().getTag()).getId());
                     return;
                 }
                 // TODO: Check leader collide
                 clans.put(c.getId(), c);
                 UUID ld = c.getMeta().getLeader();
-                if(mm.hasMember(ld))
                 if(!c.isDeleted())
                     tagClans.put(c.getMeta().getTag().toLowerCase(), c);
-                if(c.insert()){
-                    ClansPlugin.log(Level.ERROR, "Loaded clan with insert enabled, this is not ok !!!!");
-                }
             });
-            ClansPlugin.log(Level.INFO, "Import complete! Loaded {0}/{1} clans", clans.size(), tagClans.size());
+            ClansPlugin.log(Level.INFO, "Import complete! Loaded {0} clans ({1} are/is deleted)", clans.size(), tagClans.size());
             return null;
         };
         return ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runCallable(call);
