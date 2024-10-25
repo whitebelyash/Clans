@@ -10,7 +10,7 @@ public class ClanListCommand implements Command {
     private final ClanManager cm = ClansPlugin.Context.INSTANCE.plugin.getClanManager();
     @Override
     public void execute(CommandActor actor, Command command, String label, String... args) {
-        if(cm.getClans().isEmpty()){
+        if(cm.getAllClans().isEmpty()){
             actor.sendMessageT("command.list.no-clans");
             return;
         }
@@ -18,7 +18,7 @@ public class ClanListCommand implements Command {
         StringBuilder msg = new StringBuilder();
         actor.sendMessage("&cisDeleted");
         actor.sendMessage(" ");
-        cm.getClans().forEach(c -> {
+        cm.getAllClans().forEach(c -> {
             ClanMeta m = c.getMeta();
             if(c.isDeleted())
                 msg.append("&c");
