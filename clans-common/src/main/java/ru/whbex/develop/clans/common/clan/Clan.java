@@ -19,14 +19,15 @@ public class Clan {
 
     private boolean isDeleted = false;
 
-    private boolean insert = true;
+    // clan won't be saved on db
+    private boolean transient_ = false;
 
-    public Clan(ClanManager cm, UUID clanId, ClanMeta meta, ClanLevelling levelling, boolean insert){
+    public Clan(ClanManager cm, UUID clanId, ClanMeta meta, ClanLevelling levelling, boolean trans){
         this.cm = cm;
         this.clanId = clanId;
         this.meta = meta;
         this.levelling = levelling;
-        this.insert = insert;
+        this.transient_ = trans;
         this.members = new HashSet<>();
     }
 
@@ -57,10 +58,6 @@ public class Clan {
         return cm;
     }
 
-    public boolean insert(){
-        return insert;
-    }
-
 
     public void addMember(UUID id){
         members.add(id);
@@ -83,5 +80,13 @@ public class Clan {
 
     public Set<UUID> getMembers() {
         return members;
+    }
+
+    public boolean isTransient() {
+        return transient_;
+    }
+
+    public void setTransient(boolean trans) {
+        this.transient_ = trans;
     }
 }

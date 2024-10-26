@@ -69,6 +69,8 @@ ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP, DEFAULTR
         }
         SQLCallback<PreparedStatement> sql = ps -> {
             for (Clan clan : clans) {
+                if(clan.isTransient())
+                    continue;
                 clanToPrepStatement(ps, clan);
                 ps.addBatch();
             }
