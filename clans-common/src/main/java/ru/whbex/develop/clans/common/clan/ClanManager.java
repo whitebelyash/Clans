@@ -117,9 +117,6 @@ public class ClanManager {
                 return Error.CLAN_TAG_EXISTS;
             else {
                 clan.getMeta().setTag(newTag);
-                clan.setDeleted(false);
-                tagClans.put(newTag, clan);
-                return null;
             }
         }
         clan.setDeleted(false);
