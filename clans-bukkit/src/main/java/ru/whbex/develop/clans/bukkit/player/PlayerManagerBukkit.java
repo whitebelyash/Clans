@@ -9,6 +9,7 @@ import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.player.ConsoleActor;
+import ru.whbex.lib.log.LogDebug;
 import ru.whbex.lib.sql.SQLAdapter;
 
 import java.sql.SQLException;
@@ -27,12 +28,12 @@ public class PlayerManagerBukkit implements PlayerManager {
     private final SQLAdapter adapter;
     public PlayerManagerBukkit(SQLAdapter adapter) throws SQLException {
         this.adapter = adapter;
-        ClansPlugin.dbg("Creating players table...");
+        LogDebug.print("Creating players table...");
         int aff = adapter.update("CREATE TABLE IF NOT EXISTS players(" +
                 "id varchar(36), " +
                 "name varchar(16)" +
                 ");");
-        ClansPlugin.dbg("Affected {0} rows", aff);
+        LogDebug.print("Affected {0} rows", aff);
     }
 
     SQLAdapter getAdapter(){
@@ -63,7 +64,7 @@ public class PlayerManagerBukkit implements PlayerManager {
             actorsN.put(actor.getName(), actor);
         if(actor.isOnline())
             onlineActors.put(actor.getUniqueId(), actor);
-        ClansPlugin.dbg("Registered actor {0}", actor);
+        LogDebug.print("Registered actor {0}", actor);
     }
 
     @Override
@@ -78,7 +79,7 @@ public class PlayerManagerBukkit implements PlayerManager {
             actorsN.put(p.getName(), p);
         if(p.isOnline())
             onlineActors.put(id, p);
-        ClansPlugin.dbg("Registered actor " + p);
+        LogDebug.print("Registered actor " + p);
     }
     public void unregisterPlayerActor(UUID id) throws SQLException {
         if(!actors.containsKey(id))
@@ -108,7 +109,7 @@ public class PlayerManagerBukkit implements PlayerManager {
     public void updateActors() {
         // Register all previously unregistered online actors
         if(Bukkit.getOnlinePlayers().size() > onlineActors.values().size()){
-            ClansPlugin.dbg("bukkit online > onlineActors, updating");
+            LogDebug.print("bukkit online > onlineActors, updating");
             Bukkit.getOnlinePlayers().forEach(p -> {
                 registerPlayerActor(p.getUniqueId());
             });
@@ -120,7 +121,7 @@ public class PlayerManagerBukkit implements PlayerManager {
     public void makeOnline(UUID id) {
         if(actors.containsKey(id) && !onlineActors.containsKey(id) && actors.get(id).isOnline()) {
             onlineActors.put(id, actors.get(id));
-            ClansPlugin.dbg("makeOnline() uuid: " + id);
+            LogDebug.print("makeOnline() uuid: " + id);
         }
     }
 
@@ -128,7 +129,7 @@ public class PlayerManagerBukkit implements PlayerManager {
     public void makeOffline(UUID id) {
         if(actors.containsKey(id) && onlineActors.containsKey(id) && !actors.get(id).isOnline()) {
             onlineActors.put(id, actors.get(id));
-            ClansPlugin.dbg("makeOffline() uuid: " + id);
+            LogDebug.print("makeOffline() uuid: " + id);
         }
     }
 

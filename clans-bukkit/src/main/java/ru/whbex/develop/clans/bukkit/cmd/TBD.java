@@ -12,6 +12,7 @@ import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.exec.CommandError;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.lib.lang.Language;
+import ru.whbex.lib.log.LogDebug;
 import ru.whbex.lib.string.StringUtils;
 
 import java.lang.reflect.Field;
@@ -138,8 +139,8 @@ public class TBD implements CommandExecutor {
             db = !ClansPlugin.Context.INSTANCE.plugin.getSQLAdapter().isClosed() && ClansPlugin.Context.INSTANCE.plugin.getSQLAdapter().isValid();
         } catch (SQLException e) {
             db = false;
-            ClansPlugin.dbg("db check failed !!!");
-            ClansPlugin.dbg_printStacktrace(e);
+            LogDebug.print("db check failed !!!");
+            LogDebug.dbg_printStacktrace(e);
         }
         p.sendMessage("| db: " + (db ? "ok" : "failed"));
     }
@@ -149,8 +150,8 @@ public class TBD implements CommandExecutor {
             ClansPlugin.Context.INSTANCE.plugin.getSQLAdapter().disconnect();
         } catch (SQLException e) {
             p.sendMessage("FAIL!");
-            ClansPlugin.dbg("Disconnect fail");
-            ClansPlugin.dbg_printStacktrace(e);
+            LogDebug.print("Disconnect fail");
+            LogDebug.dbg_printStacktrace(e);
         }
         p.sendMessage("Success!");
     }
@@ -160,8 +161,8 @@ public class TBD implements CommandExecutor {
             ClansPlugin.Context.INSTANCE.plugin.getSQLAdapter().connect();
         } catch (SQLException e) {
             p.sendMessage("FAIL!");
-            ClansPlugin.dbg("Connect fail");
-            ClansPlugin.dbg_printStacktrace(e);
+            LogDebug.print("Connect fail");
+            LogDebug.dbg_printStacktrace(e);
         }
         p.sendMessage("Success!");
     }

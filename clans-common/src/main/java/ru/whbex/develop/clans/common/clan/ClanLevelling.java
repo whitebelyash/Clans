@@ -2,12 +2,13 @@ package ru.whbex.develop.clans.common.clan;
 
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
+import ru.whbex.lib.log.LogDebug;
 
 public class ClanLevelling {
     public ClanLevelling(int level, int experience){
         this.experience = experience;
         this.level = level;
-        ClansPlugin.dbg("created clanlevelling with {0}:{1} initial lvl:exp", level, experience);
+        LogDebug.print("created clanlevelling with {0}:{1} initial lvl:exp", level, experience);
     }
     private int experience;
     private int level;
@@ -17,13 +18,13 @@ public class ClanLevelling {
         return experience;
     }
     public void reset(){
-        ClansPlugin.dbg("levelling reset!");
+        LogDebug.print("levelling reset!");
         this.experience = Constants.LVL_EXP_DEF;
     }
 
     public void setExperience(int experience) {
         this.experience = experience;
-        ClansPlugin.dbg("set exp " + experience + ", trig recalc");
+        LogDebug.print("set exp " + experience + ", trig recalc");
         recalcLevel();
     }
 
@@ -32,14 +33,14 @@ public class ClanLevelling {
     }
     public void setLevel(int level, boolean upd){
         this.level = level;
-        ClansPlugin.dbg("set level " + level + ", update: " + upd);
+        LogDebug.print("set level " + level + ", update: " + upd);
         if(upd)
             recalcLevel();
     }
 
     public void addExperience(int exp){
         this.experience += exp;
-        ClansPlugin.dbg("add exp " + exp);
+        LogDebug.print("add exp " + exp);
         recalcLevel();
     }
 
@@ -48,9 +49,9 @@ public class ClanLevelling {
     // recalculate level based on experience. Returns true if level was updated
     public boolean recalcLevel(){
         int expNext = Constants.NEXT_LEVEL_REQ + level * Constants.NEXT_LEVEL_STEP;
-        ClansPlugin.dbg("toNextExp: " + expNext);
+        LogDebug.print("toNextExp: " + expNext);
         if(expNext <= experience){
-            ClansPlugin.dbg("detected lvlup!!");
+            LogDebug.print("detected lvlup!!");
             level++;
             experience = experience - expNext;
             // recurse.

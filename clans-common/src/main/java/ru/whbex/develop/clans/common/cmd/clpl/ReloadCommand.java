@@ -4,6 +4,7 @@ import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.exec.Command;
+import ru.whbex.lib.log.LogContext;
 
 public class ReloadCommand implements Command {
     @Override
@@ -14,7 +15,7 @@ public class ReloadCommand implements Command {
                 ClansPlugin.Context.INSTANCE.plugin.reloadConfigs();
             } catch (Exception e) {
                 actor.sendMessageT("command.clpl.reload.fail");
-                ClansPlugin.log(Level.ERROR, "Failed to reload configuration: " + e.getLocalizedMessage());
+                LogContext.log(Level.ERROR, "Failed to reload configuration: " + e.getLocalizedMessage());
                 e.printStackTrace();
                 return;
             }

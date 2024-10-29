@@ -7,6 +7,7 @@ import org.slf4j.event.Level;
 import ru.whbex.develop.clans.bukkit.MainBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.conf.Config;
+import ru.whbex.lib.log.LogContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,9 +33,9 @@ public class ConfigBukkit implements Config {
     }
 
     public void reload() throws IOException, InvalidConfigurationException {
-        ClansPlugin.log(Level.INFO, "Reloading configuration...");
+        LogContext.log(Level.INFO, "Reloading configuration...");
         this.load();
-        ClansPlugin.log(Level.INFO, "Reloaded configuration");
+        LogContext.log(Level.INFO, "Reloaded configuration");
     }
 
     @Override
@@ -44,7 +45,7 @@ public class ConfigBukkit implements Config {
         try {
             ret = DatabaseType.valueOf(val.toUpperCase());
         } catch (IllegalArgumentException | NullPointerException e){
-            ClansPlugin.log(Level.ERROR, "Invalid database type {0}! Falling back to H2", val);
+            LogContext.log(Level.ERROR, "Invalid database type {0}! Falling back to H2", val);
             ret = DatabaseType.H2;
         }
         return ret;

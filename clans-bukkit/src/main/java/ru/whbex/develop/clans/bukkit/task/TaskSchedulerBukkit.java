@@ -6,6 +6,7 @@ import ru.whbex.develop.clans.bukkit.MainBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.task.TaskScheduler;
 import ru.whbex.develop.clans.common.task.Task;
+import ru.whbex.lib.log.LogContext;
 
 import java.util.concurrent.*;
 
@@ -54,11 +55,11 @@ public class TaskSchedulerBukkit implements TaskScheduler {
         try {
             boolean timeout = db.awaitTermination(5, TimeUnit.SECONDS);
             if(timeout){
-                ClansPlugin.log(Level.ERROR, "Timed out waiting for tasks to stop. Shutting down anyway");
+                LogContext.log(Level.ERROR, "Timed out waiting for tasks to stop. Shutting down anyway");
                 db.shutdown();
             }
         } catch (InterruptedException e) {
-            ClansPlugin.log(Level.ERROR, "Interrupted wait for database executor task termination, this is not ok!");
+            LogContext.log(Level.ERROR, "Interrupted wait for database executor task termination, this is not ok!");
         }
 
     }
