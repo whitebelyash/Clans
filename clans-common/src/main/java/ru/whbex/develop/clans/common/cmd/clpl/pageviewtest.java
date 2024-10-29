@@ -2,7 +2,7 @@ package ru.whbex.develop.clans.common.cmd.clpl;
 
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.exec.Command;
-import ru.whbex.develop.clans.common.misc.PagedListView;
+import ru.whbex.lib.collections.PagedListView;
 
 import java.util.List;
 import java.util.stream.Collectors;
