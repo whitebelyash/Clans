@@ -7,7 +7,7 @@ import ru.whbex.lib.sql.SQLAdapter;
 import ru.whbex.lib.sql.impl.H2SQLAdapter;
 import ru.whbex.lib.sql.impl.SQLiteAdapter;
 
-/* Simple config wrapper, i won't write overengineered shit here, don't even ask me */
+/* Simple config wrapper, I won't write overengineered shit here, don't even ask me */
 public interface Config {
 
     enum DatabaseType {
