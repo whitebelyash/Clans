@@ -59,9 +59,9 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     public void onLoad(){
         setupLogging();
 
-        ClansPlugin.dbg("hello");
-        ClansPlugin.log(Level.INFO, "=== Clans ===");
-        ClansPlugin.log(Level.INFO, "Starting on " + Bukkit.getName());
+        LogDebug.print("hello");
+        LogContext.log(Level.INFO, "=== Clans ===");
+        LogContext.log(Level.INFO, "Starting on " + Bukkit.getName());
 
         this.taskScheduler = new TaskSchedulerBukkit();
 
@@ -69,7 +69,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         setupLocales();
         setupDatabase();
 
-        ClansPlugin.log(Level.INFO, "=== Load complete ===");
+        LogContext.log(Level.INFO, "=== Load complete ===");
 
     }
     @Override
@@ -78,23 +78,23 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         setupPM();
         this.clanManager = new ClanManager(config, bridge);
 
-        ClansPlugin.log(Level.INFO, "Registering commands");
+        LogContext.log(Level.INFO, "Registering commands");
         this.getCommand("clans").setExecutor(new TBD());
         this.getCommand("clan").setExecutor(new ClanCommandBukkit());
         this.getCommand("clansplugin").setExecutor(new ClansPluginCommandBukkit());
 
-        ClansPlugin.log(Level.INFO, "Registering event listeners");
+        LogContext.log(Level.INFO, "Registering event listeners");
         Bukkit.getPluginManager().registerEvents(new ListenerBukkit(), this);
 
-        ClansPlugin.log(Level.INFO, "Registering ClanManager as a service");
+        LogContext.log(Level.INFO, "Registering ClanManager as a service");
         Bukkit.getServicesManager().register(ClanManager.class, clanManager, this, ServicePriority.Normal);
 
-        ClansPlugin.log(Level.INFO, "Startup completed");
+        LogContext.log(Level.INFO, "Startup completed");
     }
 
     @Override
     public void onDisable() {
-        ClansPlugin.log(Level.INFO, "Shutting down");
+        LogContext.log(Level.INFO, "Shutting down");
         if(clanManager != null)
             clanManager.shutdown();
         if(ad != null){
@@ -102,7 +102,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
                 if(!ad.isClosed())
                     ad.disconnect();
             } catch (SQLException e) {
-                ClansPlugin.log(Level.ERROR, "Database disconnect failed, skipping");
+                LogContext.log(Level.ERROR, "Database disconnect failed, skipping");
             }
         }
     }
@@ -114,20 +114,20 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
                 type.isFile() ? new File(getDataFolder(), config.getDatabaseAddress()).getAbsolutePath() : config.getDatabaseAddress(),
                 config.getDatabaseUser(),
                 config.getDatabasePassword());
-        ClansPlugin.dbg("database address: {0}", data.dbAddress());
+        LogDebug.print("database address: {0}", data.dbAddress());
         this.dbConfig = data;
         try {
             Constructor<? extends SQLAdapter> cst = type.adapter().getConstructor(ConnectionData.class);
             this.ad = cst.newInstance(data);
             ad.connect();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException e){
-            ClansPlugin.log(Level.ERROR, "Failed to create database adapter, contact plugin developer");
+            LogContext.log(Level.ERROR, "Failed to create database adapter, contact plugin developer");
             e.printStackTrace();
         } catch (InvocationTargetException e){
-            ClansPlugin.log(Level.ERROR, "Failed to initialize database adapter, reason: " + e.getTargetException().getLocalizedMessage());
+            LogContext.log(Level.ERROR, "Failed to initialize database adapter, reason: " + e.getTargetException().getLocalizedMessage());
             e.printStackTrace();
         } catch (SQLException e){
-            ClansPlugin.log(Level.ERROR, "Failed to initialize database connection, reason: " + e.getLocalizedMessage());
+            LogContext.log(Level.ERROR, "Failed to initialize database connection, reason: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
     }
@@ -136,9 +136,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         LOG = this.getLogger();
         BukkitLoggerFactory.provideBukkitLogger(LOG);
         LogContext.provideLogger(LoggerFactory.getLogger(this.getName()));
-        // TODO: Use WholesomeLib logger
-        Context.INSTANCE.setLogger(LoggerFactory.getLogger(this.getName()));
-        Context.INSTANCE.setJavaLogger(LOG);
         Context.INSTANCE.setContext(this);
 
     }
@@ -146,7 +143,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         try {
             this.playerManager = new PlayerManagerBukkit(ad);
         } catch (SQLException e) {
-            ClansPlugin.log(Level.ERROR, "Failed to initialize PlayerManager!");
+            LogContext.log(Level.ERROR, "Failed to initialize PlayerManager!");
             throw new RuntimeException(e);
         }
     }
@@ -156,14 +153,14 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         try {
             config = new ConfigBukkit(configFile);
         } catch (IOException | InvalidConfigurationException e) {
-            ClansPlugin.log(Level.ERROR, "Failed to load configuration. Startup cannot be continued");
+            LogContext.log(Level.ERROR, "Failed to load configuration. Startup cannot be continued");
             throw new RuntimeException(e);
         }
     }
     private void setupLocales(){
         /* Language init */
         // TODO: Implement multilocale - using single locale for now
-        ClansPlugin.log(Level.INFO, "Loading locales...");
+        LogContext.log(Level.INFO, "Loading locales...");
         if(!(new File(getDataFolder(), Constants.LANGUAGE_FILE_NAME)).exists())
             this.saveResource(Constants.LANGUAGE_FILE_NAME, false);
         LangFile lf = new LangFile(new File(getDataFolder(), Constants.LANGUAGE_FILE_NAME));
@@ -174,17 +171,17 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             try {
                 bridge = config.getDatabaseBackend().bridge().getConstructor(SQLAdapter.class).newInstance(ad);
             } catch (InstantiationException | NoSuchMethodException | IllegalAccessException e) {
-                ClansPlugin.log(Level.ERROR, "Failed to create database bridge, contact developer");
-                ClansPlugin.dbg_printStacktrace(e);
+                LogContext.log(Level.ERROR, "Failed to create database bridge, contact developer");
+                LogDebug.dbg_printStacktrace(e);
             } catch (InvocationTargetException e) {
-                ClansPlugin.log(Level.ERROR, "Failed to initialize database bridge");
+                LogContext.log(Level.ERROR, "Failed to initialize database bridge");
                 e.printStackTrace();
             }
         }
         if(bridge == null)
         {
-            ClansPlugin.log(Level.WARN, "!!! Database is not configured !!!");
-            ClansPlugin.log(Level.WARN, "Consider fixing this, using NullBridge for now. No clans will be loaded and saved on storage");
+            LogContext.log(Level.WARN, "!!! Database is not configured !!!");
+            LogContext.log(Level.WARN, "Consider fixing this, using NullBridge for now. No clans will be loaded and saved on storage");
             bridge = new NullBridge();
         }
     }
@@ -234,13 +231,13 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         try {
             return clazz.getConstructor(ConnectionData.class).newInstance(dbConfig);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e){
-            ClansPlugin.log(Level.ERROR, "Failed to create SQLAdapter " + clazz.getName());
+            LogContext.log(Level.ERROR, "Failed to create SQLAdapter " + clazz.getName());
             throw new RuntimeException(e);
         }
     }
     @Override
     public void reloadLangFiles() throws Exception {
-        ClansPlugin.dbg("Locale reload not implemented");
+        LogDebug.print("Locale reload not implemented");
 
     }
 

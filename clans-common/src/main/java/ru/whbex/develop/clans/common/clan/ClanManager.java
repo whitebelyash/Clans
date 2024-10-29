@@ -11,6 +11,8 @@ import ru.whbex.develop.clans.common.clan.member.MemberManager;
 import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.task.Task;
+import ru.whbex.lib.log.LogContext;
+import ru.whbex.lib.log.LogDebug;
 
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -24,7 +26,6 @@ public class ClanManager {
         CLAN_TAG_EXISTS,
         CLAN_REC_EXISTS
     }
-    private final Logger log = ClansPlugin.Context.INSTANCE.logger;
 
 
 
@@ -40,13 +41,13 @@ public class ClanManager {
 
 
     public ClanManager(Config config, Bridge bridge){
-        ClansPlugin.dbg("init clanmanager");
+        LogDebug.print("init clanmanager");
         this.bridge = bridge;
         try {
             this.bridge.init();
             this.importAll(bridge).get();
         } catch (InterruptedException | ExecutionException e) {
-            ClansPlugin.log(Level.ERROR, "Failed to import clans");
+            LogContext.log(Level.ERROR, "Failed to import clans");
             throw new RuntimeException(e);
         }
         startFlushTask();
@@ -67,7 +68,7 @@ public class ClanManager {
             return Error.CLAN_TAG_EXISTS;
 
         UUID id = UUID.randomUUID();
-        ClansPlugin.dbg("creating clan (tag: {0}, name: {1}, leader: {2})", tag, name, leader);
+        LogDebug.print("creating clan (tag: {0}, name: {1}, leader: {2})", tag, name, leader);
 
         // Create clan object
         ClanMeta cm = new ClanMeta(tag, name, null, leader, System.currentTimeMillis() / 1000L, Constants.DEFAULT_RANK);
@@ -82,7 +83,7 @@ public class ClanManager {
         clan.addMember(leader);
         leaderMember.setClan(clan);
         mm.addMember(leader);
-        ClansPlugin.dbg("ok, not requesting clan flush,wait for scheduled");
+        LogDebug.print("ok, not requesting clan flush,wait for scheduled");
         return null;
     }
     public Error removeClan(UUID uuid){
@@ -90,7 +91,7 @@ public class ClanManager {
             return Error.CLAN_NOT_FOUND;
         clans.get(uuid).getMembers().forEach(i -> mm.getMember(i).setClan(null));
         clans.remove(uuid);
-        ClansPlugin.dbg("removed clan {0}", clans.get(uuid));
+        LogDebug.print("removed clan {0}", clans.get(uuid));
         return null;
     }
     public Error removeClan(String tag){
@@ -103,7 +104,7 @@ public class ClanManager {
             return Error.CLAN_NOT_FOUND;
         clan.setDeleted(true);
         tagClans.remove(clan.getMeta().getTag().toLowerCase());
-        ClansPlugin.log(Level.INFO, "Disbanded clan {0}", clan.getMeta().getTag());
+        LogContext.log(Level.INFO, "Disbanded clan {0}", clan.getMeta().getTag());
         return null;
     }
     public Error recoverClan(Clan clan, String newTag){
@@ -121,7 +122,7 @@ public class ClanManager {
         }
         clan.setDeleted(false);
         tagClans.put(clan.getMeta().getTag(), clan);
-        ClansPlugin.log(Level.INFO, "Recovered clan {0}", clan.getMeta().getTag());
+        LogContext.log(Level.INFO, "Recovered clan {0}", clan.getMeta().getTag());
         return null;
 
     }
@@ -138,7 +139,7 @@ public class ClanManager {
     }
 
     public void onLevelUp(Clan clan){
-        ClansPlugin.dbg("onLvlUp stub " + clan.getId());
+        LogDebug.print("onLvlUp stub " + clan.getId());
 
     }
 
@@ -171,7 +172,7 @@ public class ClanManager {
     public void tmpImportClan(String tag){
         Clan clan = bridge.fetchClan(tag);
         if(clan == null) {
-            ClansPlugin.dbg("fetch fail");
+            LogDebug.print("fetch fail");
             return;
         }
         clans.put(clan.getId(), clan);
@@ -180,19 +181,19 @@ public class ClanManager {
     }
 
     public Future<Void> importAll(Bridge bridge){
-        ClansPlugin.log(Level.INFO, "Importing clans from " + bridge.getClass().getSimpleName());
+        LogContext.log(Level.INFO, "Importing clans from " + bridge.getClass().getSimpleName());
         Callable<Void> call = () -> {
-            ClansPlugin.log(Level.INFO, "Loading clans...");
+            LogContext.log(Level.INFO, "Loading clans...");
             Collection<Clan> fetched = bridge.fetchAll();
             // no sync for now
             // TODO: Discover concurrency issues here
             fetched.forEach(c -> {
                 if(clans.containsKey(c.getId())) {
-                    ClansPlugin.log(Level.ERROR, "Clan with UUID {0} is already loaded, skipping", c.getMeta().getTag(), clans.get(c.getId()).getMeta().getTag());
+                    LogContext.log(Level.ERROR, "Clan with UUID {0} is already loaded, skipping", c.getMeta().getTag(), clans.get(c.getId()).getMeta().getTag());
                     return;
                 }
                 if(!c.isDeleted() && clanExists(c.getMeta().getTag())){
-                    ClansPlugin.log(Level.ERROR, "Clan tag conflict while loading {0} (conflicts with: {1}), skipping", c.getId(), getClan(c.getMeta().getTag()).getId());
+                    LogContext.log(Level.ERROR, "Clan tag conflict while loading {0} (conflicts with: {1}), skipping", c.getId(), getClan(c.getMeta().getTag()).getId());
                     return;
                 }
                 // TODO: Check leader collide
@@ -201,19 +202,19 @@ public class ClanManager {
                 if(!c.isDeleted())
                     tagClans.put(c.getMeta().getTag().toLowerCase(), c);
             });
-            ClansPlugin.log(Level.INFO, "Import complete! Loaded {0} clans ({1} are/is deleted)", clans.size(), tagClans.size());
+            LogContext.log(Level.INFO, "Import complete! Loaded {0} clans ({1} are/is deleted)", clans.size(), tagClans.size());
             return null;
         };
         return ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runCallable(call);
     }
     public Future<Void> exportAll(Bridge bridge){
-        ClansPlugin.log(Level.INFO, "Exporting clans to " + bridge.getClass().getSimpleName());
+        LogContext.log(Level.INFO, "Exporting clans to " + bridge.getClass().getSimpleName());
         Callable<Void> call = () -> {
             if(clans.isEmpty())
                 return null;
-            ClansPlugin.log(Level.INFO, "Saving clans...");
+            LogContext.log(Level.INFO, "Saving clans...");
             bridge.insertAll(clans.values(), true);
-            ClansPlugin.log(Level.INFO, "Complete!");
+            LogContext.log(Level.INFO, "Complete!");
             return null;
         };
         return ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runCallable(call);
@@ -224,7 +225,7 @@ public class ClanManager {
         try {
             this.exportAll(bridge).get();
         } catch (InterruptedException | ExecutionException e) {
-            ClansPlugin.log(Level.ERROR, "Failed to save clans!");
+            LogContext.log(Level.ERROR, "Failed to save clans!");
             throw new RuntimeException(e);
         }
     }

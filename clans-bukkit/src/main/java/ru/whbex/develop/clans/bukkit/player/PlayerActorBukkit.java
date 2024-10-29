@@ -12,6 +12,8 @@ import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.misc.requests.Request;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.lib.lang.Language;
+import ru.whbex.lib.log.LogContext;
+import ru.whbex.lib.log.LogDebug;
 import ru.whbex.lib.sql.SQLAdapter;
 import ru.whbex.lib.sql.SQLCallback;
 import ru.whbex.lib.string.StringUtils;
@@ -49,11 +51,11 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
         }
         this.id = id;
         SQLAdapter adapter = ((PlayerManagerBukkit) ClansPlugin.Context.INSTANCE.plugin.getPlayerManager()).getAdapter();
-        ClansPlugin.log(Level.INFO, "Loading player data...");
+        LogContext.log(Level.INFO, "Loading player data...");
         SQLCallback<ResultSet> callback = rs -> {
             this.name = rs.getString("name");
             // Add other values
-            ClansPlugin.log(Level.INFO, "Data load complete!");
+            LogContext.log(Level.INFO, "Data load complete!");
             return true;
         };
         fetch = ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runCallable(() -> {
@@ -63,7 +65,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
             }, callback);
             return null;
         });
-        ClansPlugin.dbg("Registered actor, player load in progress");
+        LogDebug.print("Registered actor, player load in progress");
     }
 
 
@@ -123,7 +125,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     public void addRequest(Request request) {
         if(request.recipient() != this){
             // TODO: Remove this branch or log to WARNING level
-            ClansPlugin.dbg("!!! Got invalid request " + request);
+            LogDebug.print("!!! Got invalid request " + request);
             return;
         }
         requests.put(request.sender(), request);
