@@ -209,17 +209,22 @@ public class ClanManager {
         };
         return ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runCallable(call);
     }
-    public Future<Void> exportAll(Bridge bridge){
+
+    public Future<Boolean> exportAll(Bridge bridge){
         ClansPlugin.log(Level.INFO, "Exporting clans to " + bridge.getClass().getSimpleName());
-        Callable<Void> call = () -> {
+        Callable<Boolean> call = () -> {
             if(clans.isEmpty())
-                return null;
+                return true;
             ClansPlugin.log(Level.INFO, "Saving clans...");
-            bridge.insertAll(clans.values(), true);
+            boolean res = bridge.insertAll(clans.values(), true);
+            // TODO: clarify if insertAll returned false
             ClansPlugin.log(Level.INFO, "Complete!");
-            return null;
+            return res;
         };
         return ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runCallable(call);
+    }
+    public Future<Boolean> exportAll(){
+        return this.exportAll(bridge);
     }
     public void shutdown(){
         if(this.flushTask != null && !flushTask.cancelled())
