@@ -48,12 +48,18 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
             return;
         }
         this.id = id;
+        // TODO: Move this to PlayerManager
         SQLAdapter adapter = ((PlayerManagerBukkit) ClansPlugin.Context.INSTANCE.plugin.getPlayerManager()).getAdapter();
         ClansPlugin.log(Level.INFO, "Loading player data...");
         SQLCallback<ResultSet> callback = rs -> {
-            this.name = rs.getString("name");
-            // Add other values
-            ClansPlugin.log(Level.INFO, "Data load complete!");
+            if(rs.next())
+                do {
+                    this.name = rs.getString("name");
+                    // Add other values
+                    ClansPlugin.log(Level.INFO, "Data load complete!");
+                    return true;
+                } while (rs.next());
+                    else ClansPlugin.log(Level.INFO, "No data was found"); // this is ok
             return true;
         };
         fetch = ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runCallable(() -> {
