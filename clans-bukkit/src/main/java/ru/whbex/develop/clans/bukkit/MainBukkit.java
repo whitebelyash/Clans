@@ -17,6 +17,7 @@ import ru.whbex.develop.clans.bukkit.conf.ConfigBukkit;
 import ru.whbex.develop.clans.bukkit.task.TaskSchedulerBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
+import ru.whbex.develop.clans.common.misc.DisabledPlugin;
 import ru.whbex.develop.clans.common.task.DatabaseService;
 import ru.whbex.develop.clans.common.task.TaskScheduler;
 import ru.whbex.develop.clans.common.clan.ClanManager;
@@ -110,7 +111,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         // TaskScheduler
         taskScheduler.stopAll();
         LogContext.log(Level.INFO, "Bye!");
-        Context.INSTANCE.plugin = null;
+        Context.INSTANCE.plugin = DisabledPlugin.INSTANCE;
         LogContext.provideLogger(null);
     }
     private void setupDatabase() throws InvocationTargetException, SQLException, IllegalAccessException {

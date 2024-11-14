@@ -17,7 +17,7 @@ public interface ClansPlugin {
     enum Context {
         INSTANCE;
 
-        public ClansPlugin plugin = new DisabledPlugin();
+        public ClansPlugin plugin = DisabledPlugin.INSTANCE;
         public static final String NAME = "clans";
         public void setContext(ClansPlugin plugin){
             this.plugin = plugin;

@@ -95,9 +95,7 @@ public class PlayerManagerBukkit implements PlayerManager {
         // Register all previously unregistered online actors
         if(Bukkit.getOnlinePlayers().size() > onlineActors.values().size()){
             Debug.print("bukkit online > onlineActors, updating");
-            Bukkit.getOnlinePlayers().forEach(p -> {
-                registerPlayerActor(p.getUniqueId());
-            });
+            Bukkit.getOnlinePlayers().forEach(p -> registerPlayerActor(p.getUniqueId()));
         }
 
     }

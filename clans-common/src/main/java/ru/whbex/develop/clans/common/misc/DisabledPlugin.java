@@ -10,6 +10,7 @@ import ru.whbex.lib.sql.SQLAdapter;
 
 public class DisabledPlugin implements ClansPlugin {
     private static final String MESSAGE = "Plugin is disabled!";
+    public static final DisabledPlugin INSTANCE = new DisabledPlugin();
 
     @Override
     public String _getName() {
