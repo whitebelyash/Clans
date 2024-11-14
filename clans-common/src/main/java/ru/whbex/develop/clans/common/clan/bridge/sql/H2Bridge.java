@@ -48,6 +48,8 @@ ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP, DEFAULTR
     @Override
     public boolean insertClan(Clan clan, boolean replace) {
         Debug.print("clan {0} insert", clan.getId());
+        if(clan.isTransient())
+            return false;
         AtomicBoolean ret = new AtomicBoolean(true);
         SQLCallback<PreparedStatement, Void> sql = ps -> {
             clanToPrepStatement(ps, clan);
@@ -80,6 +82,8 @@ ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP, DEFAULTR
                     LogContext.log(Level.ERROR, "Failed to insert clan!");
                 });
         clans.forEach(c -> {
+            if(c.isTransient())
+                return;
             exec.addPrepared(ps -> {
                 clanToPrepStatement(ps, c);
                 return null;
