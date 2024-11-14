@@ -4,6 +4,7 @@ package ru.whbex.develop.clans.common.clan;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -24,7 +25,7 @@ public class Clan {
 
     public Clan(ClanManager cm, UUID clanId, ClanMeta meta, ClanLevelling levelling, boolean trans){
         this.cm = cm;
-        this.clanId = clanId;
+        this.clanId = Objects.requireNonNull(clanId, "clanId");
         this.meta = meta;
         this.levelling = levelling;
         this.transient_ = trans;

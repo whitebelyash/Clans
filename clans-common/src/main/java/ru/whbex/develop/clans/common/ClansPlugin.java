@@ -34,10 +34,6 @@ public interface ClansPlugin {
     // returns system language
     Language getLanguage();
 
-    SQLAdapter getSQLAdapter();
-    <T extends SQLAdapter> T newSQLAdapter(Class<T> clazz); // this will init new adapter with ConnectionData from main config
-
-
     void reloadLangFiles() throws Exception;
     void reloadConfigs() throws Exception;
     Config getConfigWrapped();

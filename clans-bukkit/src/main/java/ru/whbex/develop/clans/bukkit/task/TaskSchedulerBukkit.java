@@ -49,18 +49,23 @@ public class TaskSchedulerBukkit implements TaskScheduler {
 
     @Override
     public void stopAll() {
+        LogContext.log(Level.INFO, "Cancelling all tasks...");
         Bukkit.getScheduler().cancelTasks(plugin);
-        if(db.isShutdown())
-            return;
-        try {
-            boolean timeout = db.awaitTermination(5, TimeUnit.SECONDS);
-            if(timeout){
-                LogContext.log(Level.ERROR, "Timed out waiting for tasks to stop. Shutting down anyway");
-                db.shutdown();
+        LogContext.log(Level.INFO, "Closing database thread pool...");
+        if(!db.isShutdown())
+            db.shutdown();
+        if(!db.isTerminated()){
+            LogContext.log(Level.INFO, "Waiting for tasks to terminate...");
+            try {
+                if(!db.awaitTermination(5, TimeUnit.SECONDS)){
+                    LogContext.log(Level.INFO, "Timed out waiting for terminate, ignoring");
+                    db.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                LogContext.log(Level.ERROR, "Interrupted task shutdown wait timeout");
             }
-        } catch (InterruptedException e) {
-            LogContext.log(Level.ERROR, "Interrupted wait for database executor task termination, this is not ok!");
         }
+
 
     }
 }

@@ -2,7 +2,7 @@ package ru.whbex.develop.clans.common.clan;
 
 
 import ru.whbex.develop.clans.common.ClansPlugin;
-import ru.whbex.lib.log.LogDebug;
+import ru.whbex.lib.log.Debug;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +32,7 @@ public class ClanMeta {
         this.leader = leader;
         this.creationTime = creationTime;
         this.defaultRank = defRank;
-        LogDebug.print("meta created for " + tag);
+        Debug.print("meta created for " + tag);
     }
 
     public String getName() {
@@ -79,7 +79,7 @@ public class ClanMeta {
     }
     public Object getData(String key, Object obj){
         if(!checkData(key))
-            LogDebug.print("data has no key {0}. returning null", key);
+            Debug.print("data has no key {0}. returning null", key);
         return data.get(key);
     }
 

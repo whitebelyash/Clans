@@ -8,7 +8,6 @@ import java.util.UUID;
 
 public interface Bridge {
 
-    boolean valid(); // exception is handled on method side, call this before calling other methods
 
     void init();
 

@@ -8,10 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class NullBridge implements Bridge {
-    @Override
-    public boolean valid() {
-        return true;
-    }
 
     @Override
     public void init() {

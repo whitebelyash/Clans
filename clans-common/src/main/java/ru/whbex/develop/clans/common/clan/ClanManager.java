@@ -12,7 +12,7 @@ import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.task.Task;
 import ru.whbex.lib.log.LogContext;
-import ru.whbex.lib.log.LogDebug;
+import ru.whbex.lib.log.Debug;
 
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -41,7 +41,7 @@ public class ClanManager {
 
 
     public ClanManager(Config config, Bridge bridge){
-        LogDebug.print("init clanmanager");
+        Debug.print("init clanmanager");
         this.bridge = bridge;
         try {
             this.bridge.init();
@@ -68,7 +68,7 @@ public class ClanManager {
             return Error.CLAN_TAG_EXISTS;
 
         UUID id = UUID.randomUUID();
-        LogDebug.print("creating clan (tag: {0}, name: {1}, leader: {2})", tag, name, leader);
+        Debug.print("creating clan (tag: {0}, name: {1}, leader: {2})", tag, name, leader);
 
         // Create clan object
         ClanMeta cm = new ClanMeta(tag, name, null, leader, System.currentTimeMillis() / 1000L, Constants.DEFAULT_RANK);
@@ -83,7 +83,7 @@ public class ClanManager {
         clan.addMember(leader);
         leaderMember.setClan(clan);
         mm.addMember(leader);
-        LogDebug.print("ok, not requesting clan flush,wait for scheduled");
+        Debug.print("ok, not requesting clan flush,wait for scheduled");
         return null;
     }
     public Error removeClan(UUID uuid){
@@ -91,7 +91,7 @@ public class ClanManager {
             return Error.CLAN_NOT_FOUND;
         clans.get(uuid).getMembers().forEach(i -> mm.getMember(i).setClan(null));
         clans.remove(uuid);
-        LogDebug.print("removed clan {0}", clans.get(uuid));
+        Debug.print("removed clan {0}", clans.get(uuid));
         return null;
     }
     public Error removeClan(String tag){
@@ -139,7 +139,7 @@ public class ClanManager {
     }
 
     public void onLevelUp(Clan clan){
-        LogDebug.print("onLvlUp stub " + clan.getId());
+        Debug.print("onLvlUp stub " + clan.getId());
 
     }
 
@@ -172,7 +172,7 @@ public class ClanManager {
     public void tmpImportClan(String tag){
         Clan clan = bridge.fetchClan(tag);
         if(clan == null) {
-            LogDebug.print("fetch fail");
+            Debug.print("fetch fail");
             return;
         }
         clans.put(clan.getId(), clan);

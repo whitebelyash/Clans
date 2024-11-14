@@ -12,7 +12,7 @@ import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.exec.CommandError;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.lib.lang.Language;
-import ru.whbex.lib.log.LogDebug;
+import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.string.StringUtils;
 
 import java.lang.reflect.Field;
@@ -132,39 +132,11 @@ public class TBD implements CommandExecutor {
         p.sendMessage(" ---");
     }
     private void status(CommandActor p, String[] args) {
-        // TODO: PRETTY EXPERIMNETAL, IMPLEMENT PROPER ASYNC!!!!!!
-        p.sendMessage("--- Clans Status ---");
-        boolean db;
-        try {
-            db = !ClansPlugin.Context.INSTANCE.plugin.getSQLAdapter().isClosed() && ClansPlugin.Context.INSTANCE.plugin.getSQLAdapter().isValid();
-        } catch (SQLException e) {
-            db = false;
-            LogDebug.print("db check failed !!!");
-            LogDebug.dbg_printStacktrace(e);
-        }
-        p.sendMessage("| db: " + (db ? "ok" : "failed"));
     }
     private void breakcon(CommandActor p, String[] args){
-        p.sendMessage("Breaking db conn");
-        try {
-            ClansPlugin.Context.INSTANCE.plugin.getSQLAdapter().disconnect();
-        } catch (SQLException e) {
-            p.sendMessage("FAIL!");
-            LogDebug.print("Disconnect fail");
-            LogDebug.dbg_printStacktrace(e);
-        }
-        p.sendMessage("Success!");
+
     }
     private void conn(CommandActor p, String[] args){
-        p.sendMessage("Connect to db");
-        try {
-            ClansPlugin.Context.INSTANCE.plugin.getSQLAdapter().connect();
-        } catch (SQLException e) {
-            p.sendMessage("FAIL!");
-            LogDebug.print("Connect fail");
-            LogDebug.dbg_printStacktrace(e);
-        }
-        p.sendMessage("Success!");
     }
     private void setlvl(CommandActor p, String[] args){
         if(args.length < 3)

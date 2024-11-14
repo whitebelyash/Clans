@@ -50,16 +50,6 @@ public class DisabledPlugin implements ClansPlugin {
     }
 
     @Override
-    public SQLAdapter getSQLAdapter() {
-        throw new NullPointerException(MESSAGE);
-    }
-    @Override
-    public <T extends SQLAdapter> T newSQLAdapter(Class<T> clazz){
-        throw new NullPointerException(MESSAGE);
-    }
-
-
-    @Override
     public void reloadLangFiles() throws Exception {
         throw new NullPointerException(MESSAGE);
 

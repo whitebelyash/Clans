@@ -3,15 +3,17 @@ package ru.whbex.develop.clans.common.clan.bridge.sql;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
+import ru.whbex.develop.clans.common.DatabaseService;
 import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.clan.ClanLevelling;
 import ru.whbex.develop.clans.common.clan.ClanMeta;
 import ru.whbex.develop.clans.common.clan.ClanRank;
 import ru.whbex.develop.clans.common.clan.bridge.Bridge;
+import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.log.LogContext;
-import ru.whbex.lib.log.LogDebug;
 import ru.whbex.lib.sql.SQLAdapter;
 import ru.whbex.lib.sql.SQLCallback;
+import ru.whbex.lib.sql.SQLResponse;
 import ru.whbex.lib.string.StringUtils;
 
 import java.sql.PreparedStatement;
@@ -24,25 +26,10 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 /* SQLAdapter bridge to ClanManager */
-/* Anything here must be run in the same thread as the SQLAdapter. */
 public abstract class SQLBridge implements Bridge {
-    protected final SQLAdapter adapter;
 
     private static final String TAG_QUERY_SQL = "SELECT * FROM clans WHERE tag=?;";
     private static final String UUID_QUERY_SQL = "SELECT * FROM clans WHERE id=?;";
-
-    public SQLBridge(SQLAdapter adapter) {
-        this.adapter = adapter;
-    }
-
-    @Override
-    public boolean valid() {
-        try {
-            return adapter.isClosed() && adapter.isValid();
-        } catch (SQLException e) {
-            return false;
-        }
-    }
 
     protected Clan clanFromQuery(UUID id, String tag, ResultSet rs) throws SQLException {
         String name = rs.getString("name");
@@ -87,25 +74,23 @@ public abstract class SQLBridge implements Bridge {
         ps.setInt(10, clan.getMeta().getDefaultRank().ordinal());
     }
 
+    // Fetching clan from a tag is not safe as the tag is not unique unlike id
     public Clan fetchClan(String tag) {
-        LogDebug.print("fetch clan {0}", tag);
-        AtomicReference<Clan> clan = new AtomicReference<>();
-        SQLCallback<PreparedStatement> sql = ps -> {
+        /*
+        Debug.print("fetch clan {0}", tag);
+        SQLCallback<PreparedStatement, Void> sql = ps -> {
             ps.setString(1, tag);
-            return true;
+            return null;
         };
-        SQLCallback<ResultSet> cb = rs -> {
+        SQLCallback<SQLResponse, Clan> cb = r -> {
             if (rs.next())
                 do {
                     UUID id;
                     if ((id = StringUtils.UUIDFromString(rs.getString("id"))) == null) {
                         LogContext.log(Level.ERROR, "UUID of clan {0} is null!", tag);
-                        return false;
+                        return null;
                     }
-                    Clan c;
-                    if((c = clanFromQuery(id, tag, rs)) == null)
-                        return false;
-                    clan.set(c);
+                    return clanFromQuery(id, tag, rs);
                 } while (rs.next());
             else {
                 LogContext.log(Level.ERROR, "No clan with tag {0} was found!", tag);
@@ -113,106 +98,101 @@ public abstract class SQLBridge implements Bridge {
             }
             return true;
         };
-        boolean ret = false;
-        // this is being run in the same thread as the query
-        try {
-            ret = adapter.queryPrepared(TAG_QUERY_SQL, sql, cb);
-        } catch (SQLException e) {
-            LogDebug.dbg_printStacktrace(e);
-        }
+        Clan clan = DatabaseService.getExecutor(Clan.class, SQLAdapter::preparedQuery)
+                .sql("SELECT * FROM clans WHERE tag=?")
         if (!ret) LogContext.log(Level.ERROR, "Failed to fetch clan with tag {0}!", tag);
         return clan.get();
+         */
+        // TODO: Complete this
+        throw new UnsupportedOperationException("WIP");
     }
 
     @Override
     public Clan fetchClan(UUID id) {
-        LogDebug.print("fetch clan {0}", id);
-        AtomicReference<Clan> clan = new AtomicReference<>();
-        SQLCallback<PreparedStatement> sql = ps -> {
+        Debug.print("fetch clan {0}", id);
+        SQLCallback<PreparedStatement, Void> sql = ps -> {
             ps.setString(1, id.toString());
-            return true;
+            return null;
         };
-        SQLCallback<ResultSet> cb = rs -> {
+        SQLCallback<SQLResponse, Clan> cb = resp -> {
+            ResultSet rs = resp.resultSet();
             if (rs.next())
                 do {
                     String tag;
                     if ((tag = rs.getString("tag")) == null) {
                         LogContext.log(Level.ERROR, "Tag of clan with UUID {0} is null!", id);
-                        return false;
+                        return null;
                     }
-                    Clan c;
-                    if((c = clanFromQuery(id, tag, rs)) == null)
-                        return false;
-                    clan.set(c);
+                    return clanFromQuery(id, tag, rs);
                 } while (rs.next());
             else {
                 LogContext.log(Level.ERROR, "No clan with UUID {0} was found!", id);
-                return false;
+                return null;
             }
-            return true;
         };
-        boolean ret = false;
-        // this is being run in the same thread as the query
-        try {
-            ret = adapter.queryPrepared(UUID_QUERY_SQL, sql, cb);
-        } catch (SQLException e) {
-            LogDebug.dbg_printStacktrace(e);
-        }
-        if (!ret) LogContext.log(Level.ERROR, "Failed to fetch clan with UUID {0}!", id);
-        return clan.get();
+        Clan clan = DatabaseService.getExecutor(Clan.class, SQLAdapter::preparedQuery)
+                        .sql("SELECT * FROM clans WHERE id=?")
+                        .setVerbose(true)
+                        .setPrepared(sql)
+                        .queryCallback(cb)
+                        .execute();
+        if (clan == null) LogContext.log(Level.ERROR, "Failed to fetch clan with UUID {0}!", id);
+        return clan;
     }
 
     @Override
     public UUID fetchUUIDFromTag(String tag) {
-        LogDebug.print("fetch uuid from tag " + tag);
+        Debug.print("fetch uuid from tag " + tag);
         AtomicReference<UUID> uuid = new AtomicReference<>();
-        SQLCallback<PreparedStatement> sql = ps -> {
+        SQLCallback<PreparedStatement, Void> sql = ps -> {
             ps.setString(1, tag);
-            return true;
+            return null;
         };
-        SQLCallback<ResultSet> cb = rs -> {
+        SQLCallback<SQLResponse, UUID> cb = resp -> {
+            ResultSet rs = resp.resultSet();
             if (rs.next()) do {
-                uuid.set(StringUtils.UUIDFromString(rs.getString("id")));
+                return UUID.fromString(rs.getString("id"));
             } while (rs.next());
-            return true;
+            return null;
         };
-        try {
-            adapter.queryPrepared(TAG_QUERY_SQL, sql, cb);
-        } catch (SQLException e) {
-            LogDebug.dbg_printStacktrace(e);
-        }
-        return uuid.get();
+        return DatabaseService.getExecutor(UUID.class, SQLAdapter::preparedQuery)
+                .sql("SELECT * FROM clans WHERE tag=?")
+                .setPrepared(sql)
+                .queryCallback(cb)
+                .setVerbose(true)
+                .execute();
     }
 
     @Override
     public String fetchTagFromUUID(UUID id) {
-        LogDebug.print("fetch uuid from uuid " + id);
-        SQLCallback<PreparedStatement> sql = ps -> {
+        Debug.print("fetch uuid from uuid " + id);
+        SQLCallback<PreparedStatement, Void> sql = ps -> {
             ps.setString(1, id.toString());
-            return true;
+            return null;
         };
-        AtomicReference<String> tag = new AtomicReference<>();
-        SQLCallback<ResultSet> cb = rs -> {
+        SQLCallback<SQLResponse, String> cb = resp -> {
+            ResultSet rs = resp.resultSet();
             if (rs.next()) do {
-                tag.set(rs.getString("tag"));
+                return rs.getString("tag");
             } while (rs.next());
-            return true;
+            return null;
         };
-        try {
-            adapter.queryPrepared(UUID_QUERY_SQL, sql, cb);
-        } catch (SQLException e) {
-            LogDebug.dbg_printStacktrace(e);
-        }
-        return tag.get();
+        return DatabaseService.getExecutor(String.class, SQLAdapter::preparedQuery)
+                .sql("SELECT * FROM clans WHERE id=?")
+                .setVerbose(true)
+                .setPrepared(sql)
+                .queryCallback(cb)
+                .execute();
     }
 
     @Override
     public Collection<Clan> fetchAll() {
-        LogDebug.print("fetch all!");
+        Debug.print("fetch all!");
         final String sql = "SELECT * FROM clans;";
         List<Clan> clans = new ArrayList<>();
-        SQLCallback<ResultSet> cb = rs -> {
-            boolean ret = true;
+        SQLCallback<SQLResponse, Integer> cb = resp -> {
+            ResultSet rs = resp.resultSet();
+            int am = 0;
             while (rs.next()) {
                 String tag;
                 UUID id;
@@ -228,17 +208,16 @@ public abstract class SQLBridge implements Bridge {
                 if((c = clanFromQuery(id, tag, rs)) == null)
                     continue;
                 clans.add(c);
+                am++;
             }
-            return ret;
+            return am;
         };
-        boolean ret;
-        try {
-            ret = adapter.query(sql, cb);
-        } catch (SQLException e) {
-            LogContext.log(Level.ERROR, "Failed to query clans from db, {0}", e.getLocalizedMessage());
-            ret = false;
-        }
-        if (!ret) LogContext.log(Level.ERROR, "Failed to query clans!"); // fix
+        // do something with this
+        int success = DatabaseService.getExecutor(Integer.class, SQLAdapter::query)
+                .sql(sql)
+                .queryCallback(cb)
+                .setVerbose(true)
+                .execute();
         return clans;
     }
     public abstract boolean insertClan(Clan clan, boolean replace);

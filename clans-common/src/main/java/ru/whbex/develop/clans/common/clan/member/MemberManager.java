@@ -3,7 +3,7 @@ package ru.whbex.develop.clans.common.clan.member;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.player.PlayerActor;
-import ru.whbex.lib.log.LogDebug;
+import ru.whbex.lib.log.Debug;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +26,7 @@ public class MemberManager {
         PlayerActor a = ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOrRegisterPlayerActor(id);
         Member m = new Member(a);
         members.put(id, m);
-        LogDebug.print("new member register: " + id);
+        Debug.print("new member register: " + id);
     }
     public Member getMember(UUID id){
         return members.get(id);

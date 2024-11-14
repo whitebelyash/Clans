@@ -13,7 +13,7 @@ import ru.whbex.develop.clans.common.misc.requests.Request;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.lib.lang.Language;
 import ru.whbex.lib.log.LogContext;
-import ru.whbex.lib.log.LogDebug;
+import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.sql.SQLAdapter;
 import ru.whbex.lib.sql.SQLCallback;
 import ru.whbex.lib.string.StringUtils;
@@ -50,28 +50,6 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
             return;
         }
         this.id = id;
-        // TODO: Move this to PlayerManager
-        SQLAdapter adapter = ((PlayerManagerBukkit) ClansPlugin.Context.INSTANCE.plugin.getPlayerManager()).getAdapter();
-        LogContext.log(Level.INFO, "Loading player data...");
-        SQLCallback<ResultSet> callback = rs -> {
-            if(rs.next())
-                do {
-                    this.name = rs.getString("name");
-                    // Add other values
-                    LogContext.log(Level.INFO, "Data load complete!");
-                    return true;
-                } while (rs.next());
-                    else LogContext.log(Level.INFO, "No data was found"); // this is ok
-            return true;
-        };
-        fetch = ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runCallable(() -> {
-            adapter.queryPrepared("SELECT * FROM players WHERE id=?;", ps -> {
-                ps.setString(1, id.toString());
-                return true;
-            }, callback);
-            return null;
-        });
-        LogDebug.print("Registered actor, player load in progress");
     }
 
 
@@ -131,7 +109,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     public void addRequest(Request request) {
         if(request.recipient() != this){
             // TODO: Remove this branch or log to WARNING level
-            LogDebug.print("!!! Got invalid request " + request);
+            Debug.print("!!! Got invalid request " + request);
             return;
         }
         requests.put(request.sender(), request);

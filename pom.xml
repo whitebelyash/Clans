@@ -72,32 +72,37 @@
             <dependency>
                 <groupId>ru.whbex.lib</groupId>
                 <artifactId>wlib-string</artifactId>
-                <version>0.1-SNAPSHOT</version>
+                <version>0.2-SNAPSHOT</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>ru.whbex.lib</groupId>
                 <artifactId>wlib-log</artifactId>
-                <version>0.1-SNAPSHOT</version>
+                <version>0.2-SNAPSHOT</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>ru.whbex.lib</groupId>
                 <artifactId>wlib-sql</artifactId>
-                <version>0.1-SNAPSHOT</version>
+                <version>0.2-SNAPSHOT</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>ru.whbex.lib</groupId>
                 <artifactId>wlib-lang</artifactId>
-                <version>0.1-SNAPSHOT</version>
+                <version>0.2-SNAPSHOT</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>ru.whbex.lib</groupId>
                 <artifactId>wlib-collections</artifactId>
-                <version>0.1-SNAPSHOT</version>
+                <version>0.2-SNAPSHOT</version>
                 <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>ru.whbex.lib</groupId>
+                <artifactId>reflect</artifactId>
+                <version>0.2-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

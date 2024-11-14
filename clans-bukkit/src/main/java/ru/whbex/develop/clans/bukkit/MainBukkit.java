@@ -19,6 +19,7 @@ import ru.whbex.develop.clans.bukkit.conf.ConfigBukkit;
 import ru.whbex.develop.clans.bukkit.task.TaskSchedulerBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
+import ru.whbex.develop.clans.common.DatabaseService;
 import ru.whbex.develop.clans.common.task.TaskScheduler;
 import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.clan.bridge.Bridge;
@@ -27,13 +28,17 @@ import ru.whbex.develop.clans.common.clan.bridge.sql.SQLBridge;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.player.ConsoleActor;
-import ru.whbex.lib.lang.LangFile;
+import ru.whbex.lib.lang.LanguageFile;
 import ru.whbex.lib.lang.Language;
+import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.log.LogContext;
-import ru.whbex.lib.log.LogDebug;
-import ru.whbex.lib.sql.ConnectionData;
+import ru.whbex.lib.reflect.ConstructUtils;
+import ru.whbex.lib.sql.conn.ConnectionConfig;
 import ru.whbex.lib.sql.SQLAdapter;
+import ru.whbex.lib.sql.conn.ConnectionConfig;
+import ru.whbex.lib.sql.conn.ConnectionProvider;
 
+import javax.xml.crypto.Data;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -49,8 +54,8 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     private PlayerManager playerManager;
     private TaskScheduler taskScheduler;
 
-    private SQLAdapter ad = null;
-    private ConnectionData dbConfig;
+    private ConnectionProvider provider;
+    private ConnectionConfig dbConfig;
 
     private Language lang;
 
@@ -59,7 +64,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     public void onLoad(){
         setupLogging();
 
-        LogDebug.print("hello");
+        Debug.print("hello");
         LogContext.log(Level.INFO, "=== Clans ===");
         LogContext.log(Level.INFO, "Starting on " + Bukkit.getName());
 
@@ -67,7 +72,17 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
         setupConfig();
         setupLocales();
-        setupDatabase();
+
+
+        try {
+            setupDatabase();
+        } catch (InvocationTargetException e) {
+            LogContext.log(Level.ERROR, "Failed to initialize database connection provider, contact developer");
+        } catch (SQLException e) {
+            LogContext.log(Level.ERROR, "Failed to connect to the database, message: {0}", e.getMessage());
+        } catch (IllegalAccessException e) {
+            LogContext.log(Level.ERROR, "Failed to initialize database service: {0}!", e.getMessage());
+        }
 
         LogContext.log(Level.INFO, "=== Load complete ===");
 
@@ -95,41 +110,38 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     @Override
     public void onDisable() {
         LogContext.log(Level.INFO, "Shutting down");
+        // ClanManager
         if(clanManager != null)
             clanManager.shutdown();
-        if(ad != null){
-            try {
-                if(!ad.isClosed())
-                    ad.disconnect();
-            } catch (SQLException e) {
-                LogContext.log(Level.ERROR, "Database disconnect failed, skipping");
-            }
-        }
+        // DatabaseService
+        DatabaseService.destroyService();
+        // TaskScheduler
+        taskScheduler.stopAll();
+        LogContext.log(Level.INFO, "Bye!");
+        Context.INSTANCE.plugin = null;
+        LogContext.provideLogger(null);
     }
-    private void setupDatabase(){
+    private void setupDatabase() throws InvocationTargetException, SQLException, IllegalAccessException {
         Config.DatabaseType type = config.getDatabaseBackend();
-        ConnectionData data = new ConnectionData(
+        ConnectionConfig data = new ConnectionConfig(
                 config.getDatabaseName(),
                 // Create db in plugin folder if db is file-backed
                 type.isFile() ? new File(getDataFolder(), config.getDatabaseAddress()).getAbsolutePath() : config.getDatabaseAddress(),
                 config.getDatabaseUser(),
                 config.getDatabasePassword());
-        LogDebug.print("database address: {0}", data.dbAddress());
-        this.dbConfig = data;
-        try {
-            Constructor<? extends SQLAdapter> cst = type.adapter().getConstructor(ConnectionData.class);
-            this.ad = cst.newInstance(data);
-            ad.connect();
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException e){
-            LogContext.log(Level.ERROR, "Failed to create database adapter, contact plugin developer");
-            e.printStackTrace();
-        } catch (InvocationTargetException e){
-            LogContext.log(Level.ERROR, "Failed to initialize database adapter, reason: " + e.getTargetException().getLocalizedMessage());
-            e.printStackTrace();
-        } catch (SQLException e){
-            LogContext.log(Level.ERROR, "Failed to initialize database connection, reason: " + e.getLocalizedMessage());
-            e.printStackTrace();
+        Debug.print("database address: {0}", data.dbAddress());
+        ConnectionProvider prov = ConstructUtils.newInstance(config.getDatabaseBackend().provider(), data);
+        if(prov == null){
+            LogContext.log(Level.ERROR, "Failed to initialize connection provider!");
+            return;
         }
+        // This will hold database connection
+        prov.newConnection();
+        // Create global database service
+        DatabaseService.initializeService(prov);
+        if(!DatabaseService.isInitialized())
+            LogContext.log(Level.ERROR, "DatabaseService init failed!");
+
     }
     private void setupLogging(){
         /* Logging setup */
@@ -140,12 +152,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     }
     private void setupPM(){
-        try {
-            this.playerManager = new PlayerManagerBukkit(ad);
-        } catch (SQLException e) {
-            LogContext.log(Level.ERROR, "Failed to initialize PlayerManager!");
-            throw new RuntimeException(e);
-        }
+        this.playerManager = new PlayerManagerBukkit();
     }
     private void setupConfig(){
         this.saveDefaultConfig();
@@ -163,16 +170,17 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         LogContext.log(Level.INFO, "Loading locales...");
         if(!(new File(getDataFolder(), Constants.LANGUAGE_FILE_NAME)).exists())
             this.saveResource(Constants.LANGUAGE_FILE_NAME, false);
-        LangFile lf = new LangFile(new File(getDataFolder(), Constants.LANGUAGE_FILE_NAME));
+        LanguageFile lf = new LanguageFile(new File(getDataFolder(), Constants.LANGUAGE_FILE_NAME));
         lang = new Language(lf);
     }
     private void databaseEnable(){
-        if(ad != null) {
+        Debug.print("Creating ClanBridge...");
+        if(DatabaseService.isInitialized()) {
             try {
-                bridge = config.getDatabaseBackend().bridge().getConstructor(SQLAdapter.class).newInstance(ad);
+                bridge = config.getDatabaseBackend().bridge().getConstructor().newInstance();
             } catch (InstantiationException | NoSuchMethodException | IllegalAccessException e) {
                 LogContext.log(Level.ERROR, "Failed to create database bridge, contact developer");
-                LogDebug.dbg_printStacktrace(e);
+                Debug.dbg_printStacktrace(e);
             } catch (InvocationTargetException e) {
                 LogContext.log(Level.ERROR, "Failed to initialize database bridge");
                 e.printStackTrace();
@@ -220,24 +228,10 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         return lang;
     }
 
-    @Override
-    public SQLAdapter getSQLAdapter() {
-        return ad;
-    }
 
-    // TODO: Add exception signature to the method on interface. Im lazy, sorry.
-    @Override
-    public <T extends SQLAdapter> T newSQLAdapter(Class<T> clazz) {
-        try {
-            return clazz.getConstructor(ConnectionData.class).newInstance(dbConfig);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e){
-            LogContext.log(Level.ERROR, "Failed to create SQLAdapter " + clazz.getName());
-            throw new RuntimeException(e);
-        }
-    }
     @Override
     public void reloadLangFiles() throws Exception {
-        LogDebug.print("Locale reload not implemented");
+        Debug.print("Locale reload not implemented");
 
     }
 
