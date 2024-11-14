@@ -1,17 +1,19 @@
-package ru.whbex.develop.clans.common;
+package ru.whbex.develop.clans.common.task;
 
 import org.slf4j.event.Level;
+import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.sql.SQLAdapter;
 import ru.whbex.lib.sql.conn.ConnectionProvider;
 
 import java.sql.SQLException;
-import java.util.Objects;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
 public class DatabaseService {
     private static ConnectionProvider provider;
+    private static ExecutorService pool = ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().getDatabasePool();
     public static void initializeService(ConnectionProvider provider) throws IllegalAccessException {
         Debug.print("Initializing DatabaseService...");
         if(DatabaseService.provider != null)
@@ -40,5 +42,11 @@ public class DatabaseService {
     }
     public static SQLAdapter<Void>.Executor<Void> getExecutor(Consumer<SQLAdapter<Void>> task){
         return SQLAdapter.executor(provider, task);
+    }
+    public static <T> SQLAdapter<T>.Executor<T> getAsyncExecutor(Class<T> returnType, Consumer<SQLAdapter<T>> task){
+        return SQLAdapter.executor(returnType, provider, task).executorService(pool);
+    }
+    public static SQLAdapter<Void>.Executor<Void> getAsyncExecutor(Consumer<SQLAdapter<Void>> task){
+        return SQLAdapter.executor(provider, task).executorService(pool);
     }
 }

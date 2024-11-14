@@ -1,17 +1,14 @@
 package ru.whbex.develop.clans.common.clan.bridge.sql;
 
 import org.slf4j.event.Level;
-import ru.whbex.develop.clans.common.ClansPlugin;
-import ru.whbex.develop.clans.common.DatabaseService;
+import ru.whbex.develop.clans.common.task.DatabaseService;
 import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.log.LogContext;
-import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.sql.SQLAdapter;
 import ru.whbex.lib.sql.SQLCallback;
 
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;

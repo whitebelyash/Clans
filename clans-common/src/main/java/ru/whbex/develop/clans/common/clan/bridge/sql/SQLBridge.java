@@ -3,7 +3,7 @@ package ru.whbex.develop.clans.common.clan.bridge.sql;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
-import ru.whbex.develop.clans.common.DatabaseService;
+import ru.whbex.develop.clans.common.task.DatabaseService;
 import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.clan.ClanLevelling;
 import ru.whbex.develop.clans.common.clan.ClanMeta;

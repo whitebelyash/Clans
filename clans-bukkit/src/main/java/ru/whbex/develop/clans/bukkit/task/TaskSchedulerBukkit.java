@@ -46,6 +46,11 @@ public class TaskSchedulerBukkit implements TaskScheduler {
         return db.submit(callable);
     }
 
+    @Override
+    public ExecutorService getDatabasePool() {
+        return db;
+    }
+
 
     @Override
     public void stopAll() {
