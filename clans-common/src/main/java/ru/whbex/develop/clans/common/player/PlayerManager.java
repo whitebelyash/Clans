@@ -53,34 +53,13 @@ public interface PlayerManager {
     PlayerActor getOrRegisterPlayerActor(UUID id);
 
     /**
-     * Update all actors.
-     */
-    void updateActors();
-
-    /**
-     * Switch actor's type to online - useful for fabric port. It doesn't have OfflinePlayer equivalent.
-     * @param id actor's UUID
-     */
-    void makeOnline(UUID id);
-
-    /**
-     * Switch actor's type to offline - useful for fabric port. It doesn't have OfflinePlayer equivalent.
-     * @param id actor's UUID
-     */
-    void makeOffline(UUID id);
-
-    /**
-     * Is player actor online. Same method exists on PlayerActor#isOnline
-     * @param id actor's uuid
-     * @return online status
-     */
-    boolean isOnline(UUID id);
-
-    /**
      * Get all online actors.
      * @return collection of actors.
      */
     Collection<PlayerActor> getOnlinePlayerActors();
+
+    void onJoin(UUID id);
+    void onQuit(UUID id);
 
     /**
      * Get console actor.

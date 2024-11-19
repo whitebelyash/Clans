@@ -2,6 +2,7 @@ package ru.whbex.develop.clans.common.task;
 
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
+import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.sql.SQLAdapter;
@@ -27,7 +28,7 @@ public class DatabaseService {
             try {
                 provider.breakConnection();
             } catch (SQLException e) {
-                LogContext.log(Level.ERROR, "Failed to disconnect from database, ignoring");
+                LogContext.log(Level.ERROR, "Failed to disconnect from the database, ignoring");
             }
             provider = null;
         }
@@ -35,6 +36,10 @@ public class DatabaseService {
     }
     public static boolean isInitialized(){
         return DatabaseService.provider != null;
+    }
+
+    public static Config.DatabaseType getDatabaseBackend(){
+        return ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getDatabaseBackend();
     }
 
     public static <T> SQLAdapter<T>.Executor<T> getExecutor(Class<T> returnType, Consumer<SQLAdapter<T>> task){

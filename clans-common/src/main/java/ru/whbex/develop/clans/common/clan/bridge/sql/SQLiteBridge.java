@@ -45,9 +45,8 @@ ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP, DEFAULTR
         if(clan.isTransient())
             return false;
         AtomicBoolean ret = new AtomicBoolean(true);
-        SQLCallback<PreparedStatement, Void> sql = ps -> {
+        SQLCallback.PreparedCallback sql = ps -> {
             clanToPrepStatement(ps, clan);
-            return null;
         };
         DatabaseService.getExecutor(SQLAdapter::preparedQuery)
                 .sql(INSERT_SQL)
@@ -80,7 +79,6 @@ ID, TAG, NAME, DESCRIPTION, CREATIONEPOCH, LEADER, DELETED, LEVEL, EXP, DEFAULTR
                 return;
             exec.addPrepared(ps -> {
                 clanToPrepStatement(ps, c);
-                return null;
             });
         });
         exec.execute();

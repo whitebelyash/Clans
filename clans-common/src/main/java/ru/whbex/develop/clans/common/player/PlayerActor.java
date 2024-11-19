@@ -14,6 +14,8 @@ public interface PlayerActor {
     UUID getUniqueId();
     String getName();
     Language getLanguage();
+    PlayerProfile getProfile();
+    void setProfile(PlayerProfile profile);
 
     Clan getClan();
     boolean hasClan();

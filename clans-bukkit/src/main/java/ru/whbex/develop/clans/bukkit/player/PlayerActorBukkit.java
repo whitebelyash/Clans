@@ -11,6 +11,7 @@ import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.misc.requests.Request;
 import ru.whbex.develop.clans.common.player.PlayerActor;
+import ru.whbex.develop.clans.common.player.PlayerProfile;
 import ru.whbex.lib.lang.Language;
 import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.log.Debug;
@@ -30,6 +31,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     private UUID id;
     private String name;
     private Future<Void> fetch;
+    private PlayerProfile profile;
     private final Map<PlayerActor, Request> requests = new HashMap<>();
 
     private final void initPlayer(Player player){
@@ -85,7 +87,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
 
     @Override
     public String getName() {
-        return name;
+        return profile != null ? profile.getName() : null;
     }
 
     @Override
@@ -93,6 +95,17 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
         // TODO: Implement per-player locale support
         return ClansPlugin.Context.INSTANCE.plugin.getLanguage();
     }
+
+    @Override
+    public PlayerProfile getProfile() {
+        return profile;
+    }
+
+    @Override
+    public void setProfile(PlayerProfile profile) {
+        this.profile = profile;
+    }
+
     // TODO: implement this, stubbing to fix compiling
     @Override
     public Clan getClan() {
@@ -168,6 +181,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     public Player getPlayer() {
         return Bukkit.getPlayer(id);
     }
+
 
     @Override
     public String toString() {

@@ -176,7 +176,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
                 Debug.dbg_printStacktrace(e);
             } catch (InvocationTargetException e) {
                 LogContext.log(Level.ERROR, "Failed to initialize database bridge");
-                e.printStackTrace();
+                Debug.dbg_printStacktrace(e);
             }
         }
         if(bridge == null)

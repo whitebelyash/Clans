@@ -110,9 +110,8 @@ public abstract class SQLBridge implements Bridge {
     @Override
     public Clan fetchClan(UUID id) {
         Debug.print("fetch clan {0}", id);
-        SQLCallback<PreparedStatement, Void> sql = ps -> {
+        SQLCallback.PreparedCallback sql = ps -> {
             ps.setString(1, id.toString());
-            return null;
         };
         SQLCallback<SQLResponse, Clan> cb = resp -> {
             ResultSet rs = resp.resultSet();
@@ -143,10 +142,8 @@ public abstract class SQLBridge implements Bridge {
     @Override
     public UUID fetchUUIDFromTag(String tag) {
         Debug.print("fetch uuid from tag " + tag);
-        AtomicReference<UUID> uuid = new AtomicReference<>();
-        SQLCallback<PreparedStatement, Void> sql = ps -> {
+        SQLCallback.PreparedCallback sql = ps -> {
             ps.setString(1, tag);
-            return null;
         };
         SQLCallback<SQLResponse, UUID> cb = resp -> {
             ResultSet rs = resp.resultSet();
@@ -166,9 +163,8 @@ public abstract class SQLBridge implements Bridge {
     @Override
     public String fetchTagFromUUID(UUID id) {
         Debug.print("fetch uuid from uuid " + id);
-        SQLCallback<PreparedStatement, Void> sql = ps -> {
+        SQLCallback.PreparedCallback sql = ps -> {
             ps.setString(1, id.toString());
-            return null;
         };
         SQLCallback<SQLResponse, String> cb = resp -> {
             ResultSet rs = resp.resultSet();

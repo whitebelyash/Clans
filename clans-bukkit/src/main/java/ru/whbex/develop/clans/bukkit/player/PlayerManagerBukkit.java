@@ -3,15 +3,20 @@ package ru.whbex.develop.clans.bukkit.player;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.bridge.Bridge;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.player.ConsoleActor;
+import ru.whbex.develop.clans.common.player.PlayerProfile;
+import ru.whbex.develop.clans.common.task.DatabaseService;
 import ru.whbex.lib.log.Debug;
+import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.sql.SQLAdapter;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,8 +30,27 @@ public class PlayerManagerBukkit implements PlayerManager {
     private final Map<UUID, PlayerActor> onlineActors = new HashMap<>();
 
     private final ConsoleActorBukkit consoleActor = new ConsoleActorBukkit();
+
+    private static final String TABLE_CREATE_STMT = "CREATE TABLE IF NOT EXISTS players(" +
+            "id varchar(18) UNIQUE NOT NULL, " +
+            "name varchar(16) NOT NULL, " +
+            "regDate bigint, " +
+            "lastSeen bigint" +
+            ");";
+    private static final String FETCH_PROFILE_STMT = "SELECT * FROM players WHERE id=?;";
+    private static final String INSERT_PROFILE_STMT_SQLITE = "INSERT OR REPLACE INTO players VALUES(?, ?, ?, ?);";
+    private static final String INSERT_PROFILE_STMT_H2 = "MERGE INTO players VALUES(?, ?, ?, ?);";
     public PlayerManagerBukkit() {
-        // Debug.print("Creating players table...");
+        Debug.print("Creating players table...");
+        DatabaseService.getExecutor(SQLAdapter::update)
+                .sql(TABLE_CREATE_STMT)
+                .setVerbose(true)
+                .updateCallback(resp -> {
+                    Debug.print("Updated {0} rows", resp.updateResult());
+                    return null;
+                })
+                .exceptionally(e -> {throw new RuntimeException(e);})
+                .execute();
     }
 
 
@@ -47,33 +71,80 @@ public class PlayerManagerBukkit implements PlayerManager {
 
     @Override
     public void registerPlayerActor(PlayerActor actor) {
-        if(actors.containsKey(actor.getUniqueId()))
-            return;
         actors.put(actor.getUniqueId(), actor);
-        if(actor.getName() != null)
-            actorsN.put(actor.getName(), actor);
-        if(actor.isOnline())
-            onlineActors.put(actor.getUniqueId(), actor);
-        Debug.print("Registered actor {0}", actor);
+        if(actor.getProfile() == null){
+            Debug.print("Player profile not set, fetching...");
+            // Set stub profile before real is fetched
+            actor.setProfile(new PlayerProfile(actor.getUniqueId(), null, -1, 0));
+            // Set name if online
+            if(actor.isOnline()) {
+                actor.getProfile().setName(((PlayerActorBukkit) actor).getPlayer().getName());
+                Debug.print("name set!");
+            }
+            // We'll ignore fetch progress for now
+            DatabaseService.getAsyncExecutor(SQLAdapter::preparedQuery)
+                    .sql(FETCH_PROFILE_STMT)
+                    .setPrepared(ps -> ps.setString(1, actor.getUniqueId().toString()))
+                    .queryCallback(resp -> {
+                        if(resp.resultSet().next())
+                            do {
+                                String old = actor.getProfile() != null ? actor.getProfile().getName() : null;
+                                actor.setProfile(PlayerProfile.fromResultSet(resp.resultSet()));
+                                if(old != null)
+                                    actor.getProfile().setName(old);
+                                actorsN.put(actor.getProfile().getName(), actor);
+                                Debug.print("Profile successfully fetched");
+                            } while(resp.resultSet().next());
+                        else {
+                            Debug.print("PlayerProfile not found for {0}", actor);
+                        }
+                        return null;
+                    })
+                    .executeAsync();
+        }
+        Debug.print("Registered/updated actor {0}", actor);
     }
 
     @Override
     public void registerPlayerActor(UUID id) {
         if(actors.containsKey(id)) {
-            makeOnline(id);
+            // makeOnline(id);
             return;
         }
         PlayerActor p = new PlayerActorBukkit(id);
-        actors.put(id, p);
-        if(p.getName() != null)
-            actorsN.put(p.getName(), p);
-        if(p.isOnline())
-            onlineActors.put(id, p);
-        Debug.print("Registered actor " + p);
+        registerPlayerActor(p);
     }
     public void unregisterPlayerActor(UUID id) throws SQLException {
         if(!actors.containsKey(id))
             return;
+    }
+    private static void profileToPrepStatement(PlayerProfile pp, PreparedStatement ps) throws SQLException{
+        ps.setString(1, pp.getOwner().toString());
+        ps.setString(2, pp.getName());
+        ps.setLong(3, pp.getRegDate());
+        ps.setLong(4, pp.getLastSeen());
+    }
+    // TODO: Move to PlayerManager interface
+    public void savePlayerActor(UUID id){
+        if(!actors.containsKey(id))
+            return;
+        PlayerActor actor = actors.get(id);
+        Debug.print("Saving PlayerProfile for {0}", actor);
+        SQLAdapter<Void>.Executor<Void> ex = DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
+                .setVerbose(true)
+                .setPrepared(ps -> {
+                    profileToPrepStatement(actor.getProfile(), ps);
+                })
+                .updateCallback(resp -> {
+                    Debug.print("Updated {0} rows", resp.updateResult());
+                    return null;
+                });
+        switch(DatabaseService.getDatabaseBackend()){
+            case H2 -> ex.sql(INSERT_PROFILE_STMT_H2);
+            case SQLITE -> ex.sql(INSERT_PROFILE_STMT_SQLITE);
+            default -> throw new IllegalArgumentException("Unsupported database backend " + DatabaseService.getDatabaseBackend());
+        }
+        ex.executeAsync();
     }
 
     @Override
@@ -91,39 +162,34 @@ public class PlayerManagerBukkit implements PlayerManager {
     }
 
     @Override
-    public void updateActors() {
-        // Register all previously unregistered online actors
-        if(Bukkit.getOnlinePlayers().size() > onlineActors.values().size()){
-            Debug.print("bukkit online > onlineActors, updating");
-            Bukkit.getOnlinePlayers().forEach(p -> registerPlayerActor(p.getUniqueId()));
-        }
-
-    }
-
-    @Override
-    public void makeOnline(UUID id) {
-        if(actors.containsKey(id) && !onlineActors.containsKey(id) && actors.get(id).isOnline()) {
-            onlineActors.put(id, actors.get(id));
-            Debug.print("makeOnline() uuid: " + id);
-        }
-    }
-
-    @Override
-    public void makeOffline(UUID id) {
-        if(actors.containsKey(id) && onlineActors.containsKey(id) && !actors.get(id).isOnline()) {
-            onlineActors.put(id, actors.get(id));
-            Debug.print("makeOffline() uuid: " + id);
-        }
-    }
-
-    @Override
-    public boolean isOnline(UUID id) {
-        return actors.containsKey(id) && actors.get(id).isOnline();
-    }
-
-    @Override
     public Collection<PlayerActor> getOnlinePlayerActors() {
         return onlineActors.values();
+    }
+
+    @Override
+    public void onJoin(UUID id) {
+        Debug.print("onJoin() " + id);
+        if(!actors.containsKey(id))
+            return;
+        PlayerActor actor = actors.get(id);
+        Debug.print("Updating player name...");
+        String bukkitName = ((PlayerActorBukkit) actor).getPlayer().getName();
+        if(actor.getProfile().getName() == null){
+            actor.getProfile().setName(bukkitName);
+        }
+        if(actor.getProfile().getName().equals(bukkitName)){
+            actorsN.remove(actor.getProfile().getName());
+            actor.getProfile().setName(bukkitName);
+        }
+        actorsN.put(bukkitName, actor);
+        onlineActors.put(id, actor);
+    }
+
+    @Override
+    public void onQuit(UUID id) {
+        Debug.print("onQuit() " + id);
+        onlineActors.remove(id);
+        savePlayerActor(id);
     }
 
     @Override
