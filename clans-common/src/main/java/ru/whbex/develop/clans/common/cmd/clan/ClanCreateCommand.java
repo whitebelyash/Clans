@@ -1,5 +1,6 @@
 package ru.whbex.develop.clans.common.cmd.clan;
 
+import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.clan.ClanManager;
@@ -26,7 +27,7 @@ public class ClanCreateCommand implements Command {
             if(!pa.hasData("cmd-create-sugcont")){
                 actor.sendMessageT("command.create.suggest-recovery");
                 pa.setData("cmd-create-sugcont", new Object());
-                ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runLater(() -> pa.removeData("cmd-create-sugcont"), 50L);
+                ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runLater(() -> pa.removeData("cmd-create-sugcont"), 2500L);
                 return;
             }
         }
