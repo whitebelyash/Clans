@@ -30,6 +30,10 @@ public class ClanCreateCommand implements Command {
                 ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runLater(() -> pa.removeData("cmd-create-sugcont"), 2500L);
                 return;
             }
+            else {
+                // Will remove clan as player already notified
+                cm.removeClan(cm.getClan(pa).getId());
+            }
         }
         String tag = args[1];
         String name = StringUtils.simpleformat(Constants.CLAN_NAME_FORMAT, tag);
