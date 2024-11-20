@@ -37,8 +37,7 @@ public class ClanCreateCommand implements Command {
             switch(e){
                 case CLAN_TAG_EXISTS -> throw new CommandError("command.create-clan-exists");
                 case LEAD_HAS_CLAN -> throw new CommandError("command.create.leave-leader");
-                default:
-                    LogContext.log(Level.WARN, "Unknown ClanManager error {0}. Contact developer", e);
+                default -> LogContext.log(Level.WARN, "Unknown ClanManager error {0}. Contact developer", e);
             }
             return;
         }
