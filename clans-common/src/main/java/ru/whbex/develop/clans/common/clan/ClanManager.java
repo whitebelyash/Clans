@@ -24,15 +24,18 @@ public class ClanManager {
     public enum Error {
         CLAN_NOT_FOUND,
         CLAN_TAG_EXISTS,
-        CLAN_REC_EXISTS
+        CLAN_REC_EXISTS,
+        LEAD_HAS_CLAN
     }
 
 
 
     // Main clan map
     private final Map<UUID, Clan> clans = new HashMap<>();
-    // Tag to uuid map
+    // Tag to clan map
     private final Map<String, Clan> tagClans = new HashMap<>();
+    // Leader to clan map
+    private final Map<UUID, Clan> leadClans = new HashMap<>();
 
 
     private final Bridge bridge;
@@ -66,6 +69,10 @@ public class ClanManager {
         // Do not create clan if tag is already taken
         if(tagClans.containsKey(tag))
             return Error.CLAN_TAG_EXISTS;
+        // Do not create clan if leader already has it
+        if(leadClans.containsKey(leader))
+            return Error.LEAD_HAS_CLAN;
+        // TODO: Add check for clan membership
 
         UUID id = UUID.randomUUID();
         Debug.print("creating clan (tag: {0}, name: {1}, leader: {2})", tag, name, leader);
@@ -78,6 +85,7 @@ public class ClanManager {
         // Put clan object
         clans.put(id, clan);
         tagClans.put(tag.toLowerCase(Locale.ROOT), clan);
+        leadClans.put(leader, clan);
         PlayerActor actor = ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOrRegisterPlayerActor(leader);
         Member leaderMember = mm.hasMember(leader) ? mm.getMember(leader) : new Member(actor);
         clan.addMember(leader);
@@ -136,6 +144,9 @@ public class ClanManager {
     }
     public Clan getClan(String tag){
         return tagClans.get(tag.toLowerCase());
+    }
+    public Clan getClan(PlayerActor leader){
+        return leadClans.get(leader.getUniqueId());
     }
 
     public void onLevelUp(Clan clan){
