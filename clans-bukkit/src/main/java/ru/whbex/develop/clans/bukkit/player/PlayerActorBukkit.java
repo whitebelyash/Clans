@@ -33,6 +33,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     private Future<Void> fetch;
     private PlayerProfile profile;
     private final Map<PlayerActor, Request> requests = new HashMap<>();
+    private final Map<String, Object> data = new HashMap<>();
 
     private final void initPlayer(Player player){
         this.id = player.getUniqueId();
@@ -153,6 +154,32 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     @Override
     public Request getRequest(PlayerActor sender) {
         return requests.get(sender);
+    }
+
+    @Override
+    public void setData(String key, Object data) {
+        this.data.put(key, data);
+    }
+
+    @Override
+    public Object getData(String key) {
+        return data.get(key);
+    }
+
+    @Override
+    public boolean hasData(String key) {
+        return data.containsKey(key);
+    }
+
+    @Override
+    public void removeData(String key) {
+        data.remove(key);
+
+    }
+
+    @Override
+    public void removeDataAll() {
+        data.clear();
     }
 
 

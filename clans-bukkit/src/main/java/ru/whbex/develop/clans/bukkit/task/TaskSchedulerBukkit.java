@@ -42,6 +42,16 @@ public class TaskSchedulerBukkit implements TaskScheduler {
     }
 
     @Override
+    public Task runLater(Runnable run, long delay) {
+        return new TaskBukkit(Bukkit.getScheduler().runTaskLater(plugin, run, delay));
+    }
+
+    @Override
+    public Task runLaterAsync(Runnable run, long delay) {
+        return new TaskBukkit(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, run, delay));
+    }
+
+    @Override
     public <T> Future<T> runCallable(Callable<T> callable) {
         return db.submit(callable);
     }

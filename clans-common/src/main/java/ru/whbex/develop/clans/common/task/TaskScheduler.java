@@ -12,6 +12,9 @@ public interface TaskScheduler {
     // Scheduled
     Task runRepeating(Runnable run, long delay, long rate);
     Task runRepeatingAsync(Runnable run, long delay, long rate);
+    // Later
+    Task runLater(Runnable run, long delay);
+    Task runLaterAsync(Runnable run, long delay);
 
     // Will execute on database executorservice
     <T> Future<T> runCallable(Callable<T> callable);

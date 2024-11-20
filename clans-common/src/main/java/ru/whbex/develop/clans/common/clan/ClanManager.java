@@ -8,6 +8,7 @@ import ru.whbex.develop.clans.common.clan.bridge.Bridge;
 import ru.whbex.develop.clans.common.clan.bridge.NullBridge;
 import ru.whbex.develop.clans.common.clan.member.Member;
 import ru.whbex.develop.clans.common.clan.member.MemberManager;
+import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.task.Task;
@@ -16,6 +17,7 @@ import ru.whbex.lib.log.Debug;
 
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -24,15 +26,18 @@ public class ClanManager {
     public enum Error {
         CLAN_NOT_FOUND,
         CLAN_TAG_EXISTS,
-        CLAN_REC_EXISTS
+        CLAN_REC_EXISTS,
+        LEAD_HAS_CLAN
     }
 
 
 
     // Main clan map
     private final Map<UUID, Clan> clans = new HashMap<>();
-    // Tag to uuid map
+    // Tag to clan map
     private final Map<String, Clan> tagClans = new HashMap<>();
+    // Leader to clan map
+    private final Map<UUID, Clan> leadClans = new HashMap<>();
 
 
     private final Bridge bridge;
@@ -66,9 +71,12 @@ public class ClanManager {
         // Do not create clan if tag is already taken
         if(tagClans.containsKey(tag))
             return Error.CLAN_TAG_EXISTS;
+        // Do not create clan if leader already has it
+        if(leadClans.containsKey(leader))
+            return Error.LEAD_HAS_CLAN;
+        // TODO: Add check for clan membership
 
         UUID id = UUID.randomUUID();
-        Debug.print("creating clan (tag: {0}, name: {1}, leader: {2})", tag, name, leader);
 
         // Create clan object
         ClanMeta cm = new ClanMeta(tag, name, null, leader, System.currentTimeMillis() / 1000L, Constants.DEFAULT_RANK);
@@ -78,12 +86,13 @@ public class ClanManager {
         // Put clan object
         clans.put(id, clan);
         tagClans.put(tag.toLowerCase(Locale.ROOT), clan);
+        leadClans.put(leader, clan);
         PlayerActor actor = ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOrRegisterPlayerActor(leader);
         Member leaderMember = mm.hasMember(leader) ? mm.getMember(leader) : new Member(actor);
         clan.addMember(leader);
         leaderMember.setClan(clan);
         mm.addMember(leader);
-        Debug.print("ok, not requesting clan flush,wait for scheduled");
+        LogContext.log(Level.INFO, "Created clan {0} ({1})", tag, name);
         return null;
     }
     public Error removeClan(UUID uuid){
@@ -91,7 +100,7 @@ public class ClanManager {
             return Error.CLAN_NOT_FOUND;
         clans.get(uuid).getMembers().forEach(i -> mm.getMember(i).setClan(null));
         clans.remove(uuid);
-        Debug.print("removed clan {0}", clans.get(uuid));
+        LogContext.log(Level.INFO, "Removed clan {0} ({1})", clans.get(uuid).getMeta().getTag(), clans.get(uuid).getMeta().getName());
         return null;
     }
     public Error removeClan(String tag){
@@ -104,7 +113,7 @@ public class ClanManager {
             return Error.CLAN_NOT_FOUND;
         clan.setDeleted(true);
         tagClans.remove(clan.getMeta().getTag().toLowerCase());
-        LogContext.log(Level.INFO, "Disbanded clan {0}", clan.getMeta().getTag());
+        LogContext.log(Level.INFO, "Disbanded clan {0} ({1})", clan.getMeta().getTag(), clan.getMeta().getName());
         return null;
     }
     public Error recoverClan(Clan clan, String newTag){
@@ -122,7 +131,7 @@ public class ClanManager {
         }
         clan.setDeleted(false);
         tagClans.put(clan.getMeta().getTag(), clan);
-        LogContext.log(Level.INFO, "Recovered clan {0}", clan.getMeta().getTag());
+        LogContext.log(Level.INFO, "Recovered clan {0} ({1})", clan.getMeta().getTag(), clan.getMeta().getName());
         return null;
 
     }
@@ -136,6 +145,9 @@ public class ClanManager {
     }
     public Clan getClan(String tag){
         return tagClans.get(tag.toLowerCase());
+    }
+    public Clan getClan(PlayerActor leader){
+        return leadClans.get(leader.getUniqueId());
     }
 
     public void onLevelUp(Clan clan){
@@ -182,6 +194,10 @@ public class ClanManager {
 
     public Future<Void> importAll(Bridge bridge){
         LogContext.log(Level.INFO, "Importing clans from " + bridge.getClass().getSimpleName());
+        if(bridge instanceof NullBridge){
+            LogContext.log(Level.WARN, "Bridge is NOP, will not import clans");
+            return CompletableFuture.completedFuture(null);
+        }
         Callable<Void> call = () -> {
             LogContext.log(Level.INFO, "Loading clans...");
             Collection<Clan> fetched = bridge.fetchAll();
@@ -196,9 +212,12 @@ public class ClanManager {
                     LogContext.log(Level.ERROR, "Clan tag conflict while loading {0} (conflicts with: {1}), skipping", c.getId(), getClan(c.getMeta().getTag()).getId());
                     return;
                 }
-                // TODO: Check leader collide
+                if(leadClans.containsKey(c.getMeta().getLeader())){
+                    LogContext.log(Level.ERROR, "Clan {0} leader already has clan {1}, skipping", c.getMeta().getTag(), leadClans.get(c.getMeta().getLeader()).getMeta().getTag());
+                    return;
+                }
                 clans.put(c.getId(), c);
-                UUID ld = c.getMeta().getLeader();
+                leadClans.put(c.getMeta().getLeader(), c);
                 if(!c.isDeleted())
                     tagClans.put(c.getMeta().getTag().toLowerCase(), c);
             });
@@ -227,6 +246,7 @@ public class ClanManager {
     }
 
     public void shutdown(){
+        LogContext.log(Level.INFO, "ClanManager is shutting down...");
         if(this.flushTask != null && !flushTask.cancelled())
             flushTask.cancel();
         try {
