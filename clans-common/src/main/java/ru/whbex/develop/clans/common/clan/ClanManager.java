@@ -17,6 +17,7 @@ import ru.whbex.lib.log.Debug;
 
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -195,7 +196,7 @@ public class ClanManager {
         LogContext.log(Level.INFO, "Importing clans from " + bridge.getClass().getSimpleName());
         if(bridge instanceof NullBridge){
             LogContext.log(Level.WARN, "Bridge is NOP, will not import clans");
-            return;
+            return CompletableFuture.completedFuture(null);
         }
         Callable<Void> call = () -> {
             LogContext.log(Level.INFO, "Loading clans...");
