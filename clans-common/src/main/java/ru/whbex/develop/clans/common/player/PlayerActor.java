@@ -25,4 +25,11 @@ public interface PlayerActor {
     boolean hasRequestFrom(PlayerActor sender);
     boolean hasRequest(Request request);
     Request getRequest(PlayerActor sender);
+
+    // Data (Runtime)
+    void setData(String key, Object data);
+    Object getData(String key);
+    boolean hasData(String key);
+    void removeData(String key);
+    void removeDataAll();
 }
