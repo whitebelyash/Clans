@@ -50,6 +50,8 @@ command.profile.members = TBD
 # disband
 command.disband.success=Клан &c{0}&r успешно распущен. Отменить - /clan recover [тег]
 command.disband.success-self=Вы распустили ваш клан. Для отмены действия используйте /clan recover
+command.disband.fail-deleted=&cДанный клан уже распущен!
+command.disband.fail-deleted-self&cВаш клан уже распущен. Используйте /clan recover для восстановления
 
 
 # create
@@ -86,7 +88,8 @@ meta.command.console-required=&cДанная команда доступна т�
 meta.command.no-permission=&cНедостаточно прав
 meta.command.unknown-player=&cИгрок не найден
 meta.command.unknown-clan=&cКлан не найден
-meta.command.clan-needed=&cВы должны находиться в клане для выполнения данной команды
+meta.command.clan-needed=&cВы должны находиться в клане для выполнения данного действия
+meta.command.leadership-needed=&cВы должны быть лидером клана для выполнения данного действия
 
 meta.misc.not-exists=&7Неизвестно
 meta.misc.etc=и т.д.
