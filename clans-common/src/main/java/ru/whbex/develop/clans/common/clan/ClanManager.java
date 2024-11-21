@@ -171,6 +171,9 @@ public class ClanManager {
     public boolean clanExists(UUID id){
         return clans.containsKey(id);
     }
+    public boolean isClanLeader(UUID leader){
+        return leadClans.containsKey(leader);
+    }
     // this returns any loaded clans
     public Collection<Clan> getAllClans(){
         return clans.values();
