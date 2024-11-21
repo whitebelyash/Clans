@@ -27,7 +27,8 @@ public class ClanManager {
         CLAN_NOT_FOUND,
         CLAN_TAG_EXISTS,
         CLAN_REC_EXISTS,
-        LEAD_HAS_CLAN
+        LEAD_HAS_CLAN,
+        CLAN_ALR_DISBAND
     }
 
 
@@ -95,18 +96,27 @@ public class ClanManager {
         LogContext.log(Level.INFO, "Created clan {0} ({1})", tag, name);
         return null;
     }
+    public Error removeClan(Clan clan){
+        if(!clans.containsKey(clan.getId()))
+            return Error.CLAN_NOT_FOUND;
+        clan.getMembers().forEach(i -> mm.getMember(i).setClan(null));
+        tagClans.remove(clan.getMeta().getTag());
+        leadClans.remove(clan.getMeta().getLeader());
+        Clan c = clans.remove(clan.getId());
+        if(c == null)
+            return Error.CLAN_NOT_FOUND;
+        LogContext.log(Level.INFO, "Removed clan {0} ({1})", c.getMeta().getTag(), c.getMeta().getName());
+        return null;
+    }
     public Error removeClan(UUID uuid){
         if(!clans.containsKey(uuid))
             return Error.CLAN_NOT_FOUND;
-        clans.get(uuid).getMembers().forEach(i -> mm.getMember(i).setClan(null));
-        clans.remove(uuid);
-        LogContext.log(Level.INFO, "Removed clan {0} ({1})", clans.get(uuid).getMeta().getTag(), clans.get(uuid).getMeta().getName());
-        return null;
+        return removeClan(clans.get(uuid));
     }
     public Error removeClan(String tag){
         if(!tagClans.containsKey(tag.toLowerCase()))
             return Error.CLAN_NOT_FOUND;
-        return this.removeClan(tagClans.get(tag.toLowerCase()).getId());
+        return this.removeClan(tagClans.get(tag.toLowerCase()));
     }
     public Error disbandClan(Clan clan){
         if(clan.isDeleted() || !clans.containsKey(clan.getId()))
