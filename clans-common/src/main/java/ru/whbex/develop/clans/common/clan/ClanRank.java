@@ -4,7 +4,7 @@ public enum ClanRank {
 
     NOVICE("rank.novice"),
     MEMBER("rank.member"),
-    MANAGER("rank.manager"),
+    RECRUITER("rank.recruiter"),
     DEPUTY("rank.deputy"),
     LEADER("rank.leader")
     ;
