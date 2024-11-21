@@ -116,14 +116,16 @@ public class ClanManager {
             return Error.CLAN_NOT_FOUND;
         // Syncing with db here, result is ignored - method is sync
         // TODO: Switch other methods to immediate sync logic instead of SQLBridge shit
-        DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
-                .sql("DELETE FROM clans WHERE id=?")
-                .exceptionally(e -> {
-                    LogContext.log(Level.ERROR, "Failed to sync removed clan with database. Duplicate will appear");
-                })
-                .setVerbose(true)
-                .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
-                .executeAsync();
+        if(DatabaseService.isInitialized()){
+            DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
+                    .sql("DELETE FROM clans WHERE id=?")
+                    .exceptionally(e -> {
+                        LogContext.log(Level.ERROR, "Failed to sync removed clan with database. Duplicate will appear");
+                    })
+                    .setVerbose(true)
+                    .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
+                    .executeAsync();
+        }
         LogContext.log(Level.INFO, "Removed clan {0} ({1}). Bye!", c.getMeta().getTag(), c.getMeta().getName());
         return null;
     }
