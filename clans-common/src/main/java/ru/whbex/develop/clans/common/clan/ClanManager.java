@@ -7,9 +7,11 @@ import ru.whbex.develop.clans.common.clan.bridge.Bridge;
 import ru.whbex.develop.clans.common.clan.bridge.NullBridge;
 import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.player.PlayerActor;
+import ru.whbex.develop.clans.common.task.DatabaseService;
 import ru.whbex.develop.clans.common.task.Task;
 import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.log.Debug;
+import ru.whbex.lib.sql.SQLAdapter;
 
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -112,7 +114,17 @@ public class ClanManager {
         Clan c = clans.remove(clan.getId());
         if(c == null)
             return Error.CLAN_NOT_FOUND;
-        LogContext.log(Level.INFO, "Removed clan {0} ({1})", c.getMeta().getTag(), c.getMeta().getName());
+        // Syncing with db here, result is ignored - method is sync
+        // TODO: Switch other methods to immediate sync logic instead of SQLBridge shit
+        DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
+                .sql("DELETE FROM clans WHERE id=?")
+                .exceptionally(e -> {
+                    LogContext.log(Level.ERROR, "Failed to sync removed clan with database. Duplicate will appear");
+                })
+                .setVerbose(true)
+                .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
+                .executeAsync();
+        LogContext.log(Level.INFO, "Removed clan {0} ({1}). Bye!", c.getMeta().getTag(), c.getMeta().getName());
         return null;
     }
 
