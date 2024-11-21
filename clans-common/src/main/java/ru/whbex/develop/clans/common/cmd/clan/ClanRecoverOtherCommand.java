@@ -29,8 +29,8 @@ public class ClanRecoverOtherCommand implements Command {
         if(e!=null)
             switch(e){
                 case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
-                case CLAN_REC_EXISTS -> throw new CommandError("command.recover.fail-exists-self");
-                case CLAN_TAG_EXISTS -> throw new CommandError("command.recover.fail-tag-taken-self");
+                case CLAN_REC_EXISTS -> throw new CommandError("command.recover.fail-exists");
+                case CLAN_TAG_EXISTS -> throw new CommandError("command.recover.fail-tag-taken");
                 default -> LogContext.log(Level.WARN, "Unknown ClanManager error {0}. Contact developer", e);
             }
         actor.sendMessageT("command.recover.success");

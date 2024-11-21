@@ -39,7 +39,7 @@ public class ClanDisbandCommand implements Command {
     // snake_case in java :skull:
     private void execute_self(PlayerActor pa){
         if(!ClansPlugin.clanManager().isClanLeader(pa.getUniqueId()))
-            throw new CommandError("meta.command.leadership-needed");
+            throw new CommandError("meta.command.leadership-required");
         ClanManager.Error e = ClansPlugin.clanManager().disbandClan(ClansPlugin.clanManager().getClan(pa));
         if(e != null){
             switch(e){
