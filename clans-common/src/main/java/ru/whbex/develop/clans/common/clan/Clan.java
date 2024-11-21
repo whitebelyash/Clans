@@ -10,8 +10,6 @@ import java.util.UUID;
 
 // Clan class
 public class Clan {
-    private final ClanManager cm;
-
     private final UUID clanId;
     private final ClanMeta meta;
     private final ClanLevelling levelling;
@@ -23,8 +21,7 @@ public class Clan {
     // Prevent saving clan to database
     private boolean transient_ = false;
 
-    public Clan(ClanManager cm, UUID clanId, ClanMeta meta, ClanLevelling levelling, boolean trans){
-        this.cm = cm;
+    public Clan(UUID clanId, ClanMeta meta, ClanLevelling levelling, boolean trans){
         this.clanId = Objects.requireNonNull(clanId, "clanId");
         this.meta = meta;
         this.levelling = levelling;
@@ -52,13 +49,6 @@ public class Clan {
     public void setDeleted(boolean deleted) {
         isDeleted = deleted;
     }
-
-
-
-    ClanManager clanManager(){
-        return cm;
-    }
-
 
     public void addMember(UUID id){
         members.add(id);

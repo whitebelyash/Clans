@@ -56,7 +56,7 @@ public abstract class SQLBridge implements Bridge {
         }
         ClanLevelling levelling = new ClanLevelling(lvl, exp);
         ClanMeta meta = new ClanMeta(tag, name, description, lid, time, rank);
-        Clan c = new Clan(ClansPlugin.Context.INSTANCE.plugin.getClanManager(), id, meta, levelling, false);
+        Clan c = new Clan(id, meta, levelling, false);
         c.setDeleted(deleted);
         return c;
     }

@@ -78,7 +78,7 @@ public class ClanManager {
         UUID id = UUID.randomUUID();
         ClanMeta cm = new ClanMeta(tag, name, null, leader, System.currentTimeMillis() / 1000L, Constants.DEFAULT_RANK);
         ClanLevelling l = new ClanLevelling(1, 0);
-        Clan clan = new Clan(this, id, cm, l, false);
+        Clan clan = new Clan(id, cm, l, false);
 
         // Put clan object
         clans.put(id, clan);
