@@ -51,7 +51,7 @@ command.profile.members = TBD
 command.disband.success=Клан &c{0}&r успешно распущен. Отменить - /clan recover [тег]
 command.disband.success-self=Вы распустили ваш клан. Для отмены действия используйте /clan recover
 command.disband.fail-deleted=&cДанный клан уже распущен!
-command.disband.fail-deleted-self&cВаш клан уже распущен. Используйте /clan recover для восстановления
+command.disband.fail-deleted-self=&cВаш клан уже распущен. Используйте /clan recover для восстановления
 
 
 # create
@@ -62,6 +62,7 @@ command.create.suggest-recovery=&fДля продолжения введите �
 command.create.suggest-recovery=&fВаш старый клан при этом будет удалён &cбезвозвратно!
 command.create.clan-exists=&cКлан с тегом {0} уже существует! Придумайте другой тег
 command.create.success=&fВы создали клан с тегом &c{0}
+
 # recover
 command.recover.success=Клан &c{0}&r восстановлен
 command.recover.success-self=Вы восстановили ваш клан
