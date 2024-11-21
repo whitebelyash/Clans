@@ -1,6 +1,5 @@
 package ru.whbex.develop.clans.common.clan;
 
-import org.slf4j.Logger;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
@@ -8,7 +7,6 @@ import ru.whbex.develop.clans.common.clan.bridge.Bridge;
 import ru.whbex.develop.clans.common.clan.bridge.NullBridge;
 import ru.whbex.develop.clans.common.clan.member.Member;
 import ru.whbex.develop.clans.common.clan.member.MemberManager;
-import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.task.Task;
@@ -23,16 +21,6 @@ import java.util.concurrent.Future;
 
 // simple clan manager
 public class ClanManager {
-    public enum Error {
-        CLAN_NOT_FOUND,
-        CLAN_TAG_EXISTS,
-        CLAN_REC_EXISTS,
-        LEAD_HAS_CLAN,
-        CLAN_ALR_DISBAND
-    }
-
-
-
     // Main clan map
     private final Map<UUID, Clan> clans = new HashMap<>();
     // Tag to clan map
@@ -45,6 +33,9 @@ public class ClanManager {
     private Task flushTask;
     private final MemberManager mm = new MemberManager(this);
 
+    //
+    // === Lifecycle ===
+    //
 
     public ClanManager(Config config, Bridge bridge){
         Debug.print("init clanmanager");
@@ -57,16 +48,25 @@ public class ClanManager {
             throw new RuntimeException(e);
         }
         startFlushTask();
-
     }
 
-    private void startFlushTask(){
-        long flushDelay = ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay();
-        if(ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay() > 1 && !(bridge instanceof NullBridge))
-            this.flushTask = ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runRepeating(() -> exportAll(this.bridge), flushDelay * 20, flushDelay * 20);
-        else flushTask = null;
+    public void shutdown(){
+        LogContext.log(Level.INFO, "ClanManager is shutting down...");
+        if(this.flushTask != null && !flushTask.cancelled())
+            flushTask.cancel();
+        try {
+            this.exportAll(bridge).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LogContext.log(Level.ERROR, "Failed to save clans!");
+            throw new RuntimeException(e);
+        }
     }
 
+    // =========================================================================
+
+    //
+    // === Clan management ===
+    //
 
     public Error createClan(String tag, String name, UUID leader){
         // Do not create clan if tag is already taken
@@ -96,6 +96,22 @@ public class ClanManager {
         LogContext.log(Level.INFO, "Created clan {0} ({1})", tag, name);
         return null;
     }
+
+    public Error disbandClan(Clan clan){
+        if(clan.isDeleted() || !clans.containsKey(clan.getId()))
+            return Error.CLAN_NOT_FOUND;
+        clan.setDeleted(true);
+        tagClans.remove(clan.getMeta().getTag().toLowerCase());
+        LogContext.log(Level.INFO, "Disbanded clan {0} ({1})", clan.getMeta().getTag(), clan.getMeta().getName());
+        return null;
+    }
+
+    public Error disbandClan(String tag){
+        if(!tagClans.containsKey(tag.toLowerCase()))
+            return Error.CLAN_NOT_FOUND;
+        return disbandClan(tagClans.get(tag));
+    }
+
     public Error removeClan(Clan clan){
         if(!clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
@@ -108,24 +124,19 @@ public class ClanManager {
         LogContext.log(Level.INFO, "Removed clan {0} ({1})", c.getMeta().getTag(), c.getMeta().getName());
         return null;
     }
+
     public Error removeClan(UUID uuid){
         if(!clans.containsKey(uuid))
             return Error.CLAN_NOT_FOUND;
         return removeClan(clans.get(uuid));
     }
+
     public Error removeClan(String tag){
         if(!tagClans.containsKey(tag.toLowerCase()))
             return Error.CLAN_NOT_FOUND;
         return this.removeClan(tagClans.get(tag.toLowerCase()));
     }
-    public Error disbandClan(Clan clan){
-        if(clan.isDeleted() || !clans.containsKey(clan.getId()))
-            return Error.CLAN_NOT_FOUND;
-        clan.setDeleted(true);
-        tagClans.remove(clan.getMeta().getTag().toLowerCase());
-        LogContext.log(Level.INFO, "Disbanded clan {0} ({1})", clan.getMeta().getTag(), clan.getMeta().getName());
-        return null;
-    }
+
     public Error recoverClan(Clan clan, String newTag){
         // A bit changed copy of disband logic now, need to check for leader and other shit
         if(!clans.containsKey(clan.getId()))
@@ -143,13 +154,14 @@ public class ClanManager {
         tagClans.put(clan.getMeta().getTag(), clan);
         LogContext.log(Level.INFO, "Recovered clan {0} ({1})", clan.getMeta().getTag(), clan.getMeta().getName());
         return null;
+    }
 
-    }
-    public Error disbandClan(String tag){
-        if(!tagClans.containsKey(tag.toLowerCase()))
-            return Error.CLAN_NOT_FOUND;
-        return disbandClan(tagClans.get(tag));
-    }
+    // =========================================================================
+
+    //
+    // === Clan getters ===
+    //
+
     public Clan getClan(UUID id){
         return clans.get(id);
     }
@@ -160,10 +172,11 @@ public class ClanManager {
         return leadClans.get(leader.getUniqueId());
     }
 
-    public void onLevelUp(Clan clan){
-        Debug.print("onLvlUp stub " + clan.getId());
+    // =========================================================================
 
-    }
+    //
+    // === Clan checks ===
+    //
 
     public boolean clanExists(String tag){
         return tagClans.containsKey(tag.toLowerCase()) && clans.containsKey(tagClans.get(tag.toLowerCase()).getId());
@@ -174,6 +187,13 @@ public class ClanManager {
     public boolean isClanLeader(UUID leader){
         return leadClans.containsKey(leader);
     }
+
+    // =========================================================================
+
+    //
+    // Clan map getters
+    //
+
     // this returns any loaded clans
     public Collection<Clan> getAllClans(){
         return clans.values();
@@ -190,6 +210,12 @@ public class ClanManager {
     public MemberManager getMemberManager() {
         return mm;
     }
+
+    // =========================================================================
+
+    //
+    // === Database ===
+    //
 
     public void tmpExportClan(Clan clan){
         bridge.insertClan(clan, true);
@@ -258,15 +284,26 @@ public class ClanManager {
         return this.exportAll(bridge);
     }
 
-    public void shutdown(){
-        LogContext.log(Level.INFO, "ClanManager is shutting down...");
-        if(this.flushTask != null && !flushTask.cancelled())
-            flushTask.cancel();
-        try {
-            this.exportAll(bridge).get();
-        } catch (InterruptedException | ExecutionException e) {
-            LogContext.log(Level.ERROR, "Failed to save clans!");
-            throw new RuntimeException(e);
-        }
+    // TODO: Use as fallback, save clan changes immediately
+    private void startFlushTask(){
+        long flushDelay = ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay();
+        if(ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay() > 1 && !(bridge instanceof NullBridge))
+            this.flushTask = ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runRepeating(() -> exportAll(this.bridge), flushDelay * 20, flushDelay * 20);
+        else flushTask = null;
+    }
+
+    // =========================================================================
+
+    public enum Error {
+        // Return if clan was not found in maps
+        CLAN_NOT_FOUND,
+        // Return if clan with provided tag exists in tagClans map
+        CLAN_TAG_EXISTS,
+        // Return if recovered clan tag was taken by another clan
+        CLAN_REC_EXISTS,
+        // Return if leader has a clan
+        LEAD_HAS_CLAN,
+        // Return if clan is already disbanded (has a deleted bit)
+        CLAN_ALR_DISBAND
     }
 }
