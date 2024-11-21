@@ -11,6 +11,7 @@ public abstract class ClanCommand<T> extends RootCommand<T> {
         register(new ClanListCommand());
         register(new ClanDeleteCommand());
         register(new ClanDisbandCommand());
+        register(new ClanRecoverOtherCommand());
         register(new ClanRecoverCommand());
 
         register(new ClanHelpCommand(cmds.values()));

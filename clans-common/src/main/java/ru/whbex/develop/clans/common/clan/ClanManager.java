@@ -74,12 +74,11 @@ public class ClanManager {
             return Error.LEAD_HAS_CLAN;
         // TODO: Add check for clan membership
 
-        UUID id = UUID.randomUUID();
-
         // Create clan object
+        UUID id = UUID.randomUUID();
         ClanMeta cm = new ClanMeta(tag, name, null, leader, System.currentTimeMillis() / 1000L, Constants.DEFAULT_RANK);
         ClanLevelling l = new ClanLevelling(1, 0);
-        Clan clan = new Clan(this, id, cm, l, true);
+        Clan clan = new Clan(this, id, cm, l, false);
 
         // Put clan object
         clans.put(id, clan);
@@ -157,9 +156,11 @@ public class ClanManager {
     public Clan getClan(UUID id){
         return clans.get(id);
     }
+
     public Clan getClan(String tag){
         return tagClans.get(tag.toLowerCase());
     }
+
     public Clan getClan(PlayerActor leader){
         return leadClans.get(leader.getUniqueId());
     }
@@ -173,9 +174,11 @@ public class ClanManager {
     public boolean clanExists(String tag){
         return tagClans.containsKey(tag.toLowerCase()) && clans.containsKey(tagClans.get(tag.toLowerCase()).getId());
     }
+
     public boolean clanExists(UUID id){
         return clans.containsKey(id);
     }
+
     public boolean isClanLeader(UUID leader){
         return leadClans.containsKey(leader);
     }
@@ -183,7 +186,7 @@ public class ClanManager {
     // =========================================================================
 
     //
-    // Clan map getters
+    // === Clan map getters ===
     //
 
     // this returns any loaded clans
