@@ -41,11 +41,14 @@ public class ClanDisbandCommand implements Command {
         if(!ClansPlugin.clanManager().isClanLeader(pa.getUniqueId()))
             throw new CommandError("meta.command.leadership-needed");
         ClanManager.Error e = ClansPlugin.clanManager().disbandClan(ClansPlugin.clanManager().getClan(pa));
-        switch(e){
-            case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
-            case CLAN_ALR_DISBAND -> throw new CommandError("command.disband.fail-deleted-self");
-            default -> LogContext.log(Level.WARN, "Unknown ClanManager error {0}. Contact developer", e);
+        if(e != null){
+            switch(e){
+                case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
+                case CLAN_ALR_DISBAND -> throw new CommandError("command.disband.fail-deleted-self");
+                default -> LogContext.log(Level.WARN, "Unknown ClanManager error {0}. Contact developer", e);
+            }
         }
+
         // TODO: Fix this after adding components
         ((CommandActor) pa).sendMessageT("command.disband.success-self");
     }
