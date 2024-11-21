@@ -93,11 +93,12 @@ meta.command.usage=&cНеверно введена команда
 meta.command.unknown-error=&cПроизошла ошибка во время выполнения команды
 meta.command.player-required=&cНеобходимо быть игроком для выполнения данной команды
 meta.command.console-required=&cДанная команда доступна только в консоли сервера
+meta.command.clan-required=&cВы должны находиться в клане для выполнения данного действия
+meta.command.leadership-required=&cВы должны быть лидером клана для выполнения данного действия
 meta.command.no-permission=&cНедостаточно прав
 meta.command.unknown-player=&cИгрок не найден
 meta.command.unknown-clan=&cКлан не найден
-meta.command.clan-needed=&cВы должны находиться в клане для выполнения данного действия
-meta.command.leadership-needed=&cВы должны быть лидером клана для выполнения данного действия
+
 
 meta.misc.not-exists=&7Неизвестно
 meta.misc.etc=и т.д.
