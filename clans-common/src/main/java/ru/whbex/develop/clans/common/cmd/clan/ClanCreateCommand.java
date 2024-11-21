@@ -25,14 +25,15 @@ public class ClanCreateCommand implements Command {
         if(cm.getClan(pa) != null && cm.getClan(pa).isDeleted()){
             // Notify if not notified before
             if(!pa.hasData("cmd-create-sugcont")){
-                actor.sendMessageT("command.create.suggest-recovery");
+                actor.sendMessageT("command.create.suggest-recovery", cm.getClan(pa).getMeta().getTag(), cm.getClan(pa).getMeta().getName());
                 pa.setData("cmd-create-sugcont", new Object());
                 ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runLater(() -> pa.removeData("cmd-create-sugcont"), 2500L);
                 return;
             }
             else {
-                // Will remove clan as player already notified
+                // Will remove clan as player is already notified
                 cm.removeClan(cm.getClan(pa).getId());
+                pa.removeData("cmd-create-sugcont");
             }
         }
         String tag = args[1];
