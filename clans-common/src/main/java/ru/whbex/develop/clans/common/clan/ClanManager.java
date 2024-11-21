@@ -5,8 +5,6 @@ import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.clan.bridge.Bridge;
 import ru.whbex.develop.clans.common.clan.bridge.NullBridge;
-import ru.whbex.develop.clans.common.clan.member.Member;
-import ru.whbex.develop.clans.common.clan.member.MemberManager;
 import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.task.Task;
@@ -31,7 +29,6 @@ public class ClanManager {
 
     private final Bridge bridge;
     private Task flushTask;
-    private final MemberManager mm = new MemberManager(this);
 
     //
     // === Lifecycle ===
@@ -88,11 +85,7 @@ public class ClanManager {
         clans.put(id, clan);
         tagClans.put(tag.toLowerCase(Locale.ROOT), clan);
         leadClans.put(leader, clan);
-        PlayerActor actor = ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOrRegisterPlayerActor(leader);
-        Member leaderMember = mm.hasMember(leader) ? mm.getMember(leader) : new Member(actor);
         clan.addMember(leader);
-        leaderMember.setClan(clan);
-        mm.addMember(leader);
         LogContext.log(Level.INFO, "Created clan {0} ({1})", tag, name);
         return null;
     }
@@ -115,7 +108,6 @@ public class ClanManager {
     public Error removeClan(Clan clan){
         if(!clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
-        clan.getMembers().forEach(i -> mm.getMember(i).setClan(null));
         tagClans.remove(clan.getMeta().getTag());
         leadClans.remove(clan.getMeta().getLeader());
         Clan c = clans.remove(clan.getId());
@@ -203,14 +195,6 @@ public class ClanManager {
         return tagClans.values();
     }
 
-    public Map<UUID, Member> getMembers() {
-        return mm.getMembers();
-    }
-
-    public MemberManager getMemberManager() {
-        return mm;
-    }
-
     // =========================================================================
 
     //
@@ -255,6 +239,7 @@ public class ClanManager {
                     LogContext.log(Level.ERROR, "Clan {0} leader already has clan {1}, skipping", c.getMeta().getTag(), leadClans.get(c.getMeta().getLeader()).getMeta().getTag());
                     return;
                 }
+                c.addMember(c.getMeta().getLeader());
                 clans.put(c.getId(), c);
                 leadClans.put(c.getMeta().getLeader(), c);
                 if(!c.isDeleted())

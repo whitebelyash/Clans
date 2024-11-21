@@ -20,7 +20,7 @@ public class Clan {
 
     private boolean isDeleted = false;
 
-    // clan won't be saved on db
+    // Prevent saving clan to database
     private boolean transient_ = false;
 
     public Clan(ClanManager cm, UUID clanId, ClanMeta meta, ClanLevelling levelling, boolean trans){
