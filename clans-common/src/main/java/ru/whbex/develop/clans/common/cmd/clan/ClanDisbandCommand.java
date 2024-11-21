@@ -43,7 +43,7 @@ public class ClanDisbandCommand implements Command {
         ClanManager.Error e = ClansPlugin.clanManager().disbandClan(ClansPlugin.clanManager().getClan(pa));
         if(e != null){
             switch(e){
-                case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
+                case CLAN_NOT_FOUND -> throw new CommandError("meta.command.leadership-needed");
                 case CLAN_ALR_DISBAND -> throw new CommandError("command.disband.fail-deleted-self");
                 default -> LogContext.log(Level.WARN, "Unknown ClanManager error {0}. Contact developer", e);
             }

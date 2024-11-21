@@ -31,7 +31,7 @@ public class ClanCreateCommand implements Command {
                 return;
             }
             else {
-                // Will remove clan as player is already notified
+                // Will remove clan as player was already notified
                 cm.removeClan(cm.getClan(pa).getId());
                 pa.removeData("cmd-create-sugcont");
             }
