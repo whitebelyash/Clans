@@ -68,7 +68,7 @@ public abstract class SQLBridge implements Bridge {
         ps.setString(4, clan.getMeta().getDescription());
         ps.setLong(5, clan.getMeta().getCreationTime());
         ps.setString(6, clan.getMeta().getLeader().toString());
-        ps.setBoolean(7, clan.isDeleted());
+        ps.setInt(7, clan.isDeleted() ? 1 : 0);
         ps.setInt(8, clan.getLevelling().getLevel());
         ps.setInt(9, clan.getLevelling().getExperience());
         ps.setInt(10, clan.getMeta().getDefaultRank().ordinal());
