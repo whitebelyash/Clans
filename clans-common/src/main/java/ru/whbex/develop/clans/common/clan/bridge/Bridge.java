@@ -1,7 +1,6 @@
 package ru.whbex.develop.clans.common.clan.bridge;
 
 import ru.whbex.develop.clans.common.clan.Clan;
-import ru.whbex.develop.clans.common.clan.member.Member;
 
 import java.util.Collection;
 import java.util.UUID;
