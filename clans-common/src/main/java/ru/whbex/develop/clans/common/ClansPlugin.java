@@ -37,4 +37,21 @@ public interface ClansPlugin {
     void reloadLangFiles() throws Exception;
     void reloadConfigs() throws Exception;
     Config getConfigWrapped();
+
+    // Static getters
+    static ClanManager clanManager(){
+        return Context.INSTANCE.plugin.getClanManager();
+    }
+    static PlayerManager playerManager(){
+        return Context.INSTANCE.plugin.getPlayerManager();
+    }
+    static Config config(){
+        return Context.INSTANCE.plugin.getConfigWrapped();
+    }
+    static TaskScheduler TaskScheduler(){
+        return Context.INSTANCE.plugin.getTaskScheduler();
+    }
+    static Language mainLanguage(){
+        return Context.INSTANCE.plugin.getLanguage();
+    }
 }
