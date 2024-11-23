@@ -19,7 +19,9 @@ public class EventSystem {
         PLAYER_DEATH,
         CLAN_CREATE,
         CLAN_DISBAND,
-        CLAN_RECOVERY;
+        CLAN_DISBAND_OTHER,
+        CLAN_RECOVERY,
+        CLAN_RECOVERY_OTHER;
         // add others
 
         private final List<EventHandler> handlers = new LinkedList<>();
