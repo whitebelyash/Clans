@@ -8,21 +8,21 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import ru.whbex.develop.clans.bukkit.player.PlayerManagerBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
+import ru.whbex.develop.clans.common.event.EventSystem;
 import ru.whbex.lib.log.Debug;
 
 public class ListenerBukkit implements Listener {
-
     @EventHandler(priority =  EventPriority.HIGHEST)
     public void on(PlayerLoginEvent e){
         ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().registerPlayerActor(e.getPlayer().getUniqueId());
     }
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerJoinEvent e){
-        ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().onJoin(e.getPlayer().getUniqueId());
+        EventSystem.callEvent(EventSystem.Events.PLAYER_JOIN, e.getPlayer().getUniqueId(), e);
 
     }
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerQuitEvent e){
-        ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().onQuit(e.getPlayer().getUniqueId());
+        EventSystem.callEvent(EventSystem.Events.PLAYER_QUIT, e.getPlayer().getUniqueId(), e);
     }
 }
