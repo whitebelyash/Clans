@@ -91,9 +91,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         this.getCommand("clan").setExecutor(new ClanCommandBukkit());
         this.getCommand("clansplugin").setExecutor(new ClansPluginCommandBukkit());
 
-        LogContext.log(Level.INFO, "Registering event listeners");
-        Bukkit.getPluginManager().registerEvents(new ListenerBukkit(), this);
-
         LogContext.log(Level.INFO, "Registering ClanManager as a service");
         Bukkit.getServicesManager().register(ClanManager.class, clanManager, this, ServicePriority.Normal);
 

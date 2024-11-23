@@ -7,6 +7,8 @@ import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.bridge.Bridge;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
+import ru.whbex.develop.clans.common.event.EventHandler;
+import ru.whbex.develop.clans.common.event.EventSystem;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.player.ConsoleActor;
@@ -51,6 +53,9 @@ public class PlayerManagerBukkit implements PlayerManager {
                 })
                 .exceptionally(e -> {throw new RuntimeException(e);})
                 .execute();
+        Debug.print("Registering event callbacks...");
+        EventSystem.Events.PLAYER_JOIN.register(onJoin);
+        EventSystem.Events.PLAYER_QUIT.register(onQuit);
     }
 
 
@@ -166,31 +171,28 @@ public class PlayerManagerBukkit implements PlayerManager {
         return onlineActors.values();
     }
 
-    @Override
-    public void onJoin(UUID id) {
+    private final EventHandler onJoin = (id, data) -> {
         Debug.print("onJoin() " + id);
-        if(!actors.containsKey(id))
+        if (!actors.containsKey(id))
             return;
         PlayerActor actor = actors.get(id);
         Debug.print("Updating player name...");
         String bukkitName = ((PlayerActorBukkit) actor).getPlayer().getName();
-        if(actor.getProfile().getName() == null){
+        if (actor.getProfile().getName() == null) {
             actor.getProfile().setName(bukkitName);
         }
-        if(actor.getProfile().getName().equals(bukkitName)){
+        if (actor.getProfile().getName().equals(bukkitName)) {
             actorsN.remove(actor.getProfile().getName());
             actor.getProfile().setName(bukkitName);
         }
         actorsN.put(bukkitName, actor);
         onlineActors.put(id, actor);
-    }
-
-    @Override
-    public void onQuit(UUID id) {
+    };
+    private final EventHandler onQuit = ((id, data) -> {
         Debug.print("onQuit() " + id);
         onlineActors.remove(id);
         savePlayerActor(id);
-    }
+    });
 
     @Override
     public ConsoleActor getConsoleActor() {

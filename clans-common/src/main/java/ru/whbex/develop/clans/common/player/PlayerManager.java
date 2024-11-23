@@ -58,9 +58,6 @@ public interface PlayerManager {
      */
     Collection<PlayerActor> getOnlinePlayerActors();
 
-    void onJoin(UUID id);
-    void onQuit(UUID id);
-
     /**
      * Get console actor.
      * @return console actor.
