@@ -1,5 +1,8 @@
 package ru.whbex.develop.clans.common.player;
 
+import ru.whbex.develop.clans.common.ClansPlugin;
+import ru.whbex.lib.string.StringUtils;
+
 import java.util.Collection;
 import java.util.UUID;
 
@@ -63,4 +66,22 @@ public interface PlayerManager {
      * @return console actor.
      */
     ConsoleActor getConsoleActor();
+
+    // Utils
+    default void broadcast(String string){
+        getOnlinePlayerActors().forEach(a -> a.sendMessage(string));
+    }
+    default void broadcast(String format, Object... args){
+        getOnlinePlayerActors().forEach(a -> a.sendMessage(StringUtils.simpleformat(format, args)));
+    }
+    default void broadcastT(String translatableString){
+        String t = ClansPlugin.mainLanguage().getPhrase(translatableString);
+        getOnlinePlayerActors().forEach(a -> {
+            a.sendMessage(t);
+        });
+    }
+    default void broadcastT(String translatableFormat, Object... args){
+        String t = StringUtils.simpleformat(ClansPlugin.mainLanguage().getPhrase(translatableFormat), args);
+        getOnlinePlayerActors().forEach(a -> a.sendMessage(t));
+    }
 }
