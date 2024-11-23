@@ -1,12 +1,14 @@
 package ru.whbex.develop.clans.common.event;
 
 import ru.whbex.develop.clans.common.player.PlayerActor;
+import ru.whbex.lib.log.Debug;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
-/* Simple event system for plugin needs. Does not support event environment objects, only PlayerActor */
+/* Simple event system for plugin needs. */
 public class EventSystem {
     public enum Events {
         PLAYER_LOGIN,
@@ -31,7 +33,10 @@ public class EventSystem {
             handlers.clear();
         }
     }
-    public void callEvent(Events event, PlayerActor actor, Object data){
-        event.handlers.forEach(h -> h.handle(actor, data));
+    public static void callEvent(Events event, UUID actorId, Object data){
+        event.handlers.forEach(h -> h.handle(actorId, data));
+    }
+    public static void callEvent(Events event, PlayerActor actor, Object data){
+        event.handlers.forEach(h -> h.handle(actor.getUniqueId(), actor, data));
     }
 }
