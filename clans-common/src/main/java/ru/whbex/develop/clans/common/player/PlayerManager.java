@@ -1,12 +1,26 @@
 package ru.whbex.develop.clans.common.player;
 
 import ru.whbex.develop.clans.common.ClansPlugin;
+import ru.whbex.develop.clans.common.task.DatabaseService;
+import ru.whbex.lib.log.Debug;
+import ru.whbex.lib.sql.SQLAdapter;
 import ru.whbex.lib.string.StringUtils;
 
 import java.util.Collection;
 import java.util.UUID;
 
 public interface PlayerManager {
+    String TABLE_CREATE_STMT = "CREATE TABLE IF NOT EXISTS players(" +
+            "id varchar(18) UNIQUE NOT NULL, " +
+            "name varchar(16) NOT NULL, " +
+            "regDate bigint, " +
+            "lastSeen bigint" +
+            ");";
+    String FETCH_PROFILE_STMT = "SELECT * FROM players WHERE id=?;";
+    String INSERT_PROFILE_STMT_SQLITE = "INSERT OR REPLACE INTO players VALUES(?, ?, ?, ?);";
+    String INSERT_PROFILE_STMT_H2 = "MERGE INTO players VALUES(?, ?, ?, ?);";
+
+
 
     /**
      * Get player actor by uuid
@@ -83,5 +97,17 @@ public interface PlayerManager {
     default void broadcastT(String translatableFormat, Object... args){
         String t = StringUtils.simpleformat(ClansPlugin.mainLanguage().getPhrase(translatableFormat), args);
         getOnlinePlayerActors().forEach(a -> a.sendMessage(t));
+    }
+    default void createTables(){
+        Debug.print("Creating players table...");
+        DatabaseService.getExecutor(SQLAdapter::update)
+                .sql(TABLE_CREATE_STMT)
+                .setVerbose(true)
+                .updateCallback(resp -> {
+                    Debug.print("Updated {0} rows", resp.updateResult());
+                    return null;
+                })
+                .exceptionally(e -> {throw new RuntimeException(e);})
+                .execute();
     }
 }

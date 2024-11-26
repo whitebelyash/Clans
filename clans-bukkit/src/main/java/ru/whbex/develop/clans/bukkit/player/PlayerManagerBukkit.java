@@ -33,26 +33,10 @@ public class PlayerManagerBukkit implements PlayerManager {
 
     private final ConsoleActorBukkit consoleActor = new ConsoleActorBukkit();
 
-    private static final String TABLE_CREATE_STMT = "CREATE TABLE IF NOT EXISTS players(" +
-            "id varchar(18) UNIQUE NOT NULL, " +
-            "name varchar(16) NOT NULL, " +
-            "regDate bigint, " +
-            "lastSeen bigint" +
-            ");";
-    private static final String FETCH_PROFILE_STMT = "SELECT * FROM players WHERE id=?;";
-    private static final String INSERT_PROFILE_STMT_SQLITE = "INSERT OR REPLACE INTO players VALUES(?, ?, ?, ?);";
-    private static final String INSERT_PROFILE_STMT_H2 = "MERGE INTO players VALUES(?, ?, ?, ?);";
+
+
     public PlayerManagerBukkit() {
-        Debug.print("Creating players table...");
-        DatabaseService.getExecutor(SQLAdapter::update)
-                .sql(TABLE_CREATE_STMT)
-                .setVerbose(true)
-                .updateCallback(resp -> {
-                    Debug.print("Updated {0} rows", resp.updateResult());
-                    return null;
-                })
-                .exceptionally(e -> {throw new RuntimeException(e);})
-                .execute();
+        this.createTables();
         Debug.print("Registering event callbacks...");
         EventSystem.Events.PLAYER_JOIN.register(onJoin);
         EventSystem.Events.PLAYER_QUIT.register(onQuit);
