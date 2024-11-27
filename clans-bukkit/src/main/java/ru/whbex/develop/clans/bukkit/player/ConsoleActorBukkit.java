@@ -7,8 +7,11 @@ import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.player.ConsoleActor;
 import ru.whbex.lib.string.StringUtils;
 
+import java.util.UUID;
+
 public class ConsoleActorBukkit implements ConsoleActor, CommandActor {
     private final CommandSender sender = Bukkit.getConsoleSender();
+    private final UUID uuid = new UUID(0, 0);
 
     @Override
     public void sendMessage(String s) {
@@ -39,6 +42,11 @@ public class ConsoleActorBukkit implements ConsoleActor, CommandActor {
     @Override
     public String getName() {
         return sender.getName();
+    }
+
+    @Override
+    public UUID getUniqueId() {
+        return uuid;
     }
 
     @Override
