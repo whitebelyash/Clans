@@ -1,5 +1,9 @@
 package ru.whbex.develop.clans.common.event;
 
+import ru.whbex.develop.clans.common.cmd.CommandActor;
+import ru.whbex.develop.clans.common.event.def.ClanEvent;
+import ru.whbex.develop.clans.common.event.def.PlayerActorEvent;
+import ru.whbex.develop.clans.common.event.def.PlayerEvent;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.lib.log.Debug;
 
@@ -8,37 +12,17 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-/* Simple event system for plugin needs. */
+/* Simple event system for plugin needs. Private. */
 public class EventSystem {
-    public enum Events {
-        PLAYER_LOGIN,
-        PLAYER_JOIN,
-        PLAYER_QUIT,
-        PLAYER_INTERACT,
-        PLAYER_KILL,
-        PLAYER_DEATH,
-        CLAN_CREATE,
-        CLAN_DISBAND,
-        CLAN_DISBAND_OTHER,
-        CLAN_RECOVERY,
-        CLAN_RECOVERY_OTHER;
-        // add others
-
-        private final List<EventHandler> handlers = new LinkedList<>();
-        public void register(EventHandler handler){
-            handlers.add(handler);
-        }
-        public void unregister(EventHandler handler){
-            handlers.remove(handler);
-        }
-        public void unregisterAll(){
-            handlers.clear();
-        }
-    }
-    public static void callEvent(Events event, UUID actorId, Object data){
-        event.handlers.forEach(h -> h.handle(actorId, data));
-    }
-    public static void callEvent(Events event, PlayerActor actor, Object data){
-        event.handlers.forEach(h -> h.handle(actor.getUniqueId(), actor, data));
-    }
+    public static final PlayerEvent PLAYER_LOGIN = new PlayerEvent();
+    public static final PlayerEvent PLAYER_JOIN = new PlayerEvent();
+    public static final PlayerEvent PLAYER_LEFT = new PlayerEvent();
+    public static final PlayerActorEvent PLAYER_INTERACT = new PlayerActorEvent();
+    public static final PlayerActorEvent PLAYER_KILL = new PlayerActorEvent();
+    public static final PlayerActorEvent PLAYER_DEATH = new PlayerActorEvent();
+    public static final ClanEvent CLAN_CREATE = new ClanEvent();
+    public static final ClanEvent CLAN_DISBAND = new ClanEvent();
+    public static final ClanEvent CLAN_DISBAND_OTHER = new ClanEvent();
+    public static final ClanEvent CLAN_RECOVER = new ClanEvent();
+    public static final ClanEvent CLAN_RECOVER_OTHER = new ClanEvent();
 }

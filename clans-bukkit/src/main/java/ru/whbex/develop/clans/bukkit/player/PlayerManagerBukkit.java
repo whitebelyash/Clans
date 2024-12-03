@@ -9,6 +9,7 @@ import ru.whbex.develop.clans.common.clan.bridge.Bridge;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.event.EventHandler;
 import ru.whbex.develop.clans.common.event.EventSystem;
+import ru.whbex.develop.clans.common.event.def.PlayerEvent;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.player.ConsoleActor;
@@ -38,8 +39,8 @@ public class PlayerManagerBukkit implements PlayerManager {
     public PlayerManagerBukkit() {
         this.createTables();
         Debug.print("Registering event callbacks...");
-        EventSystem.Events.PLAYER_JOIN.register(onJoin);
-        EventSystem.Events.PLAYER_QUIT.register(onQuit);
+        EventSystem.PLAYER_JOIN.register(onJoin);
+        EventSystem.PLAYER_LEFT.register(onQuit);
     }
 
 
@@ -155,7 +156,7 @@ public class PlayerManagerBukkit implements PlayerManager {
         return onlineActors.values();
     }
 
-    private final EventHandler onJoin = (id, data) -> {
+    private final PlayerEvent.PlayerEventHandler onJoin = (id) -> {
         Debug.print("onJoin() " + id);
         if (!actors.containsKey(id))
             return;
@@ -172,7 +173,7 @@ public class PlayerManagerBukkit implements PlayerManager {
         actorsN.put(bukkitName, actor);
         onlineActors.put(id, actor);
     };
-    private final EventHandler onQuit = ((id, data) -> {
+    private final PlayerEvent.PlayerEventHandler onQuit = ((id) -> {
         Debug.print("onQuit() " + id);
         onlineActors.remove(id);
         savePlayerActor(id);

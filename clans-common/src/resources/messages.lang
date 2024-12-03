@@ -116,11 +116,16 @@ meta.day.yesterday=Вчера
 meta.day.tomorrow=Завтра
 
 # notify
-notify.clan-disband.player=Клан {0} был распущен
-notify.clan-disband.admin=Клан {0} был распущен администрацией
-notify.clan-create=Основан новый клан {0} {1}. Глава: {3} # 0 - tag, 1 - name, 3 - leader name
+notify.clan.disband=Клан {0} {1} был распущен
+notify.clan.disband-admin=Клан {0} {1} был распущен администрацией
+# 0 - tag, 1 - name, 2 - leader name
+notify.clan.create=Основан новый клан {0} {1}. Глава -  {2}
+# same
+notify.clan.recover=Восстановлен клан {0} {1}. Глава - {2}
+notify.clan.recover=Клан {0} {1} был восстановлен администрацией
 notify.clan.leave={0} покинул клан
 notify.clan.kick={0} был исключён из клана
+notify.clan.kick-self=Вы были исключены из клана
 nofity.clan.kick-privileged={0} был исключён из клана ({1}) # 1 - who kicked
 notify.clan.pvp-toggle-on=PvP между участниками теперь включён участником {1}
 notify.clan.pvp-toggle-off=PvP между участниками теперь выключен {1}

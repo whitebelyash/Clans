@@ -6,6 +6,7 @@ import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.clan.bridge.Bridge;
 import ru.whbex.develop.clans.common.clan.bridge.NullBridge;
 import ru.whbex.develop.clans.common.conf.Config;
+import ru.whbex.develop.clans.common.event.EventSystem;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.task.DatabaseService;
 import ru.whbex.develop.clans.common.task.Task;
@@ -47,6 +48,12 @@ public class ClanManager {
             throw new RuntimeException(e);
         }
         startFlushTask();
+        Debug.print("Registering events...");
+        EventSystem.CLAN_CREATE.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.create", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
+        EventSystem.CLAN_DISBAND.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband", clan.getMeta().getTag(), clan.getMeta().getName()));
+        EventSystem.CLAN_DISBAND_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband-admin", clan.getMeta().getTag(), clan.getMeta().getName()));
+        EventSystem.CLAN_RECOVER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
+        EventSystem.CLAN_RECOVER_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
     }
 
     public void shutdown(){
@@ -82,12 +89,16 @@ public class ClanManager {
         ClanLevelling l = new ClanLevelling(1, 0);
         Clan clan = new Clan(id, cm, l, false);
 
+        // Should not be null
+        PlayerActor actor = ClansPlugin.playerManager().getPlayerActor(leader);
+
         // Put clan object
         clans.put(id, clan);
         tagClans.put(tag.toLowerCase(Locale.ROOT), clan);
         leadClans.put(leader, clan);
         clan.addMember(leader);
         LogContext.log(Level.INFO, "Created clan {0} ({1})", tag, name);
+        EventSystem.CLAN_CREATE.call(actor, clan);
         return null;
     }
 

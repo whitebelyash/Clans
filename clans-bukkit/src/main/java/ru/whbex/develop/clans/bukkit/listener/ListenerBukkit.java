@@ -18,11 +18,10 @@ public class ListenerBukkit implements Listener {
     }
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerJoinEvent e){
-        EventSystem.callEvent(EventSystem.Events.PLAYER_JOIN, e.getPlayer().getUniqueId(), e);
-
+        EventSystem.PLAYER_JOIN.call(e.getPlayer().getUniqueId());
     }
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerQuitEvent e){
-        EventSystem.callEvent(EventSystem.Events.PLAYER_QUIT, e.getPlayer().getUniqueId(), e);
+        EventSystem.PLAYER_LEFT.call(e.getPlayer().getUniqueId());
     }
 }

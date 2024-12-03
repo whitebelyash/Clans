@@ -8,6 +8,7 @@ import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.exec.Command;
 import ru.whbex.develop.clans.common.cmd.exec.CommandError;
 import ru.whbex.develop.clans.common.cmd.exec.CommandUsageError;
+import ru.whbex.develop.clans.common.event.EventSystem;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.lib.log.LogContext;
 
