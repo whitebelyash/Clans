@@ -17,3 +17,10 @@ database:
 
   # Database address
   address: './'
+
+# Clan configuration
+clan:
+  # Delay between saving clans to database. In seconds
+  flush-delay: 300
+  # Allow transferring clan to a new leader by setting his rank to LEADER
+  allow-transfer: true

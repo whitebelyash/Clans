@@ -48,5 +48,7 @@ public interface Config {
 
     long getClanFlushDelay();
 
+    boolean clanTransferAllowed();
+
 
 }

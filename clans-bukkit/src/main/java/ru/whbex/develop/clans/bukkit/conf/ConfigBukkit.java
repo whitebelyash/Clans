@@ -16,6 +16,15 @@ import java.util.Objects;
 public class ConfigBukkit implements Config {
     private final YamlConfiguration config;
     private final File configFile;
+
+    /* Settings */
+    private DatabaseType dbType;
+    private String dbAddress;
+    private String dbName;
+    private String dbUser;
+    private String dbPassword;
+    private long flushDelay;
+    private boolean allowTransfer;
     public ConfigBukkit(File configFile) throws IOException, InvalidConfigurationException {
         if(!configFile.exists()){
             ((MainBukkit) ClansPlugin.Context.INSTANCE.plugin).saveResource("config.yml", true);
@@ -26,6 +35,20 @@ public class ConfigBukkit implements Config {
     }
     private void load() throws IOException, InvalidConfigurationException {
         config.load(configFile);
+
+        String val = config.getString("database.type");
+        try {
+               dbType = DatabaseType.valueOf(val.toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e){
+            LogContext.log(Level.ERROR, "Invalid database type {0}! Falling back to H2", val);
+            dbType = DatabaseType.H2;
+        }
+        dbAddress = config.getString("database.address", ".");
+        dbName = config.getString("database.name", "clans");
+        dbUser = config.getString("database.user", "root");
+        dbPassword = config.getString("database.password", "12345");
+        flushDelay = config.getLong("clan.flush-delay", 300);
+        allowTransfer = config.getBoolean("clan.allow-transfer", true);
     }
     @Override
     public boolean test() {
@@ -40,39 +63,36 @@ public class ConfigBukkit implements Config {
 
     @Override
     public DatabaseType getDatabaseBackend() {
-        String val = config.getString("database.type");
-        DatabaseType ret;
-        try {
-            ret = DatabaseType.valueOf(val.toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e){
-            LogContext.log(Level.ERROR, "Invalid database type {0}! Falling back to H2", val);
-            ret = DatabaseType.H2;
-        }
-        return ret;
+        return dbType;
     }
 
     @Override
     public String getDatabaseName() {
-        return Objects.requireNonNull(config.getString("database.dbname"));
+        return dbName;
     }
 
     @Override
     public String getDatabaseUser() {
-        return config.getString("database.user");
+        return dbUser;
     }
 
     @Override
     public String getDatabasePassword() {
-        return config.getString("database.password");
+        return dbPassword;
     }
 
     @Override
     public String getDatabaseAddress() {
-        return config.getString("database.address", "");
+        return dbAddress;
     }
 
     @Override
     public long getClanFlushDelay() {
-        return config.getLong("clan.flush-delay", 300);
+        return flushDelay;
+    }
+
+    @Override
+    public boolean clanTransferAllowed() {
+        return allowTransfer;
     }
 }
