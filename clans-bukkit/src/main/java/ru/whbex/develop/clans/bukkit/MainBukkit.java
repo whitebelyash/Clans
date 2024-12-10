@@ -124,15 +124,13 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         Debug.print("database address: {0}", data.dbAddress());
         ConnectionProvider prov = ConstructUtils.newInstance(config.getDatabaseBackend().provider(), data);
         if(prov == null){
-            LogContext.log(Level.ERROR, "Failed to initialize connection provider!");
+            LogContext.log(Level.ERROR, "Failed to initialize connection provider instance!");
             return;
         }
-        // This will hold database connection
-        prov.newConnection();
         // Create global database service
         DatabaseService.initializeService(prov);
         if(!DatabaseService.isInitialized())
-            LogContext.log(Level.ERROR, "DatabaseService init failed!");
+            LogContext.log(Level.ERROR, "Failed to initialize DatabaseService");
 
     }
     private void setupLogging(){

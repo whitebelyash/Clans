@@ -20,6 +20,13 @@ public class DatabaseService {
         if(DatabaseService.provider != null)
             throw new IllegalAccessException("Tried to initialize DatabaseService again");
         DatabaseService.provider = provider;
+        try {
+            provider.newConnection();
+        } catch (SQLException e) {
+            LogContext.log(Level.ERROR, "Cannot initialize database connection, {0}", e.getMessage());
+            Debug.dbg_printStacktrace(e);
+            provider = null;
+        }
 
     }
     public static void destroyService(){
