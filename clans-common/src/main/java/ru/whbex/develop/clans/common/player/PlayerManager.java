@@ -46,29 +46,16 @@ public interface PlayerManager {
     /**
      * Register player actor.
      * @param actor actor
+     * @return registered actor
      */
-    void registerPlayerActor(PlayerActor actor);
+    // TODO: Remove
+    PlayerActor registerPlayerActor(PlayerActor actor);
 
     /**
      * Register player actor by uuid.
      * @param id actor's UUID
      */
-    void registerPlayerActor(UUID id);
-
-    /**
-     * Get player actor or register if not found. Maybe useful for chained calls in builder.
-     * @param actor actor
-     * @return player actor
-     */
-    PlayerActor getOrRegisterPlayerActor(PlayerActor actor);
-
-    /**
-     * Get player actor by UUID or register if not found.
-     * @param id actor's UUID.
-     * @return player actor
-     */
-    PlayerActor getOrRegisterPlayerActor(UUID id);
-
+    PlayerActor registerPlayerActor(UUID id);
     /**
      * Get all online actors.
      * @return collection of actors.
@@ -109,5 +96,8 @@ public interface PlayerManager {
                 })
                 .exceptionally(e -> {throw new RuntimeException(e);})
                 .execute();
+    }
+    default void loadActorProfile(PlayerActor actor){
+
     }
 }

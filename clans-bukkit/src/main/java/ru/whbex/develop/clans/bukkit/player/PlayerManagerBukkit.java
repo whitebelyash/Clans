@@ -1,13 +1,8 @@
 package ru.whbex.develop.clans.bukkit.player;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.slf4j.event.Level;
-import ru.whbex.develop.clans.common.ClansPlugin;
-import ru.whbex.develop.clans.common.clan.bridge.Bridge;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
-import ru.whbex.develop.clans.common.event.EventHandler;
 import ru.whbex.develop.clans.common.event.EventSystem;
 import ru.whbex.develop.clans.common.event.def.PlayerEvent;
 import ru.whbex.develop.clans.common.player.PlayerActor;
@@ -16,7 +11,6 @@ import ru.whbex.develop.clans.common.player.ConsoleActor;
 import ru.whbex.develop.clans.common.player.PlayerProfile;
 import ru.whbex.develop.clans.common.task.DatabaseService;
 import ru.whbex.lib.log.Debug;
-import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.sql.SQLAdapter;
 
 import java.sql.PreparedStatement;
@@ -60,7 +54,9 @@ public class PlayerManagerBukkit implements PlayerManager {
     }
 
     @Override
-    public void registerPlayerActor(PlayerActor actor) {
+    public PlayerActor registerPlayerActor(PlayerActor actor) {
+        if(actors.containsValue(actor))
+            return actor;
         actors.put(actor.getUniqueId(), actor);
         if(actor.getProfile() == null){
             Debug.print("Player profile not set, fetching...");
@@ -68,7 +64,7 @@ public class PlayerManagerBukkit implements PlayerManager {
             actor.setProfile(new PlayerProfile(actor.getUniqueId(), null, -1, 0));
             // Set name if online
             if(actor.isOnline()) {
-                actor.getProfile().setName(((PlayerActorBukkit) actor).getPlayer().getName());
+                actor.getProfile().setName(((PlayerActorBukkit) actor).getBukkitPlayer().getName());
                 Debug.print("name set!");
             }
             // We'll ignore fetch progress for now
@@ -84,6 +80,7 @@ public class PlayerManagerBukkit implements PlayerManager {
                                     actor.getProfile().setName(old);
                                 actorsN.put(actor.getProfile().getName(), actor);
                                 Debug.print("Profile successfully fetched");
+                                break;
                             } while(resp.resultSet().next());
                         else {
                             Debug.print("PlayerProfile not found for {0}", actor);
@@ -93,16 +90,17 @@ public class PlayerManagerBukkit implements PlayerManager {
                     .executeAsync();
         }
         Debug.print("Registered/updated actor {0}", actor);
+        return actor;
     }
 
     @Override
-    public void registerPlayerActor(UUID id) {
+    public PlayerActor registerPlayerActor(UUID id) {
         if(actors.containsKey(id)) {
             // makeOnline(id);
-            return;
+            return actors.get(id);
         }
         PlayerActor p = new PlayerActorBukkit(id);
-        registerPlayerActor(p);
+        return registerPlayerActor(p);
     }
     public void unregisterPlayerActor(UUID id) throws SQLException {
         if(!actors.containsKey(id))
@@ -138,20 +136,6 @@ public class PlayerManagerBukkit implements PlayerManager {
     }
 
     @Override
-    public PlayerActor getOrRegisterPlayerActor(PlayerActor actor) {
-        if(actors.containsKey(actor.getUniqueId()))
-            return actor;
-        registerPlayerActor(actor);
-        return actor;
-    }
-
-    @Override
-    public PlayerActor getOrRegisterPlayerActor(UUID id) {
-        registerPlayerActor(id);
-        return actors.get(id);
-    }
-
-    @Override
     public Collection<PlayerActor> getOnlinePlayerActors() {
         return onlineActors.values();
     }
@@ -162,7 +146,7 @@ public class PlayerManagerBukkit implements PlayerManager {
             return;
         PlayerActor actor = actors.get(id);
         Debug.print("Updating player name...");
-        String bukkitName = ((PlayerActorBukkit) actor).getPlayer().getName();
+        String bukkitName = ((PlayerActorBukkit) actor).getBukkitPlayer().getName();
         if (actor.getProfile().getName() == null) {
             actor.getProfile().setName(bukkitName);
         }
@@ -185,6 +169,6 @@ public class PlayerManagerBukkit implements PlayerManager {
     }
 
     public CommandActor asCommandActor(CommandSender sender){
-        return sender instanceof Player ? (CommandActor)this.getOrRegisterPlayerActor(((Player) sender).getUniqueId()) : consoleActor;
+        return sender instanceof Player ? (CommandActor)this.registerPlayerActor(((Player) sender).getUniqueId()) : consoleActor;
     }
 }
