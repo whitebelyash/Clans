@@ -5,7 +5,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
@@ -13,14 +12,10 @@ import ru.whbex.develop.clans.common.misc.requests.Request;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.player.PlayerProfile;
 import ru.whbex.lib.lang.Language;
-import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.log.Debug;
-import ru.whbex.lib.sql.SQLAdapter;
-import ru.whbex.lib.sql.SQLCallback;
 import ru.whbex.lib.string.StringUtils;
 
 import javax.annotation.Nullable;
-import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -34,28 +29,10 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     private PlayerProfile profile;
     private final Map<PlayerActor, Request> requests = new HashMap<>();
     private final Map<String, Object> data = new HashMap<>();
-
-    private final void initPlayer(Player player){
-        this.id = player.getUniqueId();
-        this.name = player.getName();
-    }
-
-    /* Create PlayerActor from online player */
-    public PlayerActorBukkit(Player player) {
-        if(!player.isOnline())
-            throw new UnsupportedOperationException("Creating player from offline Player object is not supported");
-        this.initPlayer(player);
-    }
-    /* Create PlayerActor from offline player */
+    private Player playerobj;
     public PlayerActorBukkit(UUID id){
-        if(Bukkit.getPlayer(id) != null){
-            this.initPlayer(Bukkit.getPlayer(id));
-            return;
-        }
         this.id = id;
     }
-
-
     private void sendMsg(String s){
         s = ChatColor.translateAlternateColorCodes('&', s);
         Bukkit.getPlayer(id).sendMessage(s);
@@ -204,10 +181,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
         return true;
     }
 
-    @Nullable
-    public Player getPlayer() {
-        return Bukkit.getPlayer(id);
-    }
+
 
 
     @Override
@@ -227,5 +201,13 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
 
     public Future<Void> getFetcher() {
         return fetch;
+    }
+
+    public void setBukkitPlayer(Player pl){
+        this.playerobj = pl;
+    }
+    @Nullable
+    public Player getBukkitPlayer() {
+        return playerobj;
     }
 }
