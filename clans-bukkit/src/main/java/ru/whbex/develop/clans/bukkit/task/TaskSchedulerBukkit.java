@@ -51,16 +51,6 @@ public class TaskSchedulerBukkit implements TaskScheduler {
         return new TaskBukkit(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, run, delay));
     }
 
-    @Override
-    public <T> Future<T> runCallable(Callable<T> callable) {
-        return db.submit(callable);
-    }
-
-    @Override
-    public ExecutorService getDatabasePool() {
-        return db;
-    }
-
 
     @Override
     public void stopAll() {

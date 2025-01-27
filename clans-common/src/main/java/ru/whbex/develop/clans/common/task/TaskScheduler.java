@@ -1,10 +1,6 @@
 package ru.whbex.develop.clans.common.task;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-
-/* Task scheduler */
+/* Wrapped task scheduler */
 public interface TaskScheduler {
     Task run(Runnable run);
     Task runAsync(Runnable run);
