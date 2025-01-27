@@ -9,7 +9,7 @@ import ru.whbex.develop.clans.common.event.EventSystem;
 import ru.whbex.develop.clans.common.misc.SQLUtils;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.task.DatabaseService;
-import ru.whbex.develop.clans.common.task.Task;
+// import ru.whbex.develop.clans.common.task.Task;
 import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.sql.SQLAdapter;
@@ -28,7 +28,7 @@ public class ClanManager {
     private final Map<String, Clan> tagClans = new HashMap<>();
     // Leader to clan map
     private final Map<UUID, Clan> leadClans = new HashMap<>();
-    private Task flushTask;
+  //  private Task flushTask;
 
     //
     // === Lifecycle ===
@@ -294,62 +294,9 @@ public class ClanManager {
                     })
                     .execute();
     }
+
     /*
-    public Future<Void> importAll(Bridge bridge){
-        LogContext.log(Level.INFO, "Importing clans from " + bridge.getClass().getSimpleName());
-        if(bridge instanceof NullBridge){
-            LogContext.log(Level.WARN, "Bridge is NOP, will not import clans");
-            return CompletableFuture.completedFuture(null);
-        }
-        Callable<Void> call = () -> {
-            LogContext.log(Level.INFO, "Loading clans...");
-            Collection<Clan> fetched = bridge.fetchAll();
-            // no sync for now
-            // TODO: Discover concurrency issues here
-            fetched.forEach(c -> {
-                if(clans.containsKey(c.getId())) {
-                    LogContext.log(Level.ERROR, "Clan with UUID {0} is already loaded, skipping", c.getMeta().getTag(), clans.get(c.getId()).getMeta().getTag());
-                    return;
-                }
-                if(!c.isDeleted() && clanExists(c.getMeta().getTag())){
-                    LogContext.log(Level.ERROR, "Clan tag conflict while loading {0} (conflicts with: {1}), skipping", c.getId(), getClan(c.getMeta().getTag()).getId());
-                    return;
-                }
-                if(leadClans.containsKey(c.getMeta().getLeader())){
-                    LogContext.log(Level.ERROR, "Clan {0} leader already has clan {1}, skipping", c.getMeta().getTag(), leadClans.get(c.getMeta().getLeader()).getMeta().getTag());
-                    return;
-                }
-                c.addMember(c.getMeta().getLeader());
-                clans.put(c.getId(), c);
-                leadClans.put(c.getMeta().getLeader(), c);
-                if(!c.isDeleted())
-                    tagClans.put(c.getMeta().getTag().toLowerCase(), c);
-            });
-            LogContext.log(Level.INFO, "Import complete! Loaded {0} clans ({1} are/is deleted)", clans.size(), tagClans.size());
-            return null;
-        };
-        return ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runCallable(call);
-    }
-
-    public Future<Boolean> exportAll(Bridge bridge){
-        LogContext.log(Level.INFO, "Exporting clans to " + bridge.getClass().getSimpleName());
-        Callable<Boolean> call = () -> {
-            if(clans.isEmpty())
-                return true;
-            LogContext.log(Level.INFO, "Saving clans...");
-            boolean res = bridge.insertAll(clans.values(), true);
-            // TODO: clarify if insertAll returned false
-            LogContext.log(Level.INFO, "Complete!");
-            return res;
-        };
-        return ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runCallable(call);
-    }
-
-    public Future<Boolean> exportAll(){
-        return this.exportAll(bridge);
-    }
-
-    // TODO: Use as fallback, save clan changes immediately
+    // TODO: Use as fallback
     private void startFlushTask(){
         long flushDelay = ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay();
         if(ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay() > 1 && !(bridge instanceof NullBridge))
