@@ -1,13 +1,8 @@
 package ru.whbex.develop.clans.bukkit.player;
 
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.slf4j.event.Level;
-import ru.whbex.develop.clans.common.ClansPlugin;
-import ru.whbex.develop.clans.common.clan.bridge.Bridge;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
-import ru.whbex.develop.clans.common.event.EventHandler;
 import ru.whbex.develop.clans.common.event.EventSystem;
 import ru.whbex.develop.clans.common.event.def.PlayerEvent;
 import ru.whbex.develop.clans.common.player.PlayerActor;
@@ -16,7 +11,6 @@ import ru.whbex.develop.clans.common.player.ConsoleActor;
 import ru.whbex.develop.clans.common.player.PlayerProfile;
 import ru.whbex.develop.clans.common.task.DatabaseService;
 import ru.whbex.lib.log.Debug;
-import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.sql.SQLAdapter;
 
 import java.sql.PreparedStatement;
