@@ -100,7 +100,7 @@ public class ClanManager {
         tagClans.put(c.getMeta().getTag().toLowerCase(), c);
         leadClans.put(c.getMeta().getLeader(), c);
         LogContext.log(Level.INFO, "New clan was created. Welcome there, {0}!", c.getMeta().getTag());
-        return null;
+        return Error.SUCCESS;
     }
 
     /* Disband clan. Can run on main thread */
@@ -110,7 +110,7 @@ public class ClanManager {
         clan.setDeleted(true);
         tagClans.remove(clan.getMeta().getTag().toLowerCase());
         LogContext.log(Level.INFO, "Clan {0} was disbanded :(", clan.getMeta().getTag());
-        return null;
+        return Error.SUCCESS;
     }
 
     public Error disbandClan(String tag) {
@@ -143,7 +143,7 @@ public class ClanManager {
         if (c == null)
             return Error.CLAN_NOT_FOUND;
         LogContext.log(Level.INFO, "Clan {0} was removed. We won't see you ever again );", c.getMeta().getTag());
-        return null;
+        return Error.SUCCESS;
     }
 
     public Error removeClan(UUID uuid) {
@@ -372,6 +372,8 @@ public class ClanManager {
         // Return if clan is already disbanded (has a deleted bit)
         CLAN_ALR_DISBAND,
         // Return if db sync failed
-        CLAN_SYNC_ERROR
+        CLAN_SYNC_ERROR,
+        // Says for itself
+        SUCCESS
     }
 }
