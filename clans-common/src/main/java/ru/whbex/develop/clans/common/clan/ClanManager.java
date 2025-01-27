@@ -123,7 +123,7 @@ public class ClanManager {
         if (!clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
 
-        if (!transientSession) {
+        if (!transientSession || !clan.isTransient()) {
             AtomicBoolean shit = new AtomicBoolean(false);
             DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
                     .sql("DELETE FROM clans WHERE id=?")
