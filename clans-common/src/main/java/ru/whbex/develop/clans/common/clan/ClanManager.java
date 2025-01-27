@@ -2,11 +2,11 @@ package ru.whbex.develop.clans.common.clan;
 
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
-import ru.whbex.develop.clans.common.Constants;
-import ru.whbex.develop.clans.common.clan.bridge.Bridge;
-import ru.whbex.develop.clans.common.clan.bridge.NullBridge;
+
+import ru.whbex.develop.clans.common.clan.sql.SQLString;
 import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.event.EventSystem;
+import ru.whbex.develop.clans.common.misc.SQLUtils;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.task.DatabaseService;
 import ru.whbex.develop.clans.common.task.Task;
@@ -14,152 +14,157 @@ import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.sql.SQLAdapter;
 
+import java.sql.ResultSet;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 // simple clan manager
 public class ClanManager {
+    // Allows skipping clan flushing to the database
+    private boolean transientSession = false;
     // Main clan map
     private final Map<UUID, Clan> clans = new HashMap<>();
     // Tag to clan map
     private final Map<String, Clan> tagClans = new HashMap<>();
     // Leader to clan map
     private final Map<UUID, Clan> leadClans = new HashMap<>();
-
-
-    private final Bridge bridge;
     private Task flushTask;
 
     //
     // === Lifecycle ===
     //
 
-    public ClanManager(Config config, Bridge bridge){
+    public ClanManager(Config config, boolean transientSession) {
+        this.transientSession = transientSession;
         Debug.print("init clanmanager");
-        this.bridge = bridge;
-        try {
-            this.bridge.init();
-            this.importAll(bridge).get();
-        } catch (InterruptedException | ExecutionException e) {
-            LogContext.log(Level.ERROR, "Failed to import clans");
-            throw new RuntimeException(e);
-        }
-        startFlushTask();
+        createClanTable();
+        preloadClans();
+        if (transientSession)
+            notifyAboutTransient();
         Debug.print("Registering events...");
         EventSystem.CLAN_CREATE.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.create", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
         EventSystem.CLAN_DISBAND.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband", clan.getMeta().getTag(), clan.getMeta().getName()));
         EventSystem.CLAN_DISBAND_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband-admin", clan.getMeta().getTag(), clan.getMeta().getName()));
         EventSystem.CLAN_RECOVER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
         EventSystem.CLAN_RECOVER_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
+        Debug.print("ClanManager init complete!");
     }
 
-    public void shutdown(){
+    private void notifyAboutTransient() {
+        LogContext.log(Level.WARN, "Note: ClanManager transient session is enabled. Possible causes:");
+        LogContext.log(Level.WARN, "1) DatabaseService is not configured");
+        LogContext.log(Level.WARN, "2) Exception was thrown while creating clan table/fetching clans");
+        LogContext.log(Level.WARN, "3) User requested transient session");
+        LogContext.log(Level.WARN, "Note: All clan changes will stay in the memory for this session");
+    }
+
+    public void shutdown() {
         LogContext.log(Level.INFO, "ClanManager is shutting down...");
-        if(this.flushTask != null && !flushTask.cancelled())
-            flushTask.cancel();
-        try {
-            this.exportAll(bridge).get();
-        } catch (InterruptedException | ExecutionException e) {
-            LogContext.log(Level.ERROR, "Failed to save clans!");
-            throw new RuntimeException(e);
-        }
     }
 
     // =========================================================================
 
     //
-    // === Clan management ===
+    // === Clan management (some methods here are not asynchronous, do not call them on main thread!!!) ===
     //
 
-    public Error createClan(String tag, String name, UUID leader){
+    public Error createClan(String tag, String name, UUID leader) {
         // Do not create clan if tag is already taken
-        if(tagClans.containsKey(tag))
+        if (tagClans.containsKey(tag))
             return Error.CLAN_TAG_EXISTS;
         // Do not create clan if leader already has it
-        if(leadClans.containsKey(leader))
+        if (leadClans.containsKey(leader))
             return Error.LEAD_HAS_CLAN;
         // TODO: Add check for clan membership
 
-        // Create clan object
-        UUID id = UUID.randomUUID();
-        ClanMeta cm = new ClanMeta(tag, name, null, leader, System.currentTimeMillis() / 1000L, Constants.DEFAULT_RANK);
-        ClanLevelling l = new ClanLevelling(1, 0);
-        Clan clan = new Clan(id, cm, l, false);
-
-        // Should not be null
         PlayerActor actor = ClansPlugin.playerManager().getPlayerActor(leader);
+        Clan c = Clan.newClan(tag, name, actor, false);
 
-        // Put clan object
-        clans.put(id, clan);
-        tagClans.put(tag.toLowerCase(Locale.ROOT), clan);
-        leadClans.put(leader, clan);
-        clan.addMember(leader);
-        LogContext.log(Level.INFO, "Created clan {0} ({1})", tag, name);
-        EventSystem.CLAN_CREATE.call(actor, clan);
+        // Sync to db
+        if (!transientSession) {
+            // TODO: Find another way to check for exception status
+            AtomicBoolean status = new AtomicBoolean(false);
+            DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
+                    .sql(SQLString.REPLACE_OR_INSERT_CLANS.current())
+                    .exceptionally(e -> {
+                        LogContext.log(Level.ERROR, "Failed to sync created clan with database!");
+                        status.set(true);
+                    })
+                    .setVerbose(true)
+                    .setPrepared(ps -> SQLUtils.clanToPrepStatement(ps, c))
+                    .execute();
+            if (status.get())
+                return Error.CLAN_SYNC_ERROR;
+        }
+        clans.put(c.getId(),c);
+        tagClans.put(c.getMeta().getTag().toLowerCase(), c);
+        leadClans.put(c.getMeta().getLeader(), c);
+        LogContext.log(Level.INFO, "New clan was created. Welcome there, {0}!", c.getMeta().getTag());
         return null;
     }
 
-    public Error disbandClan(Clan clan){
-        if(clan.isDeleted() || !clans.containsKey(clan.getId()))
+    /* Disband clan. Can run on main thread */
+    public Error disbandClan(Clan clan) {
+        if (clan.isDeleted() || !clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
         clan.setDeleted(true);
         tagClans.remove(clan.getMeta().getTag().toLowerCase());
-        LogContext.log(Level.INFO, "Disbanded clan {0} ({1})", clan.getMeta().getTag(), clan.getMeta().getName());
+        LogContext.log(Level.INFO, "Clan {0} was disbanded :(", clan.getMeta().getTag());
         return null;
     }
 
-    public Error disbandClan(String tag){
-        if(!tagClans.containsKey(tag.toLowerCase()))
+    public Error disbandClan(String tag) {
+        if (!tagClans.containsKey(tag.toLowerCase()))
             return Error.CLAN_NOT_FOUND;
         return disbandClan(tagClans.get(tag));
     }
 
-    public Error removeClan(Clan clan){
-        if(!clans.containsKey(clan.getId()))
+    public Error removeClan(Clan clan) {
+        if (!clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
-        tagClans.remove(clan.getMeta().getTag());
-        leadClans.remove(clan.getMeta().getLeader());
-        Clan c = clans.remove(clan.getId());
-        if(c == null)
-            return Error.CLAN_NOT_FOUND;
-        // Syncing with db here, result is ignored - method is sync
-        // TODO: Switch other methods to immediate sync logic instead of SQLBridge shit
-        if(DatabaseService.isInitialized()){
-            DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
+
+        if (!transientSession) {
+            AtomicBoolean shit = new AtomicBoolean(false);
+            DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
                     .sql("DELETE FROM clans WHERE id=?")
                     .exceptionally(e -> {
-                        LogContext.log(Level.ERROR, "Failed to sync removed clan with database. Duplicate will appear");
+                        LogContext.log(Level.ERROR, "Failed to sync removed clan with database! Cancelling remove");
+                        shit.set(true);
                     })
                     .setVerbose(true)
                     .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
-                    .executeAsync();
+                    .execute();
+            if (shit.get())
+                return Error.CLAN_SYNC_ERROR;
         }
-        LogContext.log(Level.INFO, "Removed clan {0} ({1}). Bye!", c.getMeta().getTag(), c.getMeta().getName());
+        tagClans.remove(clan.getMeta().getTag());
+        leadClans.remove(clan.getMeta().getLeader());
+        Clan c = clans.remove(clan.getId());
+        if (c == null)
+            return Error.CLAN_NOT_FOUND;
+        LogContext.log(Level.INFO, "Clan {0} was removed. We won't see you ever again );", c.getMeta().getTag());
         return null;
     }
 
-    public Error removeClan(UUID uuid){
-        if(!clans.containsKey(uuid))
+    public Error removeClan(UUID uuid) {
+        if (!clans.containsKey(uuid))
             return Error.CLAN_NOT_FOUND;
         return removeClan(clans.get(uuid));
     }
 
-    public Error removeClan(String tag){
-        if(!tagClans.containsKey(tag.toLowerCase()))
+    public Error removeClan(String tag) {
+        if (!tagClans.containsKey(tag.toLowerCase()))
             return Error.CLAN_NOT_FOUND;
         return this.removeClan(tagClans.get(tag.toLowerCase()));
     }
 
-    public Error recoverClan(Clan clan, String newTag){
-        // A bit changed copy of disband logic now, need to check for leader and other shit
-        if(!clans.containsKey(clan.getId()))
+    public Error recoverClan(Clan clan, String newTag) {
+        // A bit changed copy of disband logic now, need to check for leader and other things
+        if (!clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
-        if(!clan.isDeleted())
+        if (!clan.isDeleted())
             return Error.CLAN_REC_EXISTS;
-        if(tagClans.containsKey(clan.getMeta().getTag().toLowerCase())) {
+        if (tagClans.containsKey(clan.getMeta().getTag().toLowerCase())) {
             if (newTag == null)
                 return Error.CLAN_TAG_EXISTS;
             else {
@@ -168,7 +173,7 @@ public class ClanManager {
         }
         clan.setDeleted(false);
         tagClans.put(clan.getMeta().getTag(), clan);
-        LogContext.log(Level.INFO, "Recovered clan {0} ({1})", clan.getMeta().getTag(), clan.getMeta().getName());
+        LogContext.log(Level.INFO, "Clan {0} was recovered! (from ashes, I suppose?)", clan.getMeta().getTag());
         return null;
     }
 
@@ -178,15 +183,15 @@ public class ClanManager {
     // === Clan getters ===
     //
 
-    public Clan getClan(UUID id){
+    public Clan getClan(UUID id) {
         return clans.get(id);
     }
 
-    public Clan getClan(String tag){
+    public Clan getClan(String tag) {
         return tagClans.get(tag.toLowerCase());
     }
 
-    public Clan getClan(PlayerActor leader){
+    public Clan getClan(PlayerActor leader) {
         return leadClans.get(leader.getUniqueId());
     }
 
@@ -196,15 +201,15 @@ public class ClanManager {
     // === Clan checks ===
     //
 
-    public boolean clanExists(String tag){
+    public boolean clanExists(String tag) {
         return tagClans.containsKey(tag.toLowerCase()) && clans.containsKey(tagClans.get(tag.toLowerCase()).getId());
     }
 
-    public boolean clanExists(UUID id){
+    public boolean clanExists(UUID id) {
         return clans.containsKey(id);
     }
 
-    public boolean isClanLeader(UUID leader){
+    public boolean isClanLeader(UUID leader) {
         return leadClans.containsKey(leader);
     }
 
@@ -215,11 +220,12 @@ public class ClanManager {
     //
 
     // this returns any loaded clans
-    public Collection<Clan> getAllClans(){
+    public Collection<Clan> getAllClans() {
         return clans.values();
     }
+
     // this returns only real clans, not deleted
-    public Collection<Clan> getClans(){
+    public Collection<Clan> getClans() {
         return tagClans.values();
     }
 
@@ -229,20 +235,66 @@ public class ClanManager {
     // === Database ===
     //
 
-    public void tmpExportClan(Clan clan){
-        bridge.insertClan(clan, true);
-    }
-    public void tmpImportClan(String tag){
-        Clan clan = bridge.fetchClan(tag);
-        if(clan == null) {
-            Debug.print("fetch fail");
-            return;
+    // Will load all clans from database\
+    // TODO: Only load cached data instead of all clans
+    // will be pretty hard to implement, i think
+    private void preloadClans() {
+        if (!transientSession) {
+            DatabaseService.getExecutor(SQLAdapter::preparedQuery)
+                    .sql("SELECT * FROM clans;")
+                    .exceptionally(e -> {
+                        LogContext.log(Level.ERROR, "Exception was thrown while preloading clans from the database. See below stacktrace for more info");
+                        e.printStackTrace();
+                        transientSession = true;
+                    })
+                    .setVerbose(true)
+                    .queryCallback(resp -> {
+                        ResultSet r = resp.resultSet();
+                        if (r.next())
+                            do {
+                                Clan c = SQLUtils.clanFromQuery(r);
+                                if (c == null) {
+                                    LogContext.log(Level.ERROR, "Failed to preload clan");
+                                    continue;
+                                }
+                                clans.put(c.getId(), c);
+                                if (!c.isDeleted())
+                                    tagClans.put(c.getMeta().getTag(), c);
+                                leadClans.put(c.getMeta().getLeader(), c);
+                                Debug.print("Loaded clan {0}/{1}", c.getId(), c.getMeta().getTag());
+                            } while (r.next());
+                        return null;
+                    })
+                    .execute();
         }
-        clans.put(clan.getId(), clan);
-        if(!clan.isDeleted())
-            tagClans.put(tag, clan);
     }
 
+    private void createClanTable() {
+        if (DatabaseService.isInitialized())
+            DatabaseService.getExecutor(SQLAdapter::update)
+                    .sql("CREATE TABLE IF NOT EXISTS clans (" +
+                            "id varchar(36) NOT NULL UNIQUE PRIMARY KEY, " +
+                            "tag varchar(16), " +
+                            "name varchar(24), " +
+                            "description varchar(255), " +
+                            "creationEpoch LONG, " + // TODO: fixxx
+                            "leader varchar(36), " +
+                            "deleted TINYINT, " +
+                            "level INT, " +
+                            "exp INT, " +
+                            "defaultRank INT);")
+                    .exceptionally(e -> {
+                        LogContext.log(Level.ERROR, "Unable to create clans table in the database. See below stacktrace for more info");
+                        e.printStackTrace();
+                        transientSession = true;
+                    })
+                    .updateCallback(resp -> {
+                        Debug.print("Created table, updated rows -> {0}", resp.updateResult());
+                        return null;
+                    })
+                    .execute();
+    }
+    /*
     public Future<Void> importAll(Bridge bridge){
         LogContext.log(Level.INFO, "Importing clans from " + bridge.getClass().getSimpleName());
         if(bridge instanceof NullBridge){
@@ -304,6 +356,7 @@ public class ClanManager {
             this.flushTask = ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runRepeating(() -> exportAll(this.bridge), flushDelay * 20, flushDelay * 20);
         else flushTask = null;
     }
+     */
 
     // =========================================================================
 
@@ -317,6 +370,8 @@ public class ClanManager {
         // Return if leader has a clan
         LEAD_HAS_CLAN,
         // Return if clan is already disbanded (has a deleted bit)
-        CLAN_ALR_DISBAND
+        CLAN_ALR_DISBAND,
+        // Return if db sync failed
+        CLAN_SYNC_ERROR
     }
 }

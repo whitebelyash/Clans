@@ -174,7 +174,6 @@ public class TBD implements CommandExecutor {
         String tag = args[1];
         if(!cm.clanExists(tag))
             throw new CommandError("meta.command.unknown-clan");
-        cm.tmpExportClan(cm.getClan(tag));
     }
     private void _import(CommandActor p, String[] args){
         if(args.length < 2)
@@ -182,7 +181,6 @@ public class TBD implements CommandExecutor {
         String tag = args[1];
         if(cm.clanExists(tag))
             throw new CommandError("already loaded");
-        cm.tmpImportClan(tag);
     }
     private void profile(CommandActor p, String[] args){
         if(args.length < 2)

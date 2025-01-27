@@ -103,6 +103,7 @@
                 <groupId>ru.whbex.lib</groupId>
                 <artifactId>reflect</artifactId>
                 <version>0.2-SNAPSHOT</version>
+                <scope>compile</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -123,6 +124,11 @@
         <dependency>
             <groupId>ru.whbex.lib</groupId>
             <artifactId>wlib-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
     <modules>

@@ -84,7 +84,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     public void onEnable(){
         databaseEnable();
         setupPM();
-        this.clanManager = new ClanManager(config, bridge);
+        this.clanManager = new ClanManager(config, false);
 
         LogContext.log(Level.INFO, "Registering commands");
         this.getCommand("clans").setExecutor(new TBD());
