@@ -1,7 +1,9 @@
 package ru.whbex.develop.clans.common.clan;
 
 
+import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.player.PlayerActor;
+import ru.whbex.lib.log.Debug;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -27,6 +29,13 @@ public class Clan {
         this.levelling = levelling;
         this.transient_ = trans;
         this.members = new HashSet<>();
+    }
+    public static Clan newClan(String tag, String name, PlayerActor leader, boolean trans){
+        UUID id = UUID.randomUUID();
+        Debug.print("New clan UUID: " + id);
+        ClanMeta cm = new ClanMeta(tag, name, null, leader.getUniqueId(), System.currentTimeMillis() / 1000L, Constants.DEFAULT_RANK);
+        ClanLevelling l = new ClanLevelling(1, 0);
+        return new Clan(id, cm, l, trans);
     }
 
     public UUID getId() {
