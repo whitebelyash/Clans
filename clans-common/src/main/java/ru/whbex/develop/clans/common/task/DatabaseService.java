@@ -45,6 +45,9 @@ public class DatabaseService {
             }
             provider = null;
         }
+        if(pool == null)
+            // already closed?
+            return;
         LogContext.log(Level.INFO, "Closing database executor pool...");
         if (!pool.isShutdown())
             pool.shutdown();
@@ -55,6 +58,7 @@ public class DatabaseService {
             } catch (InterruptedException ignored) {
             }
         }
+        pool = null;
     }
     public static boolean isInitialized(){
         return DatabaseService.provider != null;

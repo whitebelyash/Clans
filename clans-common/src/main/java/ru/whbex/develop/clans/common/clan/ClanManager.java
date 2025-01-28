@@ -235,7 +235,7 @@ public class ClanManager {
     // === Database ===
     //
 
-    // Will load all clans from database\
+    // Will load all clans from database
     // TODO: Only load cached data instead of all clans
     // will be pretty hard to implement, i think
     private void preloadClans() {
