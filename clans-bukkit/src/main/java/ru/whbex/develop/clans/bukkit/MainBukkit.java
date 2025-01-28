@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.bukkit.cmd.ClanCommandBukkit;
 import ru.whbex.develop.clans.bukkit.cmd.ClansPluginCommandBukkit;
-import ru.whbex.develop.clans.bukkit.cmd.TBD;
 import ru.whbex.develop.clans.bukkit.listener.ListenerBukkit;
 import ru.whbex.develop.clans.bukkit.player.PlayerManagerBukkit;
 import ru.whbex.develop.clans.bukkit.conf.ConfigBukkit;
@@ -87,7 +86,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
         LogContext.log(Level.INFO, "Registering commands");
 
-        this.getCommand("clans").setExecutor(new TBD());
         this.getCommand("clan").setExecutor(new ClanCommandBukkit());
         this.getCommand("clansplugin").setExecutor(new ClansPluginCommandBukkit());
 
