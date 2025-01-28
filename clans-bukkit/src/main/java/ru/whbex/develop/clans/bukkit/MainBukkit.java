@@ -61,9 +61,12 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         this.taskScheduler = new TaskSchedulerBukkit();
 
         setupConfig();
-        setupLocales();
-
-
+        try {
+            setupLocales();
+        } catch (IOException e) {
+            LogContext.log(Level.ERROR, "Failed to initialize main language. See below stacktrace for more info");
+            e.printStackTrace();
+        }
         try {
             setupDatabase();
         } catch (InvocationTargetException e) {
@@ -83,6 +86,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         this.clanManager = new ClanManager(config, false);
 
         LogContext.log(Level.INFO, "Registering commands");
+
         this.getCommand("clans").setExecutor(new TBD());
         this.getCommand("clan").setExecutor(new ClanCommandBukkit());
         this.getCommand("clansplugin").setExecutor(new ClansPluginCommandBukkit());
@@ -150,7 +154,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             throw new RuntimeException(e);
         }
     }
-    private void setupLocales(){
+    private void setupLocales() throws IOException {
         /* Language init */
         // TODO: Implement multilocale - using single locale for now
         LogContext.log(Level.INFO, "Loading locales...");
@@ -197,8 +201,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     @Override
     public void reloadLangFiles() throws Exception {
-        Debug.print("Locale reload not implemented");
-
+        lang.reloadPhrases();
     }
 
     @Override

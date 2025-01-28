@@ -8,12 +8,12 @@ import ru.whbex.lib.lang.Language;
 public class LocaleInfoCommand implements Command {
     @Override
     public void execute(CommandActor actor, Command command, String label, String... args) {
-        actor.sendMessage(" === Locale info === ");
         Language lang = ClansPlugin.Context.INSTANCE.plugin.getLanguage();
         String name = " - Name: " + lang.getName();
         String nameLocalized = " - Name (l): " + lang.getNameLocalized();
         String localeTag = "- Tag: " + lang.getLocale().getLanguage();
         String content = " - Strings amount: " + lang.getPhrases().keySet().size();
+        actor.sendMessage(" === Locale info === ");
         actor.sendMessage(name);
         actor.sendMessage(nameLocalized);
         actor.sendMessage(localeTag);
