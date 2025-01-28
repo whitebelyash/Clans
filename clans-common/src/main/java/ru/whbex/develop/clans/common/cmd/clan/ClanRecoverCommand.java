@@ -18,14 +18,13 @@ public class ClanRecoverCommand implements Command {
             throw new CommandError("meta.command.leadership-required");
         ClanManager cm = ClansPlugin.clanManager();
         ClanManager.Error e = cm.recoverClan(cm.getClan((PlayerActor) actor), args.length > 2 ? args[2] : null);
-        if(e!=null)
-            switch(e){
-                case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
-                case CLAN_REC_EXISTS -> throw new CommandError("command.recover.fail-exists-self");
-                case CLAN_TAG_EXISTS -> throw new CommandError("command.recover.fail-tag-taken-self");
-                default -> LogContext.log(Level.WARN, "Unknown ClanManager error {0}. Contact developer", e);
-            }
-        actor.sendMessageT("command.recover.success-self");
+        switch(e){
+            case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
+            case CLAN_REC_EXISTS -> throw new CommandError("command.recover.fail-exists-self");
+            case CLAN_TAG_EXISTS -> throw new CommandError("command.recover.fail-tag-taken-self");
+            case SUCCESS -> actor.sendMessageT("command.recover.success-self");
+            default -> LogContext.log(Level.WARN, "Unknown ClanManager return state {0}. Contact developer", e);
+        }
     }
 
     @Override

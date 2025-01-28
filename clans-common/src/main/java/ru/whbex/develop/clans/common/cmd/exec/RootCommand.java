@@ -37,7 +37,7 @@ public abstract class RootCommand<T> implements ActorProxy<T>, Command {
         try {
             cmds.get(c).execute(actor, command, label, args);
         } catch (CommandError e) {
-            actor.sendMessageT(e.getMessage(), e.getArgs());
+            actor.sendMessageT(e.getMessage() == null ? "meta.command.unknown-error" : e.getMessage(), e.getArgs());
         } catch (CommandUsageError e){
             // TODO: Implement args localization
             actor.sendMessageT("command." + cmds.get(c).name() + ".usage");

@@ -28,6 +28,7 @@
       <dependency>
         <groupId>ru.whbex.lib</groupId>
         <artifactId>wlib-collections</artifactId>
+        <scope>compile</scope>
       </dependency>
     </dependencies>
 

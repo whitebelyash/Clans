@@ -14,7 +14,6 @@ public abstract class ClansPluginCommand<T> extends RootCommand<T>{
         register(new LocaleInfoCommand());
         register(new LocaleTestCommand());
         register(new ActorListCommand());
-        register(new FlushCommand());
     }
 
     @Override

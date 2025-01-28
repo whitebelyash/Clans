@@ -40,15 +40,13 @@ public class ClanCreateCommand implements Command {
         String tag = args[1];
         String name = StringUtils.simpleformat(Constants.CLAN_NAME_FORMAT, tag);
         ClanManager.Error e = cm.createClan(tag, name, pa.getUniqueId());
-        if(e!=null){
-            switch(e){
-                case CLAN_TAG_EXISTS -> throw new CommandError("command.create-clan-exists");
-                case LEAD_HAS_CLAN -> throw new CommandError("command.create.leave-leader");
-                default -> LogContext.log(Level.WARN, "Unknown ClanManager error {0}. Contact developer", e);
-            }
-            return;
+        switch(e){
+            case CLAN_TAG_EXISTS -> throw new CommandError("command.create-clan-exists");
+            case LEAD_HAS_CLAN -> throw new CommandError("command.create.leave-leader");
+            case CLAN_SYNC_ERROR -> throw new CommandError(null); // null = meta.command.unknown-error. See RootCommand#execute
+            case SUCCESS -> actor.sendMessageT("command.create.success", tag);
+            default -> LogContext.log(Level.WARN, "Unknown ClanManager return status {0}. Contact developer", e);
         }
-        actor.sendMessageT("command.create.success", tag);
     }
 
     @Override

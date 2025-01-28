@@ -25,13 +25,12 @@ public class ClanDisbandCommand implements Command {
             // other
             // TODO: Add permission check
             ClanManager.Error e = ClansPlugin.Context.INSTANCE.plugin.getClanManager().disbandClan(args[1]);
-            if(e!=null)
-                switch (e){
-                    case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
-                    case CLAN_ALR_DISBAND -> throw new CommandError("command.disband.fail-deleted");
-                    default -> LogContext.log(Level.WARN, "Unknown ClanManager error {0}. Contact developer", e);
-                }
-            actor.sendMessageT("command.disband.success");
+            switch (e){
+                case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
+                case CLAN_ALR_DISBAND -> throw new CommandError("command.disband.fail-deleted");
+                case SUCCESS -> actor.sendMessageT("command.disband.success");
+                default -> LogContext.log(Level.WARN, "Unknown ClanManager return status {0}. Contact developer", e);
+            }
         }
 
     }

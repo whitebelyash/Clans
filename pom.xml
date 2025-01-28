@@ -130,6 +130,10 @@
             <artifactId>slf4j-api</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>ru.whbex.lib</groupId>
+            <artifactId>wlib-collections</artifactId>
+        </dependency>
     </dependencies>
     <modules>
         <module>clans-bukkit</module>
