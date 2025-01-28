@@ -16,8 +16,7 @@ public class ClanRecoverCommand implements Command {
             throw new CommandError("meta.command.player-required");
         if (!ClansPlugin.clanManager().isClanLeader(((PlayerActor) actor).getUniqueId()))
             throw new CommandError("meta.command.leadership-required");
-        ClanManager cm = ClansPlugin.clanManager();
-        ClanManager.Error e = cm.recoverClan(cm.getClan((PlayerActor) actor), args.length > 2 ? args[2] : null);
+        ClanManager.Error e = ClansPlugin.clanManager().recoverClan(ClansPlugin.clanManager().getClan((PlayerActor) actor), args.length > 2 ? args[2] : null);
         switch(e){
             case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
             case CLAN_REC_EXISTS -> throw new CommandError("command.recover.fail-exists-self");

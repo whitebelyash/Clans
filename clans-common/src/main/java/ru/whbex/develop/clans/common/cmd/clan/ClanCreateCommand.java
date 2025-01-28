@@ -14,7 +14,7 @@ import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.string.StringUtils;
 
 public class ClanCreateCommand implements Command {
-    private final ClanManager cm = ClansPlugin.Context.INSTANCE.plugin.getClanManager();
+    private final ClanManager cm = ClansPlugin.clanManager();
     @Override
     public void execute(CommandActor actor, Command command, String label, String... args) {
         if(args.length < 2)
@@ -28,7 +28,7 @@ public class ClanCreateCommand implements Command {
             if(!pa.hasData("cmd-create-sugcont")){
                 actor.sendMessageT("command.create.suggest-recovery", cm.getClan(pa).getMeta().getTag(), cm.getClan(pa).getMeta().getName());
                 pa.setData("cmd-create-sugcont", new Object());
-                ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runLater(() -> pa.removeData("cmd-create-sugcont"), 2500L);
+                ClansPlugin.TaskScheduler().runLater(() -> pa.removeData("cmd-create-sugcont"), 2500L);
                 return;
             }
             else {
