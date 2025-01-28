@@ -1,10 +1,6 @@
 package ru.whbex.develop.clans.common.task;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-
-/* Task scheduler */
+/* Wrapped task scheduler */
 public interface TaskScheduler {
     Task run(Runnable run);
     Task runAsync(Runnable run);
@@ -15,10 +11,6 @@ public interface TaskScheduler {
     // Later
     Task runLater(Runnable run, long delay);
     Task runLaterAsync(Runnable run, long delay);
-
-    // Will execute on database executorservice
-    <T> Future<T> runCallable(Callable<T> callable);
-    ExecutorService getDatabasePool();
     // Will implement others as needed
 
     void stopAll();

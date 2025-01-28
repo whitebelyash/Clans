@@ -15,7 +15,6 @@ public class MemberListCommand implements Command {
     private void executeSelf(PlayerActor a){
         if(!a.hasClan())
             throw new CommandError("meta.command.clan-needed");
-
     }
 
     @Override

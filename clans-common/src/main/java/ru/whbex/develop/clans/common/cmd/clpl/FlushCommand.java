@@ -13,17 +13,7 @@ import java.util.concurrent.TimeoutException;
 public class FlushCommand implements Command {
     @Override
     public void execute(CommandActor actor, Command command, String label, String... args) {
-        actor.sendMessageT("command.clpl.flush.start");
-        Future<Boolean> flush = ClansPlugin.Context.INSTANCE.plugin.getClanManager().exportAll();
-        // Await for task result
-        ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runAsync(() -> {
-            try {
-                boolean res = flush.get(Constants.TASK_WAIT_TIMEOUT, Constants.TASK_WAIT_TIMEOUT_UNIT);
-                actor.sendMessageT(res ? "command.clpl.flush.success" : "command.clpl.flush.fail");
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                actor.sendMessageT("command.clpl.flush.fail");
-            }
-        });
+        throw new RuntimeException("Remove");
     }
 
     @Override

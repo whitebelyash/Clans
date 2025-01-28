@@ -21,8 +21,6 @@ import ru.whbex.develop.clans.common.misc.DisabledPlugin;
 import ru.whbex.develop.clans.common.task.DatabaseService;
 import ru.whbex.develop.clans.common.task.TaskScheduler;
 import ru.whbex.develop.clans.common.clan.ClanManager;
-import ru.whbex.develop.clans.common.clan.bridge.Bridge;
-import ru.whbex.develop.clans.common.clan.bridge.NullBridge;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.lib.lang.LanguageFile;
@@ -43,7 +41,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     private Config config;
 
     private ClanManager clanManager;
-    private Bridge bridge;
     private PlayerManager playerManager;
     private TaskScheduler taskScheduler;
 
@@ -64,9 +61,12 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         this.taskScheduler = new TaskSchedulerBukkit();
 
         setupConfig();
-        setupLocales();
-
-
+        try {
+            setupLocales();
+        } catch (IOException e) {
+            LogContext.log(Level.ERROR, "Failed to initialize main language. See below stacktrace for more info");
+            e.printStackTrace();
+        }
         try {
             setupDatabase();
         } catch (InvocationTargetException e) {
@@ -82,11 +82,11 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     }
     @Override
     public void onEnable(){
-        databaseEnable();
         setupPM();
-        this.clanManager = new ClanManager(config, bridge);
+        this.clanManager = new ClanManager(config, false);
 
         LogContext.log(Level.INFO, "Registering commands");
+
         this.getCommand("clans").setExecutor(new TBD());
         this.getCommand("clan").setExecutor(new ClanCommandBukkit());
         this.getCommand("clansplugin").setExecutor(new ClansPluginCommandBukkit());
@@ -154,7 +154,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             throw new RuntimeException(e);
         }
     }
-    private void setupLocales(){
+    private void setupLocales() throws IOException {
         /* Language init */
         // TODO: Implement multilocale - using single locale for now
         LogContext.log(Level.INFO, "Loading locales...");
@@ -162,26 +162,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             this.saveResource(Constants.LANGUAGE_FILE_NAME, false);
         LanguageFile lf = new LanguageFile(new File(getDataFolder(), Constants.LANGUAGE_FILE_NAME));
         lang = new Language(lf);
-    }
-    private void databaseEnable(){
-        Debug.print("Creating ClanBridge...");
-        if(DatabaseService.isInitialized()) {
-            try {
-                bridge = config.getDatabaseBackend().bridge().getConstructor().newInstance();
-            } catch (InstantiationException | NoSuchMethodException | IllegalAccessException e) {
-                LogContext.log(Level.ERROR, "Failed to create database bridge, contact developer");
-                Debug.dbg_printStacktrace(e);
-            } catch (InvocationTargetException e) {
-                LogContext.log(Level.ERROR, "Failed to initialize database bridge");
-                Debug.dbg_printStacktrace(e);
-            }
-        }
-        if(bridge == null)
-        {
-            LogContext.log(Level.WARN, "!!! Database is not configured !!!");
-            LogContext.log(Level.WARN, "Consider fixing this, using NullBridge for now. No clans will be loaded and saved on storage");
-            bridge = new NullBridge();
-        }
     }
 
 
@@ -221,8 +201,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     @Override
     public void reloadLangFiles() throws Exception {
-        Debug.print("Locale reload not implemented");
-
+        lang.reloadPhrases();
     }
 
     @Override

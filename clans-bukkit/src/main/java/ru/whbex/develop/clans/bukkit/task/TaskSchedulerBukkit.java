@@ -12,22 +12,23 @@ import java.util.concurrent.*;
 
 public class TaskSchedulerBukkit implements TaskScheduler {
     private final ExecutorService db;
-    public TaskSchedulerBukkit(){
+
+    public TaskSchedulerBukkit() {
         db = Executors.newSingleThreadExecutor();
     }
+
     private final MainBukkit plugin = (MainBukkit) ClansPlugin.Context.INSTANCE.plugin;
+
     @Override
     public Task run(Runnable run) {
         return new TaskBukkit(Bukkit.getScheduler().runTask(plugin, run));
     }
 
 
-
     @Override
     public Task runAsync(Runnable run) {
         return new TaskBukkit(Bukkit.getScheduler().runTaskAsynchronously(plugin, run));
     }
-
 
 
     @Override
@@ -51,36 +52,11 @@ public class TaskSchedulerBukkit implements TaskScheduler {
         return new TaskBukkit(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, run, delay));
     }
 
-    @Override
-    public <T> Future<T> runCallable(Callable<T> callable) {
-        return db.submit(callable);
-    }
-
-    @Override
-    public ExecutorService getDatabasePool() {
-        return db;
-    }
-
 
     @Override
     public void stopAll() {
         LogContext.log(Level.INFO, "Cancelling all tasks...");
         Bukkit.getScheduler().cancelTasks(plugin);
-        LogContext.log(Level.INFO, "Closing database thread pool...");
-        if(!db.isShutdown())
-            db.shutdown();
-        if(!db.isTerminated()){
-            LogContext.log(Level.INFO, "Waiting for tasks to terminate...");
-            try {
-                if(!db.awaitTermination(5, TimeUnit.SECONDS)){
-                    LogContext.log(Level.INFO, "Timed out waiting for terminate, ignoring");
-                    db.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                LogContext.log(Level.ERROR, "Interrupted task shutdown wait timeout");
-            }
-        }
-
-
     }
 }
+

@@ -7,7 +7,7 @@ import ru.whbex.develop.clans.common.cmd.exec.Command;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 
 public class ClanListCommand implements Command {
-    private final ClanManager cm = ClansPlugin.Context.INSTANCE.plugin.getClanManager();
+    private final ClanManager cm = ClansPlugin.clanManager();
     @Override
     public void execute(CommandActor actor, Command command, String label, String... args) {
         if(cm.getAllClans().isEmpty()){
