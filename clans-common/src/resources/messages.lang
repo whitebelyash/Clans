@@ -83,10 +83,10 @@ command.clpl.reload.start=&7&oПерезагружаю конфигурацию.
 command.clpl.reload.complete=&aКонфигурация перезагружена!
 command.clpl.reload.fail=&cПроизошла ошибка во время перезагрузки конфигурации
 
-# flush
-command.clpl.flush.start=&7&oСохраняю кланы...
-command.clpl.flush.complete=&aКланы сохранены!
-command.clpl.flush.fail=&cПроизошла ошибка во время сохранения кланов
+# forcesync
+command.clpl.forcesync.start=&7&oПытаюсь сохранить кланы...
+command.clpl.forcesync.start=&7&o(Итог будет отображён в консоли сервера)
+
 
 
 # meta

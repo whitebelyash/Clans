@@ -9,7 +9,7 @@ import ru.whbex.develop.clans.common.event.EventSystem;
 import ru.whbex.develop.clans.common.misc.SQLUtils;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.task.DatabaseService;
-// import ru.whbex.develop.clans.common.task.Task;
+import ru.whbex.develop.clans.common.task.Task;
 import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.sql.SQLAdapter;
@@ -28,7 +28,7 @@ public class ClanManager {
     private final Map<String, Clan> tagClans = new HashMap<>();
     // Leader to clan map
     private final Map<UUID, Clan> leadClans = new HashMap<>();
-  //  private Task flushTask;
+    private Task syncTask;
 
     //
     // === Lifecycle ===
@@ -41,6 +41,7 @@ public class ClanManager {
         preloadClans();
         if (transientSession)
             notifyAboutTransient();
+        startSyncTask();
         Debug.print("Registering events...");
         EventSystem.CLAN_CREATE.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.create", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
         EventSystem.CLAN_DISBAND.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband", clan.getMeta().getTag(), clan.getMeta().getName()));
@@ -60,6 +61,8 @@ public class ClanManager {
 
     public void shutdown() {
         LogContext.log(Level.INFO, "ClanManager is shutting down...");
+        syncTask.cancel();
+        syncTask = null;
     }
 
     // =========================================================================
@@ -108,6 +111,7 @@ public class ClanManager {
         if (clan.isDeleted() || !clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
         clan.setDeleted(true);
+        clan.touch();
         tagClans.remove(clan.getMeta().getTag().toLowerCase());
         LogContext.log(Level.INFO, "Clan {0} was disbanded :(", clan.getMeta().getTag());
         return Error.SUCCESS;
@@ -172,6 +176,7 @@ public class ClanManager {
             }
         }
         clan.setDeleted(false);
+        clan.touch();
         tagClans.put(clan.getMeta().getTag(), clan);
         LogContext.log(Level.INFO, "Clan {0} was recovered! (from ashes, I suppose?)", clan.getMeta().getTag());
         return Error.SUCCESS;
@@ -277,7 +282,7 @@ public class ClanManager {
                             "tag varchar(16), " +
                             "name varchar(24), " +
                             "description varchar(255), " +
-                            "creationEpoch LONG, " + // TODO: fixxx
+                            "creationEpoch LONG, " +
                             "leader varchar(36), " +
                             "deleted TINYINT, " +
                             "level INT, " +
@@ -295,15 +300,42 @@ public class ClanManager {
                     .execute();
     }
 
-    /*
-    // TODO: Use as fallback
-    private void startFlushTask(){
-        long flushDelay = ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay();
-        if(ClansPlugin.Context.INSTANCE.plugin.getConfigWrapped().getClanFlushDelay() > 1 && !(bridge instanceof NullBridge))
-            this.flushTask = ClansPlugin.Context.INSTANCE.plugin.getTaskScheduler().runRepeating(() -> exportAll(this.bridge), flushDelay * 20, flushDelay * 20);
-        else flushTask = null;
+    private void startSyncTask(){
+        long flushDelay = ClansPlugin.config().getClanFlushDelay();
+        if(ClansPlugin.config().getClanFlushDelay() > 1 && !transientSession) {
+            Debug.print("Starting sync task");
+            // multiple delay by 20 because taskScheduler uses ticks, not seconds
+            // TODO: Change var names to sync too idk im lazy
+            this.syncTask = ClansPlugin.TaskScheduler().runRepeatingAsync(() -> {
+                SQLAdapter<Void>.Executor<Void> exec = DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
+                        .sql(SQLString.REPLACE_OR_INSERT_CLANS.current());
+                // WholesomeLib bug workaround. Will fix it there too
+                AtomicBoolean doUpdate = new AtomicBoolean(false);
+                clans.values().stream().filter(Clan::checkTouch).forEach(clan -> {
+                    exec.addPrepared(ps -> SQLUtils.clanToPrepStatement(ps, clan));
+                    doUpdate.set(true);
+                });
+                // Do not continue if there are no clans to update
+                if(!doUpdate.get())
+                    return;
+                exec.exceptionally(e -> {
+                            LogContext.log(Level.ERROR, "Failed to execute clan sync task, see below stacktrace for more info");
+                            e.printStackTrace();
+                        })
+                        .execute();
+            }, flushDelay * 20, flushDelay * 20);
+        }
+        else syncTask = null;
     }
-     */
+
+    /* Will block execution */
+    public void triggerSync(){
+        if(syncTask == null){
+            LogContext.log(Level.WARN, "Unable to trigger sync task because it's not created");
+            return;
+        }
+        syncTask.run();
+    }
 
     // =========================================================================
 

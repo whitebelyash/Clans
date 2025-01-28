@@ -22,6 +22,8 @@ public class Clan {
 
     // Prevent saving clan to database
     private boolean transient_ = false;
+    // Prevent updating clan in database if not changed
+    private boolean touched = false;
 
     public Clan(UUID clanId, ClanMeta meta, ClanLevelling levelling, boolean trans){
         this.clanId = Objects.requireNonNull(clanId, "clanId");
@@ -88,5 +90,11 @@ public class Clan {
 
     public void setTransient(boolean trans) {
         this.transient_ = trans;
+    }
+    void touch(){
+        touched = true;
+    }
+    boolean checkTouch(){
+        return touched;
     }
 }
