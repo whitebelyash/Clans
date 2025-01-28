@@ -1,7 +1,10 @@
 package ru.whbex.develop.clans.common.cmd.exec;
 
+import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.cmd.ActorProxy;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
+import ru.whbex.develop.clans.common.task.Task;
+import ru.whbex.lib.log.Debug;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,14 +37,19 @@ public abstract class RootCommand<T> implements ActorProxy<T>, Command {
             root(actor);
             return;
         }
-        try {
-            cmds.get(c).execute(actor, command, label, args);
-        } catch (CommandError e) {
-            actor.sendMessageT(e.getMessage() == null ? "meta.command.unknown-error" : e.getMessage(), e.getArgs());
-        } catch (CommandUsageError e){
-            // TODO: Implement args localization
-            actor.sendMessageT("command." + cmds.get(c).name() + ".usage");
-        }
+        Runnable cr = () -> {
+            try {
+                cmds.get(c).execute(actor, command, label, args);
+            } catch (CommandError e) {
+                actor.sendMessageT(e.getMessage() == null ? "meta.command.unknown-error" : e.getMessage(), e.getArgs());
+            } catch (CommandUsageError e){
+                // TODO: Implement args localization
+                actor.sendMessageT("command." + cmds.get(c).name() + ".usage");
+            }
+            Debug.print("Command {0} complete", c);
+        };
+        Task task = command.isAsync() ? ClansPlugin.TaskScheduler().runAsync(cr) : ClansPlugin.TaskScheduler().run(cr);
+        Debug.print("Command {0} started with taskid {1} (async: {2})", c, task.id(), !task.sync());
     }
 
 
