@@ -21,35 +21,35 @@ public class TaskSchedulerBukkit implements TaskScheduler {
 
     @Override
     public Task run(Runnable run) {
-        return new TaskBukkit(Bukkit.getScheduler().runTask(plugin, run));
+        return new TaskBukkit(Bukkit.getScheduler().runTask(plugin, run), run);
     }
 
 
     @Override
     public Task runAsync(Runnable run) {
-        return new TaskBukkit(Bukkit.getScheduler().runTaskAsynchronously(plugin, run));
+        return new TaskBukkit(Bukkit.getScheduler().runTaskAsynchronously(plugin, run), run);
     }
 
 
     @Override
     public Task runRepeating(Runnable run, long delay, long rate) {
-        return new TaskBukkit(Bukkit.getScheduler().runTaskTimer(plugin, run, delay, rate));
+        return new TaskBukkit(Bukkit.getScheduler().runTaskTimer(plugin, run, delay, rate), run);
     }
 
 
     @Override
     public Task runRepeatingAsync(Runnable run, long delay, long rate) {
-        return new TaskBukkit(Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, run, delay, rate));
+        return new TaskBukkit(Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, run, delay, rate), run);
     }
 
     @Override
     public Task runLater(Runnable run, long delay) {
-        return new TaskBukkit(Bukkit.getScheduler().runTaskLater(plugin, run, delay));
+        return new TaskBukkit(Bukkit.getScheduler().runTaskLater(plugin, run, delay), run);
     }
 
     @Override
     public Task runLaterAsync(Runnable run, long delay) {
-        return new TaskBukkit(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, run, delay));
+        return new TaskBukkit(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, run, delay), run);
     }
 
 
