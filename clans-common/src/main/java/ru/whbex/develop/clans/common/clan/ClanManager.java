@@ -174,7 +174,7 @@ public class ClanManager {
         clan.setDeleted(false);
         tagClans.put(clan.getMeta().getTag(), clan);
         LogContext.log(Level.INFO, "Clan {0} was recovered! (from ashes, I suppose?)", clan.getMeta().getTag());
-        return null;
+        return Error.SUCCESS;
     }
 
     // =========================================================================
