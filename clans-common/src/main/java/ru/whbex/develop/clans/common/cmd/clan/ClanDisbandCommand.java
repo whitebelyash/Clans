@@ -24,7 +24,7 @@ public class ClanDisbandCommand implements Command {
         } else {
             // other
             // TODO: Add permission check
-            ClanManager.Error e = ClansPlugin.Context.INSTANCE.plugin.getClanManager().disbandClan(args[1]);
+            ClanManager.Error e = ClansPlugin.clanManager().disbandClan(args[1]);
             switch (e){
                 case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
                 case CLAN_ALR_DISBAND -> throw new CommandError("command.disband.fail-deleted");
@@ -41,16 +41,13 @@ public class ClanDisbandCommand implements Command {
         if(!ClansPlugin.clanManager().isClanLeader(pa.getUniqueId()))
             throw new CommandError("meta.command.leadership-required");
         ClanManager.Error e = ClansPlugin.clanManager().disbandClan(ClansPlugin.clanManager().getClan(pa));
-        if(e != null){
-            switch(e){
-                case CLAN_NOT_FOUND -> throw new CommandError("meta.command.leadership-needed");
-                case CLAN_ALR_DISBAND -> throw new CommandError("command.disband.fail-deleted-self");
-                default -> LogContext.log(Level.WARN, "Unknown ClanManager error {0}. Contact developer", e);
-            }
+        switch(e){
+            case CLAN_NOT_FOUND -> throw new CommandError("meta.command.leadership-required");
+            case CLAN_ALR_DISBAND -> throw new CommandError("command.disband.fail-deleted-self");
+            case SUCCESS -> ((CommandActor) pa).sendMessageT("command.disband.success-self"); // TODO: Fix this after adding components
+            default -> LogContext.log(Level.WARN, "Unknown ClanManager error {0}. Contact developer", e);
         }
 
-        // TODO: Fix this after adding components
-        ((CommandActor) pa).sendMessageT("command.disband.success-self");
     }
 
     @Override
