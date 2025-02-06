@@ -84,7 +84,7 @@ public class ClanManager {
     // === Clan management (some methods here are not asynchronous, do not call them on main thread!!!) ===
     //
 
-    public synchronized Error createClan(String tag, String name, UUID leader) {
+    public Error createClan(String tag, String name, UUID leader) {
         // Do not create clan if tag is already taken
         if (tagClans.containsKey(tag))
             return Error.CLAN_TAG_EXISTS;
@@ -136,7 +136,7 @@ public class ClanManager {
         return disbandClan(tagClans.get(tag));
     }
 
-    public synchronized Error removeClan(Clan clan) {
+    public Error removeClan(Clan clan) {
         if (!clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
 
