@@ -47,12 +47,7 @@ public class ClanManager {
             preloadClans();
             startSyncTask();
         }
-        Debug.print("Registering events...");
-        EventSystem.CLAN_CREATE.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.create", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
-        EventSystem.CLAN_DISBAND.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband", clan.getMeta().getTag(), clan.getMeta().getName()));
-        EventSystem.CLAN_DISBAND_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband-admin", clan.getMeta().getTag(), clan.getMeta().getName()));
-        EventSystem.CLAN_RECOVER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
-        EventSystem.CLAN_RECOVER_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
+        registerEvents();
         Debug.print("ClanManager init complete!");
     }
 
@@ -63,11 +58,24 @@ public class ClanManager {
         LogContext.log(Level.WARN, "3) Error occurred while preloading clans/creating clans table");
         LogContext.log(Level.WARN, "Note: All clan changes will stay in the memory for this session. Database access is blocked");
     }
+    private void registerEvents(){
+        Debug.print("Registering events...");
+        EventSystem.CLAN_CREATE.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.create", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
+        EventSystem.CLAN_DISBAND.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband", clan.getMeta().getTag(), clan.getMeta().getName()));
+        EventSystem.CLAN_DISBAND_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband-admin", clan.getMeta().getTag(), clan.getMeta().getName()));
+        EventSystem.CLAN_RECOVER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
+        EventSystem.CLAN_RECOVER_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
+    }
 
     public void shutdown() {
         LogContext.log(Level.INFO, "ClanManager is shutting down...");
         syncTask.cancel();
         syncTask = null;
+        // As we're now doing immediate sync, all clans should be flushed to disk already at this point
+        // if not - skill issue. Cleaning maps anyway
+        clans.clear();
+        tagClans.clear();
+        leadClans.clear();
     }
 
     // =========================================================================
