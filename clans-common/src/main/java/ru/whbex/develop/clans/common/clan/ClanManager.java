@@ -21,7 +21,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 // simple clan manager
 public class ClanManager {
     // Allows skipping clan flushing to the database
-    private boolean transientSession = false;
+    // TODO: Disable when database syncing will be completed
+    private boolean transientSession = true;
     // Main clan map
     private final Map<UUID, Clan> clans = new HashMap<>();
     // Tag to clan map
