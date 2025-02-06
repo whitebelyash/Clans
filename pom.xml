@@ -134,6 +134,10 @@
             <groupId>ru.whbex.lib</groupId>
             <artifactId>wlib-collections</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ru.whbex.lib</groupId>
+            <artifactId>wlib-collections</artifactId>
+        </dependency>
     </dependencies>
     <modules>
         <module>clans-bukkit</module>

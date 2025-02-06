@@ -25,6 +25,7 @@ public abstract class RootCommand<T> implements ActorProxy<T>, Command {
         cmdList.add(command.name());
     }
     protected abstract void root(CommandActor a);
+    protected String rootName = name();
 
     @Override
     public void execute(CommandActor actor, Command command, String label, String... args) {

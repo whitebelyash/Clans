@@ -10,5 +10,4 @@ public interface CommandActor {
     boolean isPlayer();
     String getName();
     UUID getUniqueId();
-
 }
