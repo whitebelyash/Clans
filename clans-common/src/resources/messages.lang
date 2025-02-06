@@ -23,9 +23,9 @@ rank.leader=&cГлава
 # list
 command.list.header= &8=== &cСписок кланов сервера &8===
 command.list.no-clans=&7&oКланов пока нет..
-command.list.entry=&8> &b{0} &f{1}, Лидер - &e{0}
-command.list.entry-self=&8> &b{0} &f{1}, Лидер - &e{0}
-command.list.entry-deleted=&m&8> &b{0} &f{1}, Лидер - &e{0}
+command.list.entry=&8> &b{0} &f{1}, Лидер - &e{2}
+command.list.entry-self=&8> &b{0} &f{1}, Лидер - &e{2}
+command.list.entry-deleted=&m&8> &b{0} &f{1}, Лидер - &e{2}
 # seen/look
 command.seen.header=&8=== &cИнформация об игроке &c{0} &8===
 command.seen.line.uuid=&8> &aUUID: &b{0}
