@@ -9,6 +9,7 @@ import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.exec.CommandError;
 import ru.whbex.develop.clans.common.cmd.exec.CommandUsageError;
 import ru.whbex.develop.clans.common.event.EventSystem;
+import ru.whbex.develop.clans.common.misc.MiscUtils;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.string.StringUtils;
@@ -38,10 +39,14 @@ public class ClanCreateCommand implements Command {
             }
         }
         String tag = args[1];
-        String name = StringUtils.simpleformat(Constants.CLAN_NAME_FORMAT, tag);
+        if(!MiscUtils.validateClanTag(tag))
+            throw new CommandError("meta.clan-check.invalid-tag");
+        String name = args.length < 3 ? StringUtils.simpleformat(Constants.CLAN_NAME_FORMAT, tag) : args[2];
+        if(!MiscUtils.validateClanName(name))
+            throw new CommandError("meta.clan-check.invalid-name");
         ClanManager.Error e = cm.createClan(tag, name, pa.getUniqueId());
         switch(e){
-            case CLAN_TAG_EXISTS -> throw new CommandError("command.create-clan-exists");
+            case CLAN_TAG_EXISTS -> throw new CommandError("command.create.clan-exists");
             case LEAD_HAS_CLAN -> throw new CommandError("command.create.leave-leader");
             case CLAN_SYNC_ERROR -> throw new CommandError(null); // null = meta.command.unknown-error. See RootCommand#execute
             case SUCCESS -> actor.sendMessageT("command.create.success", tag);
