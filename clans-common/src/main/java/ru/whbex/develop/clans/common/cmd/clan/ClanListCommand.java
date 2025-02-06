@@ -28,7 +28,6 @@ public class ClanListCommand implements Command {
 
         actor.sendMessageT("command.list.header");
         PagedListView<Clan> pviewer = new PagedListView<>(new ArrayList<>(ClansPlugin.clanManager().getClans()));
-        Debug.print("pageview: {0}", pviewer.page(p).size());
         pviewer.page(p > pviewer.pageAmount() ? 1 : p).forEach(clan -> {
             String entry_t;
             if(actor instanceof PlayerActor && clan.isMember((PlayerActor) actor))
