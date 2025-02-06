@@ -69,8 +69,10 @@ public class ClanManager {
 
     public void shutdown() {
         LogContext.log(Level.INFO, "ClanManager is shutting down...");
-        syncTask.cancel();
-        syncTask = null;
+        if(!transientSession){
+            syncTask.cancel();
+            syncTask = null;
+        }
         // As we're now doing immediate sync, all clans should be flushed to disk already at this point
         // if not - skill issue. Cleaning maps anyway
         clans.clear();
