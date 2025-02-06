@@ -57,11 +57,11 @@ public class ClanManager {
     }
 
     private void notifyAboutTransient() {
-        LogContext.log(Level.WARN, "Note: ClanManager transient session is enabled. Possible causes:");
-        LogContext.log(Level.WARN, "1) DatabaseService is not configured");
-        LogContext.log(Level.WARN, "2) Exception was thrown while creating clan table/fetching clans");
-        LogContext.log(Level.WARN, "3) User requested transient session");
-        LogContext.log(Level.WARN, "Note: All clan changes will stay in the memory for this session");
+        LogContext.log(Level.WARN, "Note: Clan Manager transient session is active. Possible causes:");
+        LogContext.log(Level.WARN, "1) User requested transient session");
+        LogContext.log(Level.WARN, "2) Database is not configured or connection has failed");
+        LogContext.log(Level.WARN, "3) Error occurred while preloading clans/creating clans table");
+        LogContext.log(Level.WARN, "Note: All clan changes will stay in the memory for this session. Database access is blocked");
     }
 
     public void shutdown() {
