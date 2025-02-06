@@ -19,11 +19,11 @@ public class ClanDeleteCommand implements Command {
         UUID cid;
         if((cid = StringUtils.UUIDFromString(cid_s)) == null)
             throw new CommandUsageError();
-
         if(!actor.hasData("cmd-delete-confirm")){
             actor.sendMessageT("command.delete.warn");
             actor.setData("cmd-delete-confirm", cid);
             ClansPlugin.TaskScheduler().runLater(() -> actor.removeData("cmd-delete-confirm"), 2500L);
+            return;
         } else {
             UUID f = (UUID) actor.getData("cmd-delete-confirm");
             if(!f.equals(cid)) {
