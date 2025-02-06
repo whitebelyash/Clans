@@ -15,9 +15,4 @@ public class ForceSyncCommand implements Command {
     public String name() {
         return "forcesync";
     }
-
-    @Override
-    public boolean isAsync() {
-        return true;
-    }
 }
