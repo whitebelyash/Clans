@@ -48,12 +48,9 @@ public class ClanCreateCommand implements Command {
             default -> LogContext.log(Level.WARN, "Unknown ClanManager return status {0}. Contact developer", e);
         }
     }
+
     @Override
     public String name() {
         return "create";
-    }
-    @Override
-    public boolean isAsync(){
-        return true;
     }
 }
