@@ -15,14 +15,18 @@ public class ClanDeleteCommand implements Command {
     public void execute(CommandActor actor, Command command, String label, String... args) {
         if(args.length < 2)
             throw new CommandUsageError();
+        String cid_s = args[1];
+        UUID cid;
+        if((cid = StringUtils.UUIDFromString(cid_s)) == null)
+            throw new CommandUsageError();
 
         if(!actor.hasData("cmd-delete-confirm")){
             actor.sendMessageT("command.delete.warn");
-            actor.setData("cmd-delete-confirm", args[1]);
+            actor.setData("cmd-delete-confirm", cid);
             ClansPlugin.TaskScheduler().runLater(() -> actor.removeData("cmd-delete-confirm"), 2500L);
         } else {
-            String f = (String) actor.getData("cmd-delete-confirm");
-            if(!f.equals(args[1])) {
+            UUID f = (UUID) actor.getData("cmd-delete-confirm");
+            if(!f.equals(cid)) {
                 actor.sendMessageT("command.delete.cancelled");
                 actor.removeData("cmd-delete-confirm");
                 return;
@@ -30,10 +34,7 @@ public class ClanDeleteCommand implements Command {
             actor.removeData("cmd-delete-confirm");
         }
 
-        String cid_s = args[1];
-        UUID cid;
-        if((cid = StringUtils.UUIDFromString(cid_s)) == null)
-            throw new CommandUsageError();
+
         String tag = ClansPlugin.clanManager().getClan(cid).getMeta().getTag();
         ClanManager.Error e = ClansPlugin.clanManager().removeClan(cid);
         switch(e){
