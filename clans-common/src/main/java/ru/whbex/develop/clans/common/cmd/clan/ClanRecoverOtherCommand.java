@@ -7,6 +7,7 @@ import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.exec.Command;
 import ru.whbex.develop.clans.common.cmd.exec.CommandError;
 import ru.whbex.develop.clans.common.cmd.exec.CommandUsageError;
+import ru.whbex.develop.clans.common.misc.MiscUtils;
 import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.string.StringUtils;
 
@@ -25,7 +26,10 @@ public class ClanRecoverOtherCommand implements Command {
             throw new CommandUsageError();
         if(!cm.clanExists(id))
             throw new CommandError("meta.command.unknown-clan");
-        ClanManager.Error e = cm.recoverClan(cm.getClan(id), args.length < 3 ? null : args[2]);
+        String tag = args.length < 3 ? null : args[2];
+        if(tag != null && MiscUtils.validateClanTag(tag))
+            throw new CommandError("meta.clan-check.invalid-tag");
+        ClanManager.Error e = cm.recoverClan(cm.getClan(id), tag);
         switch(e){
             case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
             case CLAN_REC_EXISTS -> throw new CommandError("command.recover.fail-exists");

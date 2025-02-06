@@ -6,6 +6,7 @@ import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.exec.Command;
 import ru.whbex.develop.clans.common.cmd.exec.CommandError;
+import ru.whbex.develop.clans.common.misc.MiscUtils;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.lib.log.LogContext;
 
@@ -16,7 +17,10 @@ public class ClanRecoverCommand implements Command {
             throw new CommandError("meta.command.player-required");
         if (!ClansPlugin.clanManager().isClanLeader(((PlayerActor) actor).getUniqueId()))
             throw new CommandError("meta.command.leadership-required");
-        ClanManager.Error e = ClansPlugin.clanManager().recoverClan(ClansPlugin.clanManager().getClan((PlayerActor) actor), args.length > 2 ? args[2] : null);
+        String tag = args.length > 2 ? args[2] : null;
+        if(tag != null && MiscUtils.validateClanTag(tag))
+            throw new CommandError("meta.clan-check.invalid-tag");
+        ClanManager.Error e = ClansPlugin.clanManager().recoverClan(ClansPlugin.clanManager().getClan((PlayerActor) actor), tag);
         switch(e){
             case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
             case CLAN_REC_EXISTS -> throw new CommandError("command.recover.fail-exists-self");
