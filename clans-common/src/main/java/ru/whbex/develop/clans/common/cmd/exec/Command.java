@@ -14,7 +14,4 @@ public interface Command {
     default boolean isRoot(){
         return false;
     }
-    default boolean isAsync(){
-        return false;
-    }
 }
