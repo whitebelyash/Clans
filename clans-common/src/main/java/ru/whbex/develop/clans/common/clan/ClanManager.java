@@ -3,7 +3,6 @@ package ru.whbex.develop.clans.common.clan;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 
-import ru.whbex.develop.clans.common.clan.sql.SQLString;
 import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.event.EventSystem;
 import ru.whbex.develop.clans.common.misc.SQLUtils;
@@ -89,7 +88,7 @@ public class ClanManager {
             // TODO: Find another way to check for exception status
             AtomicBoolean status = new AtomicBoolean(false);
             DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
-                    .sql(SQLString.REPLACE_OR_INSERT_CLANS.current())
+                    .sql("INSERT INTO clans VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
                     .exceptionally(e -> {
                         LogContext.log(Level.ERROR, "Failed to sync created clan with database!");
                         status.set(true);
@@ -308,7 +307,9 @@ public class ClanManager {
             // multiple delay by 20 because taskScheduler uses ticks, not seconds
             // TODO: Change var names to sync too idk im lazy
             this.syncTask = ClansPlugin.TaskScheduler().runRepeatingAsync(() -> {
-                SQLAdapter<Void>.Executor<Void> exec = DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
+                throw new RuntimeException("Not implemented");
+                // TODO: Switch to UPDATE statement instead of merge/replace
+                /* SQLAdapter<Void>.Executor<Void> exec = DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
                         .sql(SQLString.REPLACE_OR_INSERT_CLANS.current());
                 // WholesomeLib bug workaround. Will fix it there too
                 AtomicBoolean doUpdate = new AtomicBoolean(false);
@@ -324,6 +325,7 @@ public class ClanManager {
                             e.printStackTrace();
                         })
                         .execute();
+                 */
             }, flushDelay * 20, flushDelay * 20);
         }
         else syncTask = null;
