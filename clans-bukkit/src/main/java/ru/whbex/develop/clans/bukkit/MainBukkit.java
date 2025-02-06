@@ -82,7 +82,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     @Override
     public void onEnable(){
         setupPM();
-        this.clanManager = new ClanManager(config, false);
+        this.clanManager = new ClanManager(config);
 
         LogContext.log(Level.INFO, "Registering commands");
 

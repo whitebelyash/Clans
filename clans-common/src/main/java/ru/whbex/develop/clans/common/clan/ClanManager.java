@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 // simple clan manager
 public class ClanManager {
-    // Allows skipping clan flushing to the database
+    // Blocks database usage
     // TODO: Disable when database syncing will be completed
     private boolean transientSession = true;
     // Main clan map
@@ -34,14 +34,19 @@ public class ClanManager {
     // === Lifecycle ===
     //
 
-    public ClanManager(Config config, boolean transientSession) {
-        this.transientSession = transientSession;
+    public ClanManager(Config config) {
         Debug.print("init clanmanager");
-        createClanTable();
-        preloadClans();
+        if(!DatabaseService.isInitialized()){
+            Debug.print("DatabaseService was not configured, going transient");
+            transientSession = true;
+        }
         if (transientSession)
             notifyAboutTransient();
-        startSyncTask();
+        else {
+            createClanTable();
+            preloadClans();
+            startSyncTask();
+        }
         Debug.print("Registering events...");
         EventSystem.CLAN_CREATE.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.create", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
         EventSystem.CLAN_DISBAND.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband", clan.getMeta().getTag(), clan.getMeta().getName()));
@@ -244,65 +249,62 @@ public class ClanManager {
     // TODO: Only load cached data instead of all clans
     // will be pretty hard to implement, i think
     private void preloadClans() {
-        if (!transientSession) {
-            DatabaseService.getExecutor(SQLAdapter::preparedQuery)
-                    .sql("SELECT * FROM clans;")
-                    .exceptionally(e -> {
-                        LogContext.log(Level.ERROR, "Exception was thrown while preloading clans from the database. See below stacktrace for more info");
-                        e.printStackTrace();
-                        transientSession = true;
-                    })
-                    .setVerbose(true)
-                    .queryCallback(resp -> {
-                        ResultSet r = resp.resultSet();
-                        if (r.next())
-                            do {
-                                Clan c = SQLUtils.clanFromQuery(r);
-                                if (c == null) {
-                                    LogContext.log(Level.ERROR, "Failed to preload clan");
-                                    continue;
-                                }
-                                clans.put(c.getId(), c);
-                                if (!c.isDeleted())
-                                    tagClans.put(c.getMeta().getTag(), c);
-                                leadClans.put(c.getMeta().getLeader(), c);
-                                Debug.print("Loaded clan {0}/{1}", c.getId(), c.getMeta().getTag());
-                            } while (r.next());
-                        return null;
-                    })
-                    .execute();
-        }
+        DatabaseService.getExecutor(SQLAdapter::preparedQuery)
+                .sql("SELECT * FROM clans;")
+                .exceptionally(e -> {
+                    LogContext.log(Level.ERROR, "Exception was thrown while preloading clans from the database. See below stacktrace for more info");
+                    e.printStackTrace();
+                    transientSession = true;
+                })
+                .setVerbose(true)
+                .queryCallback(resp -> {
+                    ResultSet r = resp.resultSet();
+                    if (r.next())
+                        do {
+                            Clan c = SQLUtils.clanFromQuery(r);
+                            if (c == null) {
+                                LogContext.log(Level.ERROR, "Failed to preload clan");
+                                continue;
+                            }
+                            clans.put(c.getId(), c);
+                            if (!c.isDeleted())
+                                tagClans.put(c.getMeta().getTag(), c);
+                            leadClans.put(c.getMeta().getLeader(), c);
+                            Debug.print("Loaded clan {0}/{1}", c.getId(), c.getMeta().getTag());
+                        } while (r.next());
+                    return null;
+                })
+                .execute();
     }
 
     private void createClanTable() {
-        if (DatabaseService.isInitialized())
-            DatabaseService.getExecutor(SQLAdapter::update)
-                    .sql("CREATE TABLE IF NOT EXISTS clans (" +
-                            "id varchar(36) NOT NULL UNIQUE PRIMARY KEY, " +
-                            "tag varchar(16), " +
-                            "name varchar(24), " +
-                            "description varchar(255), " +
-                            "creationEpoch LONG, " +
-                            "leader varchar(36), " +
-                            "deleted TINYINT, " +
-                            "level INT, " +
-                            "exp INT, " +
-                            "defaultRank INT);")
-                    .exceptionally(e -> {
-                        LogContext.log(Level.ERROR, "Unable to create clans table in the database. See below stacktrace for more info");
-                        e.printStackTrace();
-                        transientSession = true;
-                    })
-                    .updateCallback(resp -> {
-                        Debug.print("Created table, updated rows -> {0}", resp.updateResult());
-                        return null;
-                    })
-                    .execute();
+        DatabaseService.getExecutor(SQLAdapter::update)
+                .sql("CREATE TABLE IF NOT EXISTS clans (" +
+                        "id varchar(36) NOT NULL UNIQUE PRIMARY KEY, " +
+                        "tag varchar(16), " +
+                        "name varchar(24), " +
+                        "description varchar(255), " +
+                        "creationEpoch LONG, " +
+                        "leader varchar(36), " +
+                        "deleted TINYINT, " +
+                        "level INT, " +
+                        "exp INT, " +
+                        "defaultRank INT);")
+                .exceptionally(e -> {
+                    LogContext.log(Level.ERROR, "Unable to create clans table in the database. See below stacktrace for more info");
+                    e.printStackTrace();
+                    transientSession = true;
+                })
+                .updateCallback(resp -> {
+                    Debug.print("Created table, updated rows -> {0}", resp.updateResult());
+                    return null;
+                })
+                .execute();
     }
 
     private void startSyncTask(){
         long flushDelay = ClansPlugin.config().getClanFlushDelay();
-        if(ClansPlugin.config().getClanFlushDelay() > 1 && !transientSession) {
+        if(ClansPlugin.config().getClanFlushDelay() > 1) {
             Debug.print("Starting sync task");
             // multiple delay by 20 because taskScheduler uses ticks, not seconds
             // TODO: Change var names to sync too idk im lazy
