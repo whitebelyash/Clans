@@ -107,6 +107,11 @@ meta.command.unknown-player=&cИгрок не найден
 meta.command.unknown-clan=&cКлан не найден
 meta.clan-check.invalid-tag=&cТег клана может содержать только символы латинского алфавита и должен быть не короче 3 и не длиннее 9 букв
 meta.clan-check.invalid-name=&cНазвание клана может содержать только символы латинского алфавита, кириллицы и пробел и должно быть не длиннее 16 символов и не короче 3
+# wip, see TagFormatter
+meta.tag.ui-format=[{0}]
+meta.tag.chat-format=%rc%%
+# every char here should be mapped to 0123456789
+meta.tag.stylized-level='⁰¹²³⁴⁵⁶⁷⁸⁹'
 
 # Navigation panel (paginator)
 meta.tui.navpane=Страница {0}/{1}. Введите {2} для посмотра следующей страницы
