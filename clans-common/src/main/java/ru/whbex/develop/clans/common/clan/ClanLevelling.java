@@ -48,7 +48,7 @@ public class ClanLevelling {
 
     // recalculate level based on experience. Returns true if level was updated
     public boolean recalcLevel(){
-        int expNext = Constants.NEXT_LEVEL_REQ + level * Constants.NEXT_LEVEL_STEP;
+        int expNext = nextExp();
         Debug.print("toNextExp: " + expNext);
         if(expNext <= experience){
             Debug.print("detected lvlup!!");
@@ -58,8 +58,9 @@ public class ClanLevelling {
             return recalcLevel();
         }
         return false;
-
-
+    }
+    public int nextExp(){
+        return Constants.NEXT_LEVEL_REQ + level * Constants.NEXT_LEVEL_STEP;
     }
 
 
