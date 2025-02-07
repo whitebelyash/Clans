@@ -1,9 +1,12 @@
 package ru.whbex.develop.clans.common.clan;
 
 
+import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
+import ru.whbex.develop.clans.common.misc.Messenger;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.lib.log.Debug;
+import ru.whbex.lib.string.StringUtils;
 
 import java.util.HashSet;
 import java.util.Objects;
@@ -11,7 +14,7 @@ import java.util.Set;
 import java.util.UUID;
 
 // Clan class
-public class Clan {
+public class Clan implements Messenger {
     private final UUID clanId;
     private final ClanMeta meta;
     private final ClanLevelling levelling;
@@ -96,5 +99,28 @@ public class Clan {
     }
     boolean checkTouch(){
         return touched;
+    }
+
+    @Override
+    public void sendMessage(String string) {
+        members.forEach(m -> ClansPlugin.playerManager().getPlayerActor(m).sendMessage(string));
+    }
+
+    @Override
+    public void sendMessage(String format, Object... args) {
+        String to = StringUtils.simpleformat(format, args);
+        members.forEach(m -> ClansPlugin.playerManager().getPlayerActor(m).sendMessage(to));
+    }
+
+    @Override
+    public void sendMessageT(String translatableString) {
+        String to = ClansPlugin.mainLanguage().getPhrase(translatableString);
+        members.forEach(m -> ClansPlugin.playerManager().getPlayerActor(m).sendMessage(to));
+    }
+
+    @Override
+    public void sendMessageT(String translatableFormat, Object... args) {
+        String to = StringUtils.simpleformat(ClansPlugin.mainLanguage().getPhrase(translatableFormat), args);
+        members.forEach(m -> ClansPlugin.playerManager().getPlayerActor(m).sendMessage(to));
     }
 }
