@@ -28,4 +28,5 @@ public class EventSystem {
     public static final ClanEvent CLAN_TRANSFER_LEAD = new ClanEvent();
     public static final ClanEvent CLAN_JOIN = new ClanEvent();
     public static final ClanEvent CLAN_LEAVE = new ClanEvent();
+    public static final ClanEvent CLAN_LVLUP = new ClanEvent();
 }
