@@ -11,12 +11,12 @@ plugin.description=Клановая система, вдохновлённая �
 
 
 
-# ranks
-rank.novice=&7Новичок
-rank.member=&fУчастник
-rank.recruiter=&bВербовщик
-rank.deputy=&6Зам. Главы
-rank.leader=&cГлава
+# ranks (see color in ClanRank)
+rank.novice=Новичок
+rank.member=Участник
+rank.recruiter=Вербовщик
+rank.deputy=Зам. Главы
+rank.leader=Глава
 
 # === commands ===
 
