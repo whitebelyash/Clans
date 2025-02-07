@@ -48,6 +48,9 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     private Language lang;
 
+    // TODO: disable in prod/release
+    private static final boolean REPLACE_LOCALES = true;
+
 
     @Override
     public void onLoad(){
@@ -157,7 +160,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         // TODO: Implement multilocale - using single locale for now
         LogContext.log(Level.INFO, "Loading locales...");
         if(!(new File(getDataFolder(), Constants.LANGUAGE_FILE_NAME)).exists())
-            this.saveResource(Constants.LANGUAGE_FILE_NAME, false);
+            this.saveResource(Constants.LANGUAGE_FILE_NAME, REPLACE_LOCALES);
         this.lang = new Language(new LanguageFile(new File(getDataFolder(), Constants.LANGUAGE_FILE_NAME)));
         this.lang.load();
         // Autoconvert & to §
