@@ -162,10 +162,10 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         if(!(new File(getDataFolder(), Constants.LANGUAGE_FILE_NAME)).exists())
             this.saveResource(Constants.LANGUAGE_FILE_NAME, REPLACE_LOCALES);
         this.lang = new Language(new LanguageFile(new File(getDataFolder(), Constants.LANGUAGE_FILE_NAME)));
-        this.lang.load();
         // Autoconvert & to §
         // TODO: add escape support
-        this.lang.setPhraseMapper(s -> s.replace('&', '§'));
+        this.lang.setPhraseMapper(s -> s.replaceAll("&", "§"));
+        this.lang.load();
     }
 
 
