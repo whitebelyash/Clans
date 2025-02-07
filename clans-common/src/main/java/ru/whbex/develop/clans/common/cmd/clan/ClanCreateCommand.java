@@ -8,7 +8,6 @@ import ru.whbex.develop.clans.common.cmd.exec.Command;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.exec.CommandError;
 import ru.whbex.develop.clans.common.cmd.exec.CommandUsageError;
-import ru.whbex.develop.clans.common.event.EventSystem;
 import ru.whbex.develop.clans.common.misc.MiscUtils;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.lib.log.LogContext;
@@ -29,7 +28,7 @@ public class ClanCreateCommand implements Command {
             if(!pa.hasData("cmd-create-sugcont")){
                 actor.sendMessageT("command.create.suggest-recovery", cm.getClan(pa).getMeta().getTag(), cm.getClan(pa).getMeta().getName());
                 pa.setData("cmd-create-sugcont", new Object());
-                ClansPlugin.TaskScheduler().runLater(() -> pa.removeData("cmd-create-sugcont"), 2500L);
+                ClansPlugin.taskScheduler().runLater(() -> pa.removeData("cmd-create-sugcont"), 2500L);
                 return;
             }
             else {

@@ -22,7 +22,7 @@ public class ClanDeleteCommand implements Command {
         if(!actor.hasData("cmd-delete-confirm")){
             actor.sendMessageT("command.delete.warn");
             actor.setData("cmd-delete-confirm", cid);
-            ClansPlugin.TaskScheduler().runLater(() -> actor.removeData("cmd-delete-confirm"), 2500L);
+            ClansPlugin.taskScheduler().runLater(() -> actor.removeData("cmd-delete-confirm"), 2500L);
             return;
         } else {
             UUID f = (UUID) actor.getData("cmd-delete-confirm");

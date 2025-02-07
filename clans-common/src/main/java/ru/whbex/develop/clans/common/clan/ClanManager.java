@@ -320,7 +320,7 @@ public class ClanManager {
             Debug.print("Starting sync task");
             // multiple delay by 20 because taskScheduler uses ticks, not seconds
             // TODO: Change var names to sync too idk im lazy
-            this.syncTask = ClansPlugin.TaskScheduler().runRepeatingAsync(() -> {
+            this.syncTask = ClansPlugin.taskScheduler().runRepeatingAsync(() -> {
                 throw new RuntimeException("Not implemented");
                 // TODO: Switch to UPDATE statement instead of merge/replace
                 /* SQLAdapter<Void>.Executor<Void> exec = DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
