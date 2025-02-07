@@ -9,6 +9,7 @@ public class ClanDefRankCommand implements Command {
     public void execute(CommandActor actor, Command command, String label, String... args) {
 
 
+
     }
 
     @Override

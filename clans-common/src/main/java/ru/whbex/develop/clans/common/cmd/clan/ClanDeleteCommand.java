@@ -34,7 +34,6 @@ public class ClanDeleteCommand implements Command {
             actor.removeData("cmd-delete-confirm");
         }
 
-
         String tag = ClansPlugin.clanManager().getClan(cid) == null ? null : ClansPlugin.clanManager().getClan(cid).getMeta().getTag();
         ClanManager.Error e = ClansPlugin.clanManager().removeClan(cid);
         switch(e){
