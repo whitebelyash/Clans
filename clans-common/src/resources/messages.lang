@@ -140,7 +140,8 @@ notify.clan.kick-self=Вы были исключены из клана
 nofity.clan.kick-privileged={0} был исключён из клана ({1}) # 1 - who kicked
 notify.clan.pvp-toggle-on=PvP между участниками теперь включён участником {1}
 notify.clan.pvp-toggle-off=PvP между участниками теперь выключен {1}
-notify.clan.lvlup=Поздравляем! Ваш клан теперь имеет {0} уровень.\nТеперь вам необходимо {1} опыта для следуюего уровня
+notify.clan.lvlup=Поздравляем! Ваш клан теперь {0} уровня!
+notify.clan.lvlup=Теперь вам необходимо {1} опыта для следуюего уровня
 
 # settings description
 settings.visible.description=Могут ли игроки видеть ваш клан в чате и списке кланов

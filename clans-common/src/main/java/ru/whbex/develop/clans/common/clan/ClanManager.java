@@ -17,7 +17,6 @@ import java.sql.ResultSet;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-// simple clan manager
 public class ClanManager {
     // Blocks database usage
     // TODO: Disable when database syncing will be completed
@@ -35,7 +34,7 @@ public class ClanManager {
     //
 
     public ClanManager(Config config) {
-        Debug.print("init clanmanager");
+        Debug.print("ClanManager is initializing...");
         if(!DatabaseService.isInitialized()){
             Debug.print("DatabaseService was not configured, going transient");
             transientSession = true;
@@ -65,6 +64,9 @@ public class ClanManager {
         EventSystem.CLAN_DISBAND_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband-admin", clan.getMeta().getTag(), clan.getMeta().getName()));
         EventSystem.CLAN_RECOVER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
         EventSystem.CLAN_RECOVER_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
+
+        // TODO: Sync with database here
+        EventSystem.CLAN_LVLUP.register(((actor, clan) -> clan.sendMessageT("notify.clan.lvlup", clan.getLevelling().getLevel(), clan.getLevelling().nextExp())));
     }
 
     public void shutdown() {
