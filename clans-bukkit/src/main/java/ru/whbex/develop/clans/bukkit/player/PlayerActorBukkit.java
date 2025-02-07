@@ -34,7 +34,6 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
         this.id = id;
     }
     private void sendMsg(String s){
-        s = ChatColor.translateAlternateColorCodes('&', s);
         Bukkit.getPlayer(id).sendMessage(s);
     }
     @Override
@@ -53,7 +52,6 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     @Override
     public void sendMessageT(String s) {
         if(!isOnline()) return;
-
         this.sendMsg(ClansPlugin.Context.INSTANCE.plugin.getLanguage().getPhrase(s));
     }
 
