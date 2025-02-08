@@ -93,7 +93,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     @Override
     public void onEnable(){
         setupPM();
-        this.clanManager = new ClanManager(config);
+        this.clanManager = new ClanManager();
 
         LogContext.log(Level.INFO, "Registering commands");
 
@@ -101,9 +101,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         this.getCommand("clansplugin").setExecutor(new ClansPluginCommandBukkit());
 
         Bukkit.getPluginManager().registerEvents(new ListenerBukkit(), this);
-
-        LogContext.log(Level.INFO, "Registering ClanManager as a service");
-        Bukkit.getServicesManager().register(ClanManager.class, clanManager, this, ServicePriority.Normal);
 
         LogContext.log(Level.INFO, "Startup completed");
     }
