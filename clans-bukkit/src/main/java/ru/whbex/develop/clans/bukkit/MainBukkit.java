@@ -5,7 +5,6 @@ import com.djaytan.bukkit.slf4j.BukkitLoggerFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -19,7 +18,6 @@ import ru.whbex.develop.clans.bukkit.conf.ConfigBukkit;
 import ru.whbex.develop.clans.bukkit.task.TaskSchedulerBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
-import ru.whbex.develop.clans.common.cmd.AllyChatCommand;
 import ru.whbex.develop.clans.common.cmd.exec.Command;
 import ru.whbex.develop.clans.common.misc.DisabledPlugin;
 import ru.whbex.develop.clans.common.task.DatabaseService;
@@ -49,9 +47,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     private ClanManager clanManager;
     private PlayerManager playerManager;
     private TaskScheduler taskScheduler;
-
-    private ConnectionProvider provider;
-    private ConnectionConfig dbConfig;
 
     private Language lang;
 
@@ -94,26 +89,17 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     public void onEnable(){
         setupPM();
         this.clanManager = new ClanManager();
-
-        LogContext.log(Level.INFO, "Registering commands");
-
-        this.getCommand("clan").setExecutor(new ClanCommandBukkit());
-        this.getCommand("clansplugin").setExecutor(new ClansPluginCommandBukkit());
-
+        registerCommands();
         Bukkit.getPluginManager().registerEvents(new ListenerBukkit(), this);
-
         LogContext.log(Level.INFO, "Startup completed");
     }
 
     @Override
     public void onDisable() {
         LogContext.log(Level.INFO, "Shutting down");
-        // ClanManager
         if(clanManager != null)
             clanManager.shutdown();
-        // DatabaseService
         DatabaseService.destroyService();
-        // TaskScheduler
         taskScheduler.stopAll();
         LogContext.log(Level.INFO, "Bye!");
         Context.INSTANCE.plugin = DisabledPlugin.INSTANCE;
@@ -133,14 +119,12 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
             LogContext.log(Level.ERROR, "Failed to initialize connection provider instance!");
             return;
         }
-        // Create global database service
         DatabaseService.initializeService(prov);
         if(!DatabaseService.isInitialized())
             LogContext.log(Level.ERROR, "Failed to initialize DatabaseService");
 
     }
     private void setupLogging(){
-        /* Logging setup */
         LOG = this.getLogger();
         BukkitLoggerFactory.provideBukkitLogger(LOG);
         LogContext.provideLogger(LoggerFactory.getLogger(this.getName()));
@@ -161,18 +145,17 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         }
     }
     private void setupLocales() throws IOException {
-        /* Language init */
         // TODO: Implement multilocale - using single locale for now
         LogContext.log(Level.INFO, "Loading locales...");
         if(!(new File(getDataFolder(), Constants.LANGUAGE_FILE_NAME)).exists())
             this.saveResource(Constants.LANGUAGE_FILE_NAME, REPLACE_LOCALES);
         this.lang = new Language(new LanguageFile(new File(getDataFolder(), Constants.LANGUAGE_FILE_NAME)));
-        // Autoconvert & to §
         // TODO: add escape support
         this.lang.setPhraseMapper(s -> s.replaceAll("&", "§"));
         this.lang.load();
     }
     private void registerCommands(){
+        LogContext.log(Level.INFO, "Registering commands");
         commandList.add(new ClanCommandBukkit());
         commandList.add(new ClansPluginCommandBukkit());
         commandList.add(new ClanChatCommandBukkit());
