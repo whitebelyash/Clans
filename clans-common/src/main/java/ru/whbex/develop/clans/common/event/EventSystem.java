@@ -4,7 +4,6 @@ import ru.whbex.develop.clans.common.event.def.ClanEvent;
 import ru.whbex.develop.clans.common.event.def.PlayerActorEvent;
 import ru.whbex.develop.clans.common.event.def.PlayerEvent;
 
-/* Simple event system for plugin needs. Private. */
 public class EventSystem {
     public static final PlayerEvent PLAYER_LOGIN = new PlayerEvent();
     public static final PlayerEvent PLAYER_JOIN = new PlayerEvent();
