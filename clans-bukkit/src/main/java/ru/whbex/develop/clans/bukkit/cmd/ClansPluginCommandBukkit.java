@@ -14,7 +14,7 @@ import java.util.List;
 public class ClansPluginCommandBukkit extends ClansPluginCommand<CommandSender> implements CommandExecutor, TabCompleter {
     @Override
     public CommandActor asActor(CommandSender performer) {
-        return ((PlayerManagerBukkit) ClansPlugin.Context.INSTANCE.plugin.getPlayerManager()).asCommandActor(performer);
+        return StaticActorProxy.asActor(performer);
     }
 
     @Override
