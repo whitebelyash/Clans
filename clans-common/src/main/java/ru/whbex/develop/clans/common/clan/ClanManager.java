@@ -29,7 +29,7 @@ public class ClanManager {
     private final Map<UUID, Clan> leadClans = new HashMap<>();
     private Task syncTask;
 
-    public ClanManager(Config config) {
+    public ClanManager() {
         Debug.print("ClanManager is initializing...");
         if(!DatabaseService.isInitialized()){
             Debug.print("DatabaseService was not configured, going transient");
