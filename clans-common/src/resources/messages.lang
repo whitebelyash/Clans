@@ -8,9 +8,6 @@ locale.tag=ru
 plugin.prefix=&6Clans &8>&r
 plugin.description=Клановая система, вдохновлённая кланами VanillaCraft
 
-
-
-
 # ranks (see color in ClanRank)
 rank.novice=Новичок
 rank.member=Участник
@@ -21,12 +18,17 @@ rank.leader=Глава
 # === commands ===
 
 # list
+command.list.description=Список кланов сервера
+command.list.usage=Нет, ты дурак
 command.list.header= &8=== &cСписок кланов сервера &8===
 command.list.no-clans=&7&oКланов пока нет..
 command.list.entry=&8> &b{0} &f{1}, Лидер - &e{2}
 command.list.entry-self=&8> &b{0} &f{1}, Лидер - &e{2}
 command.list.entry-deleted=&m&8> &b{0} &f{1}, Лидер - &e{2}
+
 # seen/look
+command.seen.description=Посмотреть информацию об игроке
+command.seen.usage=&cИспользование: /clan seen <игрок>
 command.seen.header=&8=== &cИнформация об игроке &c{0} &8===
 command.seen.line.uuid=&8> &aUUID: &b{0}
 command.seen.line.clan=&8> &aКлан: &b{0}
@@ -35,12 +37,14 @@ command.seen.line.experience=&8> &aОпыт: &b{0}
 command.seen.line.killdeath=&8> &aСмертей/Убийств: &b{0}/{1}
 
 # online/roster
-command.online.usage=Используйте {0} для просмотра участников в сети указанного клана
+command.online.description=Посмотреть список игроков клана в онлайне
+command.online.usage=Использование: /clan online <клан>
 command.online.message.self=Список участников в сети вашего клана: {0}
 command.online.message.other=Список участников в сети клана {0}: {1}
 
 # profile (not done yet)
-command.profile.usage=Используйте {0} для просмотра информации об указанном клане
+command.profile.description=Посмотреть информацию об клане
+command.profile.usage=Использование: /clan profile <клан>
 command.profile.header-self= === Информация о вашем клане ===
 command.profile.header-other= === Информация о клане {0} ===
 command.profile.description= 
@@ -50,13 +54,16 @@ command.profile.exp = TBD
 command.profile.members = TBD
 
 # disband
+command.disband.description=Распустить клан
+command.disband.usage=Использование: /clan disband <UUID>
 command.disband.success=Клан &c{0}&r успешно распущен. Отменить - /clan recover [тег]
 command.disband.success-self=Вы распустили ваш клан. Для отмены действия используйте /clan recover
 command.disband.fail-deleted=&cДанный клан уже распущен!
 command.disband.fail-deleted-self=&cВаш клан уже распущен. Используйте /clan recover для восстановления
 
-
 # create
+command.create.description=Создать новый клан
+command.create.usage=&cИспользование: /clan create <тег> [название]
 command.create.leave=&cВы должны покинуть клан, чтобы создать новый!
 command.create.leave-leader=&cВы должны распустить ваш текущий клан, чтобы создать новый!
 command.create.suggest-recovery=&7&oНапоминаем, что у вас уже есть распущенный клан {0} {1}. Вы можете восстановить его, введя /clan recover
@@ -66,10 +73,17 @@ command.create.clan-exists=&cКлан с тегом {0} уже существу�
 command.create.success=&fВы создали клан с тегом &c{0}
 
 # delete
+command.delete.description=Удалить указанный клан
+command.delete.usage=&cИспользование: /clan delete <UUID>
 command.delete.success=Клан &c{0}&r удалён
 command.delete.warn=&cВНИМАНИЕ: удалённый клан вернуть невозможно! Введите команду заново для продолжения
 command.delete.canceleld=&cДействие отменено
+
 # recover
+command.recover-other.description=Восстановить указанный клан
+command.recover.description=Восстановить клан
+command.recover-other.usage=&cИспользование: /clan recover-other <UUID> [тег]
+command.recover.usage=&cИспользование: /clan recover [тег]
 command.recover.success=Клан &c{0}&r восстановлен
 command.recover.success-self=Вы восстановили ваш клан
 command.recover.fail-tag-taken=&cТег распущенного клана занят другим!
@@ -78,6 +92,8 @@ command.recover.fail-exists=&cДанный клан не распущен!
 command.recover.fail-exists-self=&cВаш клан не распущен!
 
 # list-members
+command.list-members.description=Показать список участников клана
+command.list-members.usage=&cИспользование: /clan list-members <тег>
 command.list-members.header= === &cСписок участников клана {0}&r ===
 command.list-members.header-self= === &cСписок участников вашего клана ===
 command.list-members.deleted-warn-self= &7&oВаш клан удалён. Здесь показаны оставшиеся участники
