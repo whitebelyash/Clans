@@ -3,11 +3,14 @@ package ru.whbex.develop.clans.bukkit;
 
 import com.djaytan.bukkit.slf4j.BukkitLoggerFactory;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
+import ru.whbex.develop.clans.bukkit.cmd.AllyChatCommandBukkit;
+import ru.whbex.develop.clans.bukkit.cmd.ClanChatCommandBukkit;
 import ru.whbex.develop.clans.bukkit.cmd.ClanCommandBukkit;
 import ru.whbex.develop.clans.bukkit.cmd.ClansPluginCommandBukkit;
 import ru.whbex.develop.clans.bukkit.listener.ListenerBukkit;
@@ -16,6 +19,8 @@ import ru.whbex.develop.clans.bukkit.conf.ConfigBukkit;
 import ru.whbex.develop.clans.bukkit.task.TaskSchedulerBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
+import ru.whbex.develop.clans.common.cmd.AllyChatCommand;
+import ru.whbex.develop.clans.common.cmd.exec.Command;
 import ru.whbex.develop.clans.common.misc.DisabledPlugin;
 import ru.whbex.develop.clans.common.task.DatabaseService;
 import ru.whbex.develop.clans.common.task.TaskScheduler;
@@ -34,6 +39,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainBukkit extends JavaPlugin implements ClansPlugin {
     private java.util.logging.Logger LOG;
@@ -50,6 +57,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
 
     // TODO: disable in prod/release
     private static final boolean REPLACE_LOCALES = true;
+    private List<Command> commandList = new ArrayList<>();
 
 
     @Override
@@ -166,6 +174,14 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         // TODO: add escape support
         this.lang.setPhraseMapper(s -> s.replaceAll("&", "§"));
         this.lang.load();
+    }
+    private void registerCommands(){
+        commandList.add(new ClanCommandBukkit());
+        commandList.add(new ClansPluginCommandBukkit());
+        commandList.add(new ClanChatCommandBukkit());
+        commandList.add(new AllyChatCommandBukkit());
+
+        commandList.forEach(c -> this.getCommand(c.name()).setExecutor((CommandExecutor) c));
     }
 
 
