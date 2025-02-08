@@ -13,6 +13,25 @@ public abstract class ClanCommand<T> extends RootCommand<T> {
         register(new ClanDisbandCommand());
         register(new ClanRecoverOtherCommand());
         register(new ClanRecoverCommand());
+        register(new ClanAcceptAllyCommand());
+        register(new ClanDenyAllyCommand());
+        register(new ClanInviteCommand());
+        register(new ClanAcceptInviteCommand());
+        register(new ClanDenyInviteCommand());
+        register(new ClanRivalCommand());
+        register(new ClanAllyCommand());
+        register(new ClanAcceptUnrivalCommand());
+        register(new ClanManageCommand());
+        register(new ClanPlaceCommand());
+        register(new ClanProfileCommand());
+        register(new ClanEditTagCommand());
+        register(new ClanEditNameCommand());
+        register(new ClanEditDescrCommand());
+        register(new ClanPvpToggleCommand());
+        register(new ClanSetRankCommand());
+        register(new ClanSetRoleCommand());
+        register(new ClanWelcomeCommand());
+
 
         register(new ClanHelpCommand(cmds.values()));
     }
