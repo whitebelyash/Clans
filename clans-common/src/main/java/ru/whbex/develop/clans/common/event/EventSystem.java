@@ -1,16 +1,8 @@
 package ru.whbex.develop.clans.common.event;
 
-import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.event.def.ClanEvent;
 import ru.whbex.develop.clans.common.event.def.PlayerActorEvent;
 import ru.whbex.develop.clans.common.event.def.PlayerEvent;
-import ru.whbex.develop.clans.common.player.PlayerActor;
-import ru.whbex.lib.log.Debug;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
 
 /* Simple event system for plugin needs. Private. */
 public class EventSystem {
