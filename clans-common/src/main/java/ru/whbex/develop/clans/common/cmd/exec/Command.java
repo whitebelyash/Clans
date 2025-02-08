@@ -14,4 +14,10 @@ public interface Command {
     default boolean isRoot(){
         return false;
     }
+    default String description(){
+        return "command." + name() + "description";
+    }
+    default String usage(){
+        return "command." + name() + ".usage";
+    }
 }
