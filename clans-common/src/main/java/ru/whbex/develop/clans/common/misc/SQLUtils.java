@@ -49,7 +49,7 @@ public class SQLUtils {
             return null;
         }
         if ((lid = StringUtils.UUIDFromString(lid_s)) == null) {
-            LogContext.log(Level.ERROR, "Invalid leader UUID {0}! Cannot conitue", lid_s);
+            LogContext.log(Level.ERROR, "Invalid leader UUID {0}! Cannot continue", lid_s);
             return null;
         }
         if (rid < 0 || rid >= ClanRank.values().length) {
