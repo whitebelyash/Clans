@@ -105,6 +105,7 @@ public class ClanManager {
         tagClans.put(c.getMeta().getTag().toLowerCase(), c);
         leadClans.put(c.getMeta().getLeader(), c);
         LogContext.log(Level.INFO, "New clan was created. Welcome there, {0}!", c.getMeta().getTag());
+        EventSystem.CLAN_CREATE.call(actor, c);
         return Error.SUCCESS;
     }
 
@@ -133,6 +134,7 @@ public class ClanManager {
         Clan c = clans.remove(clan.getId());
         if (c == null)
             return Error.CLAN_NOT_FOUND;
+        EventSystem.CLAN_DELETE.call(ClansPlugin.playerManager().getPlayerActor(clan.getMeta().getLeader()), clan);
         LogContext.log(Level.INFO, "Clan {0} was removed. We won't see you ever again );", c.getMeta().getTag());
         return Error.SUCCESS;
     }
