@@ -8,20 +8,17 @@ import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.string.StringUtils;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 // Clan class
 public class Clan implements Messenger {
     private final UUID clanId;
     private final ClanMeta meta;
     private final ClanLevelling levelling;
+    private final EnumSet<ClanFlag> flags = EnumSet.noneOf(ClanFlag.class);
 
     private Set<UUID> members;
 
-    private boolean isDeleted = false;
 
     // Prevent saving clan to database
     private boolean transient_ = false;
@@ -56,12 +53,23 @@ public class Clan implements Messenger {
     }
 
 
+    // For compatibility. don't touch
     public boolean isDeleted() {
-        return isDeleted;
+        return flags.contains(ClanFlag.DELETED);
     }
 
     public void setDeleted(boolean deleted) {
-        isDeleted = deleted;
+        flags.add(ClanFlag.DELETED);
+    }
+
+    public boolean hasFlag(ClanFlag flag){
+        return flags.contains(flag);
+    }
+    public void setFlag(ClanFlag flag){
+        flags.add(flag);
+    }
+    public void removeFlag(ClanFlag flag){
+        flags.remove(flag);
     }
 
     public void addMember(UUID id){
