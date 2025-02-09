@@ -16,14 +16,7 @@ public class ClanMeta {
     private final long creationTime;
     private final ClanRank defaultRank;
 
-    /* Settings */
-    private boolean viewable = true;
-    private boolean joinable = false;
-    private boolean friendlyFire = true;
 
-
-    // Stored in runtime
-    private final Map<String, Object> data = new HashMap<>();
 
     public ClanMeta(String tag, String name, String description, UUID leader, long creationTime, ClanRank defRank){
         this.tag = tag;
@@ -71,45 +64,8 @@ public class ClanMeta {
         return creationTime;
     }
 
-    public void setData(String key, Object obj){
-        data.put(key, obj);
-    }
-    public boolean checkData(String key){
-        return data.containsValue(key);
-    }
-    public Object getData(String key, Object obj){
-        if(!checkData(key))
-            Debug.print("data has no key {0}. returning null", key);
-        return data.get(key);
-    }
 
     public ClanRank getDefaultRank() {
         return defaultRank;
-    }
-
-
-
-    public boolean isViewable() {
-        return viewable;
-    }
-
-    public boolean isFriendlyFire() {
-        return friendlyFire;
-    }
-
-    public boolean isJoinable() {
-        return joinable;
-    }
-
-    public void setViewable(boolean viewable) {
-        this.viewable = viewable;
-    }
-
-    public void setJoinable(boolean joinable) {
-        this.joinable = joinable;
-    }
-
-    public void setFriendlyFire(boolean friendlyFire) {
-        this.friendlyFire = friendlyFire;
     }
 }

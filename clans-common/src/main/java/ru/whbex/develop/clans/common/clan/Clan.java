@@ -25,6 +25,9 @@ public class Clan implements Messenger {
     // Prevent updating clan in database if not changed
     private boolean touched = false;
 
+    // Stored in runtime
+    private final Map<String, Object> data = new HashMap<>();
+
     public Clan(UUID clanId, ClanMeta meta, ClanLevelling levelling, boolean trans){
         this.clanId = Objects.requireNonNull(clanId, "clanId");
         this.meta = meta;
@@ -108,6 +111,19 @@ public class Clan implements Messenger {
     boolean checkTouch(){
         return touched;
     }
+
+    public void setData(String key, Object obj){
+        data.put(key, obj);
+    }
+    public boolean checkData(String key){
+        return data.containsValue(key);
+    }
+    public Object getData(String key, Object obj){
+        if(!checkData(key))
+            Debug.print("data has no key {0}. returning null", key);
+        return data.get(key);
+    }
+
 
     @Override
     public void sendMessage(String string) {
