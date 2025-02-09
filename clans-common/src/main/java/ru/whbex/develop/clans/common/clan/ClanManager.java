@@ -16,7 +16,6 @@ import ru.whbex.lib.sql.SQLAdapter;
 
 import java.sql.ResultSet;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ClanManager {
     // Blocks database usage
@@ -90,21 +89,6 @@ public class ClanManager {
         PlayerActor actor = ClansPlugin.playerManager().getPlayerActor(leader);
         Clan c = Clan.newClan(tag, name, actor, false);
 
-        if (!transientSession) {
-            // TODO: Find another way to check for exception status
-            AtomicBoolean status = new AtomicBoolean(false);
-            DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
-                    .sql("INSERT INTO clans VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
-                    .exceptionally(e -> {
-                        LogContext.log(Level.ERROR, "Failed to sync created clan with database!");
-                        status.set(true);
-                    })
-                    .setVerbose(true)
-                    .setPrepared(ps -> SQLUtils.clanToPrepStatement(ps, c))
-                    .execute();
-            if (status.get())
-                return Error.CLAN_SYNC_ERROR;
-        }
         clans.put(c.getId(),c);
         tagClans.put(c.getMeta().getTag().toLowerCase(), c);
         leadClans.put(c.getMeta().getLeader(), c);
