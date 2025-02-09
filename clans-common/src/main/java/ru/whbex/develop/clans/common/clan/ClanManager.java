@@ -5,6 +5,7 @@ import ru.whbex.develop.clans.common.ClansPlugin;
 
 import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.develop.clans.common.event.EventSystem;
+import ru.whbex.develop.clans.common.event.def.ClanEvent;
 import ru.whbex.develop.clans.common.misc.SQLUtils;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.task.DatabaseService;
@@ -28,6 +29,7 @@ public class ClanManager {
     // Leader to clan map
     private final Map<UUID, Clan> leadClans = new HashMap<>();
     private Task syncTask;
+    private DatabaseSyncer databaseSyncer;
 
     //
     // === Lifecycle ===
@@ -44,6 +46,7 @@ public class ClanManager {
         else {
             createClanTable();
             preloadClans();
+            this.databaseSyncer = new DatabaseSyncer();
             startSyncTask();
         }
         registerEvents();
@@ -64,8 +67,6 @@ public class ClanManager {
         EventSystem.CLAN_DISBAND_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband-admin", clan.getMeta().getTag(), clan.getMeta().getName()));
         EventSystem.CLAN_RECOVER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
         EventSystem.CLAN_RECOVER_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
-
-        // TODO: Sync with database here
         EventSystem.CLAN_LVLUP.register(((actor, clan) -> clan.sendMessageT("notify.clan.lvlup", clan.getLevelling().getLevel(), clan.getLevelling().nextExp())));
     }
 
@@ -100,22 +101,6 @@ public class ClanManager {
         PlayerActor actor = ClansPlugin.playerManager().getPlayerActor(leader);
         Clan c = Clan.newClan(tag, name, actor, false);
 
-        // Sync to db
-        if (!transientSession) {
-            // TODO: Find another way to check for exception status
-            AtomicBoolean status = new AtomicBoolean(false);
-            DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
-                    .sql("INSERT INTO clans VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
-                    .exceptionally(e -> {
-                        LogContext.log(Level.ERROR, "Failed to sync created clan with database!");
-                        status.set(true);
-                    })
-                    .setVerbose(true)
-                    .setPrepared(ps -> SQLUtils.clanToPrepStatement(ps, c))
-                    .execute();
-            if (status.get())
-                return Error.CLAN_SYNC_ERROR;
-        }
         clans.put(c.getId(),c);
         tagClans.put(c.getMeta().getTag().toLowerCase(), c);
         leadClans.put(c.getMeta().getLeader(), c);
@@ -143,21 +128,6 @@ public class ClanManager {
     public Error removeClan(Clan clan) {
         if (!clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
-
-        if (!transientSession || !clan.isTransient()) {
-            AtomicBoolean shit = new AtomicBoolean(false);
-            DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
-                    .sql("DELETE FROM clans WHERE id=?")
-                    .exceptionally(e -> {
-                        LogContext.log(Level.ERROR, "Failed to sync removed clan with database! Cancelling remove");
-                        shit.set(true);
-                    })
-                    .setVerbose(true)
-                    .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
-                    .execute();
-            if (shit.get())
-                return Error.CLAN_SYNC_ERROR;
-        }
         tagClans.remove(clan.getMeta().getTag());
         leadClans.remove(clan.getMeta().getLeader());
         Clan c = clans.remove(clan.getId());
@@ -371,5 +341,65 @@ public class ClanManager {
         CLAN_SYNC_ERROR,
         // Says for itself
         SUCCESS
+    }
+    private class DatabaseSyncer {
+        private DatabaseSyncer(){
+            EventSystem.CLAN_CREATE.register(onCreate);
+            EventSystem.CLAN_DELETE.register(onDelete);
+            EventSystem.CLAN_DISBAND.register(onDisband);
+            EventSystem.CLAN_DISBAND_OTHER.register(onDisband);
+            EventSystem.CLAN_RECOVER.register(onRecover);
+            EventSystem.CLAN_RECOVER_OTHER.register(onRecover);
+
+            Debug.print("DatabaseSyncer is alive");
+        }
+        // TODO: Do clan existence checks on the db side
+        // TODO: Handle sync errors properly
+        // TODO: Rollback changes if sync failed
+        private ClanEvent.ClanEventHandler onCreate = (actor, clan) -> {
+            Debug.print("Synchronizing clan {0} create with db...", clan);
+            DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
+                    .sql("INSERT INTO clans VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
+                    .exceptionally(e -> {
+                        LogContext.log(Level.ERROR, "Failed to sync created clan with database!");
+                    })
+                    .setVerbose(true)
+                    .setPrepared(ps -> SQLUtils.clanToPrepStatement(ps, clan))
+                    .executeAsync();
+        };
+        private ClanEvent.ClanEventHandler onDelete = (actor, clan) -> {
+            Debug.print("Synchronizing clan {0} delete with db...", clan);
+            DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
+                    .sql("DELETE FROM clans WHERE id=?")
+                    .exceptionally(e -> {
+                        // TODO: Cancel remove somehow
+                        LogContext.log(Level.ERROR, "Failed to sync removed clan with database!");
+                    })
+                    .setVerbose(true)
+                    .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
+                    .executeAsync();
+        };
+        private ClanEvent.ClanEventHandler onDisband = (actor, clan) -> {
+            Debug.print("Synchronizing clan {0} disband with db...", clan);
+            DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
+                    .sql("UPDATE clans SET deleted=1 WHERE id=?")
+                    .exceptionally(e -> {
+                        LogContext.log(Level.ERROR, "Failed to sync clan deleted flag with database!");
+                    })
+                    .setVerbose(true)
+                    .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
+                    .executeAsync();
+        };
+        private ClanEvent.ClanEventHandler onRecover = (actor, clan) -> {
+            Debug.print("Synchronizing clan {0} recover with db...", clan);
+            DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
+                    .sql("UPDATE clans SET deleted=0 WHERE id=?")
+                    .exceptionally(e -> {
+                        LogContext.log(Level.ERROR, "Failed to sync clan deleted flag with database!");
+                    })
+                    .setVerbose(true)
+                    .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
+                    .executeAsync();
+        };
     }
 }
