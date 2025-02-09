@@ -36,11 +36,15 @@ public class ClanManager {
             Debug.print("DatabaseService was not configured, going transient");
             transientSession = true;
         }
-        if (transientSession)
-            notifyAboutTransient();
+        // This should not write to the database
         else {
             createClanTable();
             preloadClans();
+        }
+        if (transientSession)
+            notifyAboutTransient();
+        else {
+
             this.databaseSyncer = new DatabaseSyncer();
             startSyncTask();
         }
