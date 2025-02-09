@@ -21,6 +21,7 @@ public class EventSystem {
     public static final PlayerActorEvent PLAYER_KILL = new PlayerActorEvent();
     public static final PlayerActorEvent PLAYER_DEATH = new PlayerActorEvent();
     public static final ClanEvent CLAN_CREATE = new ClanEvent();
+    public static final ClanEvent CLAN_DELETE = new ClanEvent();
     public static final ClanEvent CLAN_DISBAND = new ClanEvent();
     public static final ClanEvent CLAN_DISBAND_OTHER = new ClanEvent();
     public static final ClanEvent CLAN_RECOVER = new ClanEvent();
