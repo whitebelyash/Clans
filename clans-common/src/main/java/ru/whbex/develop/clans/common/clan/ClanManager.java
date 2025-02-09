@@ -31,11 +31,7 @@ public class ClanManager {
     private Task syncTask;
     private DatabaseSyncer databaseSyncer;
 
-    //
-    // === Lifecycle ===
-    //
-
-    public ClanManager(Config config) {
+    public ClanManager() {
         Debug.print("ClanManager is initializing...");
         if(!DatabaseService.isInitialized()){
             Debug.print("DatabaseService was not configured, going transient");
@@ -83,17 +79,10 @@ public class ClanManager {
         leadClans.clear();
     }
 
-    // =========================================================================
-
-    //
-    // === Clan management (some methods here are not asynchronous, do not call them on main thread!!!) ===
-    //
 
     public Error createClan(String tag, String name, UUID leader) {
-        // Do not create clan if tag is already taken
         if (tagClans.containsKey(tag))
             return Error.CLAN_TAG_EXISTS;
-        // Do not create clan if leader already has it
         if (leadClans.containsKey(leader))
             return Error.LEAD_HAS_CLAN;
         // TODO: Add check for clan membership
@@ -101,6 +90,21 @@ public class ClanManager {
         PlayerActor actor = ClansPlugin.playerManager().getPlayerActor(leader);
         Clan c = Clan.newClan(tag, name, actor, false);
 
+        if (!transientSession) {
+            // TODO: Find another way to check for exception status
+            AtomicBoolean status = new AtomicBoolean(false);
+            DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
+                    .sql("INSERT INTO clans VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
+                    .exceptionally(e -> {
+                        LogContext.log(Level.ERROR, "Failed to sync created clan with database!");
+                        status.set(true);
+                    })
+                    .setVerbose(true)
+                    .setPrepared(ps -> SQLUtils.clanToPrepStatement(ps, c))
+                    .execute();
+            if (status.get())
+                return Error.CLAN_SYNC_ERROR;
+        }
         clans.put(c.getId(),c);
         tagClans.put(c.getMeta().getTag().toLowerCase(), c);
         leadClans.put(c.getMeta().getLeader(), c);
@@ -109,7 +113,6 @@ public class ClanManager {
         return Error.SUCCESS;
     }
 
-    /* Disband clan. Can run on main thread */
     public Error disbandClan(Clan clan) {
         if (clan.isDeleted() || !clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
@@ -152,7 +155,6 @@ public class ClanManager {
     }
 
     public Error recoverClan(Clan clan, String newTag) {
-        // A bit changed copy of disband logic now, need to check for leader and other things
         if (!clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
         if (!clan.isDeleted())
@@ -171,12 +173,6 @@ public class ClanManager {
         return Error.SUCCESS;
     }
 
-    // =========================================================================
-
-    //
-    // === Clan getters ===
-    //
-
     public Clan getClan(UUID id) {
         return clans.get(id);
     }
@@ -188,12 +184,6 @@ public class ClanManager {
     public Clan getClan(PlayerActor leader) {
         return leadClans.get(leader.getUniqueId());
     }
-
-    // =========================================================================
-
-    //
-    // === Clan checks ===
-    //
 
     public boolean clanExists(String tag) {
         return tagClans.containsKey(tag.toLowerCase()) && clans.containsKey(tagClans.get(tag.toLowerCase()).getId());
@@ -207,31 +197,16 @@ public class ClanManager {
         return leadClans.containsKey(leader);
     }
 
-    // =========================================================================
-
-    //
-    // === Clan map getters ===
-    //
-
-    // this returns any loaded clans
     public Collection<Clan> getAllClans() {
         return clans.values();
     }
 
-    // this returns only real clans, not deleted
     public Collection<Clan> getClans() {
         return tagClans.values();
     }
 
-    // =========================================================================
 
-    //
-    // === Database ===
-    //
-
-    // Will load all clans from database
     // TODO: Only load cached data instead of all clans
-    // will be pretty hard to implement, i think
     private void preloadClans() {
         DatabaseService.getExecutor(SQLAdapter::preparedQuery)
                 .sql("SELECT * FROM clans;")
@@ -317,7 +292,6 @@ public class ClanManager {
         else syncTask = null;
     }
 
-    /* Will block execution */
     public void triggerSync(){
         if(syncTask == null){
             LogContext.log(Level.WARN, "Unable to trigger sync task because it's not created");
@@ -326,7 +300,6 @@ public class ClanManager {
         syncTask.run();
     }
 
-    // =========================================================================
 
     public enum Error {
         // Return if clan was not found in maps

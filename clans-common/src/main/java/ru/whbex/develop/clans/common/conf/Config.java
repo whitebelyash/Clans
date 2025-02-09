@@ -4,7 +4,6 @@ import ru.whbex.lib.sql.conn.ConnectionProvider;
 import ru.whbex.lib.sql.conn.impl.H2Provider;
 import ru.whbex.lib.sql.conn.impl.SQLiteProvider;
 
-/* Simple config wrapper, I won't write overengineered shit here, don't even ask me */
 public interface Config {
 
     enum DatabaseType {
@@ -26,7 +25,6 @@ public interface Config {
             return file;
         }
     }
-    boolean test();
 
     void reload() throws Exception;
 

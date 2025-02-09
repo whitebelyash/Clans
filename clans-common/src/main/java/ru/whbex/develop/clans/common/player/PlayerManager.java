@@ -97,7 +97,4 @@ public interface PlayerManager {
                 .exceptionally(e -> {throw new RuntimeException(e);})
                 .execute();
     }
-    default void loadActorProfile(PlayerActor actor){
-
-    }
 }
