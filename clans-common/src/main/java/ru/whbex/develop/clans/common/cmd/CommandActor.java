@@ -10,6 +10,10 @@ public interface CommandActor extends Messenger {
     String getName();
     UUID getUniqueId();
 
+    default boolean equals(CommandActor another){
+        return another.getUniqueId().equals(getUniqueId());
+    }
+
     // Data (Runtime)
     void setData(String key, Object data);
     Object getData(String key);
