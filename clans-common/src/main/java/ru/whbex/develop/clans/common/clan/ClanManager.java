@@ -328,6 +328,11 @@ public class ClanManager {
                     })
                     .setVerbose(true)
                     .setPrepared(ps -> SQLUtils.clanToPrepStatement(ps, clan))
+                    // TODO: Remove
+                    .updateCallback(resp -> {
+                        Debug.print("Sync complete!");
+                        return null;
+                    })
                     .executeAsync();
         };
         private ClanEvent.ClanEventHandler onDelete = (actor, clan) -> {
@@ -340,6 +345,11 @@ public class ClanManager {
                     })
                     .setVerbose(true)
                     .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
+                    // TODO: Remove
+                    .updateCallback(resp -> {
+                        Debug.print("Sync complete!");
+                        return null;
+                    })
                     .executeAsync();
         };
         private ClanEvent.ClanEventHandler onDisband = (actor, clan) -> {
@@ -351,6 +361,11 @@ public class ClanManager {
                     })
                     .setVerbose(true)
                     .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
+                    // TODO: Remove
+                    .updateCallback(resp -> {
+                        Debug.print("Sync complete!");
+                        return null;
+                    })
                     .executeAsync();
         };
         private ClanEvent.ClanEventHandler onRecover = (actor, clan) -> {
@@ -362,6 +377,11 @@ public class ClanManager {
                     })
                     .setVerbose(true)
                     .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
+                    // TODO: Remove
+                    .updateCallback(resp -> {
+                        Debug.print("Sync complete!");
+                        return null;
+                    })
                     .executeAsync();
         };
     }
