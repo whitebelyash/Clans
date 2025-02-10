@@ -20,7 +20,7 @@ import java.util.*;
 public class ClanManager {
     // Blocks database usage
     // TODO: Disable when database syncing will be completed
-    private boolean transientSession = true;
+    private boolean transientSession = false;
     // Main clan map
     private final Map<UUID, Clan> clans = new HashMap<>();
     // Tag to clan map
@@ -305,7 +305,7 @@ public class ClanManager {
         // Says for itself
         SUCCESS
     }
-    private class DatabaseSyncer {
+    private static class DatabaseSyncer {
         private DatabaseSyncer(){
             EventSystem.CLAN_CREATE.register(onCreate);
             EventSystem.CLAN_DELETE.register(onDelete);
