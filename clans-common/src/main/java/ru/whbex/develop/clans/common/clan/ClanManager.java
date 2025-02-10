@@ -3,7 +3,7 @@ package ru.whbex.develop.clans.common.clan;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 
-import ru.whbex.develop.clans.common.conf.Config;
+import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.event.EventSystem;
 import ru.whbex.develop.clans.common.event.def.ClanEvent;
 import ru.whbex.develop.clans.common.misc.SQLUtils;
@@ -18,7 +18,7 @@ import java.sql.ResultSet;
 import java.util.*;
 
 public class ClanManager {
-    // Blocks database usage
+    // Blocks database writes
     // TODO: Disable when database syncing will be completed
     private boolean transientSession = true;
     // Main clan map
@@ -61,11 +61,11 @@ public class ClanManager {
     }
     private void registerEvents(){
         Debug.print("Registering events...");
-        EventSystem.CLAN_CREATE.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.create", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
+        EventSystem.CLAN_CREATE.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.create", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getName()));
         EventSystem.CLAN_DISBAND.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband", clan.getMeta().getTag(), clan.getMeta().getName()));
         EventSystem.CLAN_DISBAND_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband-admin", clan.getMeta().getTag(), clan.getMeta().getName()));
-        EventSystem.CLAN_RECOVER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
-        EventSystem.CLAN_RECOVER_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
+        EventSystem.CLAN_RECOVER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getName()));
+        EventSystem.CLAN_RECOVER_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getName()));
         EventSystem.CLAN_LVLUP.register(((actor, clan) -> clan.sendMessageT("notify.clan.lvlup", clan.getLevelling().getLevel(), clan.getLevelling().nextExp())));
     }
 
@@ -97,24 +97,25 @@ public class ClanManager {
         tagClans.put(c.getMeta().getTag().toLowerCase(), c);
         leadClans.put(c.getMeta().getLeader(), c);
         LogContext.log(Level.INFO, "New clan was created. Welcome there, {0}!", c.getMeta().getTag());
-        EventSystem.CLAN_CREATE.call(actor, c);
+        EventSystem.CLAN_CREATE.call((CommandActor) actor, c);
         return Error.SUCCESS;
     }
 
-    public Error disbandClan(Clan clan) {
+    public Error disbandClan(Clan clan, CommandActor actor) {
         if (clan.isDeleted() || !clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
         clan.setDeleted(true);
         clan.touch();
         tagClans.remove(clan.getMeta().getTag().toLowerCase());
+        boolean self = actor.getUniqueId().equals(clan.getMeta().getLeader());
         LogContext.log(Level.INFO, "Clan {0} was disbanded :(", clan.getMeta().getTag());
         return Error.SUCCESS;
     }
 
-    public Error disbandClan(String tag) {
+    public Error disbandClan(String tag, CommandActor actor) {
         if (!tagClans.containsKey(tag.toLowerCase()))
             return Error.CLAN_NOT_FOUND;
-        return disbandClan(tagClans.get(tag));
+        return disbandClan(tagClans.get(tag), actor);
     }
 
     public Error removeClan(Clan clan) {
@@ -125,7 +126,7 @@ public class ClanManager {
         Clan c = clans.remove(clan.getId());
         if (c == null)
             return Error.CLAN_NOT_FOUND;
-        EventSystem.CLAN_DELETE.call(ClansPlugin.playerManager().getPlayerActor(clan.getMeta().getLeader()), clan);
+        EventSystem.CLAN_DELETE.call((CommandActor) ClansPlugin.playerManager().getPlayerActor(clan.getMeta().getLeader()), clan);
         LogContext.log(Level.INFO, "Clan {0} was removed. We won't see you ever again );", c.getMeta().getTag());
         return Error.SUCCESS;
     }
@@ -142,7 +143,7 @@ public class ClanManager {
         return this.removeClan(tagClans.get(tag.toLowerCase()));
     }
 
-    public Error recoverClan(Clan clan, String newTag) {
+    public Error recoverClan(Clan clan, String newTag, CommandActor actor) {
         if (!clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
         if (!clan.isDeleted())
@@ -157,6 +158,7 @@ public class ClanManager {
         clan.setDeleted(false);
         clan.touch();
         tagClans.put(clan.getMeta().getTag(), clan);
+        boolean self = actor.getUniqueId().equals(clan.getMeta().getLeader());
         LogContext.log(Level.INFO, "Clan {0} was recovered! (from ashes, I suppose?)", clan.getMeta().getTag());
         return Error.SUCCESS;
     }
@@ -316,9 +318,11 @@ public class ClanManager {
 
             Debug.print("DatabaseSyncer is alive");
         }
+
         // TODO: Do clan existence checks on the db side
         // TODO: Handle sync errors properly
         // TODO: Rollback changes if sync failed
+        // TODO: Throttle fast syncs somehow.
         private ClanEvent.ClanEventHandler onCreate = (actor, clan) -> {
             Debug.print("Synchronizing clan {0} create with db...", clan);
             DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)

@@ -24,7 +24,7 @@ public class ClanDisbandCommand implements Command {
         } else {
             // other
             // TODO: Add permission check
-            ClanManager.Error e = ClansPlugin.clanManager().disbandClan(args[1]);
+            ClanManager.Error e = ClansPlugin.clanManager().disbandClan(args[1], actor);
             switch (e){
                 case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
                 case CLAN_ALR_DISBAND -> throw new CommandError("command.disband.fail-deleted");
@@ -40,7 +40,7 @@ public class ClanDisbandCommand implements Command {
     private void execute_self(PlayerActor pa){
         if(!ClansPlugin.clanManager().isClanLeader(pa.getUniqueId()))
             throw new CommandError("meta.command.leadership-required");
-        ClanManager.Error e = ClansPlugin.clanManager().disbandClan(ClansPlugin.clanManager().getClan(pa));
+        ClanManager.Error e = ClansPlugin.clanManager().disbandClan(ClansPlugin.clanManager().getClan(pa), (CommandActor) pa);
         switch(e){
             case CLAN_NOT_FOUND -> throw new CommandError("meta.command.leadership-required");
             case CLAN_ALR_DISBAND -> throw new CommandError("command.disband.fail-deleted-self");

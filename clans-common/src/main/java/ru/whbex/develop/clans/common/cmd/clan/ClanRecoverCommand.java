@@ -20,7 +20,7 @@ public class ClanRecoverCommand implements Command {
         String tag = args.length > 2 ? args[2] : null;
         if(tag != null && MiscUtils.validateClanTag(tag))
             throw new CommandError("meta.clan-check.invalid-tag");
-        ClanManager.Error e = ClansPlugin.clanManager().recoverClan(ClansPlugin.clanManager().getClan((PlayerActor) actor), tag);
+        ClanManager.Error e = ClansPlugin.clanManager().recoverClan(ClansPlugin.clanManager().getClan((PlayerActor) actor), tag, actor);
         switch(e){
             case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
             case CLAN_REC_EXISTS -> throw new CommandError("command.recover.fail-exists-self");
