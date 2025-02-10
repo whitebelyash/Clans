@@ -108,6 +108,8 @@ public class ClanManager {
         clan.touch();
         tagClans.remove(clan.getMeta().getTag().toLowerCase());
         boolean self = actor.getUniqueId().equals(clan.getMeta().getLeader());
+        ClanEvent ev = self ? EventSystem.CLAN_DISBAND : EventSystem.CLAN_DISBAND_OTHER;
+        ev.call(actor, clan);
         LogContext.log(Level.INFO, "Clan {0} was disbanded :(", clan.getMeta().getTag());
         return Error.SUCCESS;
     }
@@ -159,6 +161,8 @@ public class ClanManager {
         clan.touch();
         tagClans.put(clan.getMeta().getTag(), clan);
         boolean self = actor.getUniqueId().equals(clan.getMeta().getLeader());
+        ClanEvent ev = self ? EventSystem.CLAN_RECOVER : EventSystem.CLAN_RECOVER_OTHER;
+        ev.call(actor, clan);
         LogContext.log(Level.INFO, "Clan {0} was recovered! (from ashes, I suppose?)", clan.getMeta().getTag());
         return Error.SUCCESS;
     }
