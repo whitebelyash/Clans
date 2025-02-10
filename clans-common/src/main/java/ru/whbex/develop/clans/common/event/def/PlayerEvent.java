@@ -5,6 +5,10 @@ import ru.whbex.develop.clans.common.event.EventHandler;
 import java.util.UUID;
 
 public class PlayerEvent extends AbstractEvent<PlayerEvent.PlayerEventHandler> {
+    public PlayerEvent(String name) {
+        super(name);
+    }
+
     public interface PlayerEventHandler extends EventHandler {
         void call(UUID uuid);
     }
