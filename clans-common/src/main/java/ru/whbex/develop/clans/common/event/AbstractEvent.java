@@ -14,15 +14,15 @@ public abstract class AbstractEvent<T extends EventHandler> {
     }
 
     public void register(T handler){
-        Debug.tprint("EventSystem", "Registered " + name + " event handler (caller: " + new Throwable().getStackTrace()[2].getFileName() + ")");
+        Debug.tprint("EventSystem", "Registered " + name + " event handler (caller: " + new Throwable().getStackTrace()[1].getFileName() + ")");
         handlerList.add(handler);
     }
     public void unregister(T handler){
-        Debug.tprint("EventSystem", "Unegistered " + name + " event handler (caller: " + new Throwable().getStackTrace()[2].getFileName() + ")");
+        Debug.tprint("EventSystem", "Unegistered " + name + " event handler (caller: " + new Throwable().getStackTrace()[1].getFileName() + ")");
         handlerList.remove(handler);
     }
     public void removeCallbacks(){
-        Debug.tprint("EventSystem", "Removed " + name + " event handler callbacks (caller: " + new Throwable().getStackTrace()[2].getFileName() + ")");
+        Debug.tprint("EventSystem", "Removed " + name + " event handler callbacks (caller: " + new Throwable().getStackTrace()[1].getFileName() + ")");
         handlerList.clear();
     }
 
