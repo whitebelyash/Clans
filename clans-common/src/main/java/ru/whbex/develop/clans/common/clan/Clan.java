@@ -37,7 +37,7 @@ public class Clan implements Messenger {
     }
     public static Clan newClan(String tag, String name, PlayerActor leader, boolean trans){
         UUID id = UUID.randomUUID();
-        Debug.print("New clan UUID: " + id);
+        Debug.lprint("New clan UUID: " + id);
         ClanMeta cm = new ClanMeta(tag, name, null, leader.getUniqueId(), System.currentTimeMillis() / 1000L, Constants.DEFAULT_RANK);
         ClanLevelling l = new ClanLevelling(1, 0);
         return new Clan(id, cm, l, trans);
@@ -120,7 +120,7 @@ public class Clan implements Messenger {
     }
     public Object getData(String key, Object obj){
         if(!checkData(key))
-            Debug.print("data has no key {0}. returning null", key);
+            Debug.lprint("data has no key {0}. returning null", key);
         return data.get(key);
     }
 
