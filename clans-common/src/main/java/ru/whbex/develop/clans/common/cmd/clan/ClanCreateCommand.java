@@ -22,6 +22,12 @@ public class ClanCreateCommand implements Command {
         if(!actor.isPlayer())
             throw new CommandError("meta.command.player-required");
         PlayerActor pa = (PlayerActor) actor;
+        String tag = args[1];
+        if(!MiscUtils.validateClanTag(tag))
+            throw new CommandError("meta.clan-check.invalid-tag");
+        String name = args.length < 3 ? StringUtils.simpleformat(Constants.CLAN_NAME_FORMAT, tag) : args[2];
+        if(!MiscUtils.validateClanName(name))
+            throw new CommandError("meta.clan-check.invalid-name");
         // Check for clan deleted bit
         if(cm.getClan(pa) != null && cm.getClan(pa).isDeleted()){
             // Notify if not notified before
@@ -37,12 +43,7 @@ public class ClanCreateCommand implements Command {
                 pa.removeData("cmd-create-sugcont");
             }
         }
-        String tag = args[1];
-        if(!MiscUtils.validateClanTag(tag))
-            throw new CommandError("meta.clan-check.invalid-tag");
-        String name = args.length < 3 ? StringUtils.simpleformat(Constants.CLAN_NAME_FORMAT, tag) : args[2];
-        if(!MiscUtils.validateClanName(name))
-            throw new CommandError("meta.clan-check.invalid-name");
+
         ClanManager.Error e = cm.createClan(tag, name, pa.getUniqueId());
         switch(e){
             case CLAN_TAG_EXISTS -> throw new CommandError("command.create.clan-exists");

@@ -158,8 +158,8 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         LogContext.log(Level.INFO, "Registering commands");
         commandList.add(new ClanCommandBukkit());
         commandList.add(new ClansPluginCommandBukkit());
-        commandList.add(new ClanChatCommandBukkit());
-        commandList.add(new AllyChatCommandBukkit());
+        //commandList.add(new ClanChatCommandBukkit());
+        //commandList.add(new AllyChatCommandBukkit());
 
         commandList.forEach(c -> this.getCommand(c.name()).setExecutor((CommandExecutor) c));
     }

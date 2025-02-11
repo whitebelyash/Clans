@@ -25,7 +25,7 @@ public class ClanMeta {
         this.leader = leader;
         this.creationTime = creationTime;
         this.defaultRank = defRank;
-        Debug.print("meta created for " + tag);
+        Debug.lprint("meta created for " + tag);
     }
 
     public String getName() {

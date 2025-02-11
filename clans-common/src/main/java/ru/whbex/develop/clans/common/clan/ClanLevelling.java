@@ -8,7 +8,7 @@ public class ClanLevelling {
     public ClanLevelling(int level, int experience){
         this.experience = experience;
         this.level = level;
-        Debug.print("created clanlevelling with {0}:{1} initial lvl:exp", level, experience);
+        Debug.lprint("created clanlevelling with {0}:{1} initial lvl:exp", level, experience);
     }
     private int experience;
     private int level;
@@ -18,13 +18,13 @@ public class ClanLevelling {
         return experience;
     }
     public void reset(){
-        Debug.print("levelling reset!");
+        Debug.lprint("levelling reset!");
         this.experience = Constants.LVL_EXP_DEF;
     }
 
     public void setExperience(int experience) {
         this.experience = experience;
-        Debug.print("set exp " + experience + ", trig recalc");
+        Debug.lprint("set exp " + experience + ", trig recalc");
         recalcLevel();
     }
 
@@ -33,14 +33,14 @@ public class ClanLevelling {
     }
     public void setLevel(int level, boolean upd){
         this.level = level;
-        Debug.print("set level " + level + ", update: " + upd);
+        Debug.lprint("set level " + level + ", update: " + upd);
         if(upd)
             recalcLevel();
     }
 
     public void addExperience(int exp){
         this.experience += exp;
-        Debug.print("add exp " + exp);
+        Debug.lprint("add exp " + exp);
         recalcLevel();
     }
 
@@ -49,9 +49,9 @@ public class ClanLevelling {
     // recalculate level based on experience. Returns true if level was updated
     public boolean recalcLevel(){
         int expNext = nextExp();
-        Debug.print("toNextExp: " + expNext);
+        Debug.lprint("toNextExp: " + expNext);
         if(expNext <= experience){
-            Debug.print("detected lvlup!!");
+            Debug.lprint("detected lvlup!!");
             level++;
             experience = experience - expNext;
             // recurse.

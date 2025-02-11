@@ -20,7 +20,7 @@ import java.util.*;
 public class ClanManager {
     // Blocks database writes
     // TODO: Disable when database syncing will be completed
-    private boolean transientSession = true;
+    private boolean transientSession = false;
     // Main clan map
     private final Map<UUID, Clan> clans = new HashMap<>();
     // Tag to clan map
@@ -31,9 +31,9 @@ public class ClanManager {
     private DatabaseSyncer databaseSyncer;
 
     public ClanManager() {
-        Debug.print("ClanManager is initializing...");
+        Debug.tprint("ClanManager", "ClanManager is initializing...");
         if(!DatabaseService.isInitialized()){
-            Debug.print("DatabaseService was not configured, going transient");
+            Debug.tprint("ClanManager", "DatabaseService was not configured, going transient");
             transientSession = true;
         }
         // This should not write to the database
@@ -49,7 +49,7 @@ public class ClanManager {
             startSyncTask();
         }
         registerEvents();
-        Debug.print("ClanManager init complete!");
+        Debug.tprint("ClanManager", "ClanManager init complete!");
     }
 
     private void notifyAboutTransient() {
@@ -60,8 +60,8 @@ public class ClanManager {
         LogContext.log(Level.WARN, "Note: All clan changes will stay in the memory for this session. Database access is blocked");
     }
     private void registerEvents(){
-        Debug.print("Registering events...");
-        EventSystem.CLAN_CREATE.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.create", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getName()));
+        Debug.tprint("ClanManager", "Registering events...");
+        EventSystem.CLAN_CREATE.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.create", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
         EventSystem.CLAN_DISBAND.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband", clan.getMeta().getTag(), clan.getMeta().getName()));
         EventSystem.CLAN_DISBAND_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband-admin", clan.getMeta().getTag(), clan.getMeta().getName()));
         EventSystem.CLAN_RECOVER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getName()));
@@ -223,7 +223,7 @@ public class ClanManager {
                             if (!c.isDeleted())
                                 tagClans.put(c.getMeta().getTag(), c);
                             leadClans.put(c.getMeta().getLeader(), c);
-                            Debug.print("Loaded clan {0}/{1}", c.getId(), c.getMeta().getTag());
+                            Debug.tprint("ClanManager/preloadClans", "Loaded clan {0}/{1}", c.getId(), c.getMeta().getTag());
                         } while (r.next());
                     return null;
                 })
@@ -249,7 +249,7 @@ public class ClanManager {
                     transientSession = true;
                 })
                 .updateCallback(resp -> {
-                    Debug.print("Created table, updated rows -> {0}", resp.updateResult());
+                    Debug.tprint("ClanManager/createTable", "Created table, updated rows -> {0}", resp.updateResult());
                     return null;
                 })
                 .execute();
@@ -258,7 +258,7 @@ public class ClanManager {
     private void startSyncTask(){
         long flushDelay = ClansPlugin.config().getClanFlushDelay();
         if(ClansPlugin.config().getClanFlushDelay() > 1) {
-            Debug.print("Starting sync task");
+            Debug.tprint("ClanManager/synctask", "Starting sync task");
             // multiple delay by 20 because taskScheduler uses ticks, not seconds
             // TODO: Change var names to sync too idk im lazy
             this.syncTask = ClansPlugin.taskScheduler().runRepeatingAsync(() -> {
@@ -311,7 +311,7 @@ public class ClanManager {
         // Says for itself
         SUCCESS
     }
-    private class DatabaseSyncer {
+    private static class DatabaseSyncer {
         private DatabaseSyncer(){
             EventSystem.CLAN_CREATE.register(onCreate);
             EventSystem.CLAN_DELETE.register(onDelete);
@@ -320,7 +320,7 @@ public class ClanManager {
             EventSystem.CLAN_RECOVER.register(onRecover);
             EventSystem.CLAN_RECOVER_OTHER.register(onRecover);
 
-            Debug.print("DatabaseSyncer is alive");
+            Debug.tprint("Database Syncer", "DatabaseSyncer is alive");
         }
 
         // TODO: Do clan existence checks on the db side
@@ -328,7 +328,7 @@ public class ClanManager {
         // TODO: Rollback changes if sync failed
         // TODO: Throttle fast syncs somehow.
         private ClanEvent.ClanEventHandler onCreate = (actor, clan) -> {
-            Debug.print("Synchronizing clan {0} create with db...", clan);
+            Debug.tprint("Database Syncer", "Synchronizing clan {0} create with db...", clan.getId());
             DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
                     .sql("INSERT INTO clans VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
                     .exceptionally(e -> {
@@ -336,10 +336,15 @@ public class ClanManager {
                     })
                     .setVerbose(true)
                     .setPrepared(ps -> SQLUtils.clanToPrepStatement(ps, clan))
+                    // TODO: Remove
+                    .updateCallback(resp -> {
+                        Debug.tprint("Database Syncer", "Sync complete!");
+                        return null;
+                    })
                     .executeAsync();
         };
         private ClanEvent.ClanEventHandler onDelete = (actor, clan) -> {
-            Debug.print("Synchronizing clan {0} delete with db...", clan);
+            Debug.tprint("Database Syncer", "Synchronizing clan {0} delete with db...", clan.getId());
             DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
                     .sql("DELETE FROM clans WHERE id=?")
                     .exceptionally(e -> {
@@ -348,10 +353,15 @@ public class ClanManager {
                     })
                     .setVerbose(true)
                     .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
+                    // TODO: Remove
+                    .updateCallback(resp -> {
+                        Debug.tprint("Database Syncer", "Sync complete!");
+                        return null;
+                    })
                     .executeAsync();
         };
         private ClanEvent.ClanEventHandler onDisband = (actor, clan) -> {
-            Debug.print("Synchronizing clan {0} disband with db...", clan);
+            Debug.tprint("Database Syncer", "Synchronizing clan {0} disband with db...", clan.getId());
             DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
                     .sql("UPDATE clans SET deleted=1 WHERE id=?")
                     .exceptionally(e -> {
@@ -359,10 +369,15 @@ public class ClanManager {
                     })
                     .setVerbose(true)
                     .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
+                    // TODO: Remove
+                    .updateCallback(resp -> {
+                        Debug.tprint("Database Syncer", "Sync complete!");
+                        return null;
+                    })
                     .executeAsync();
         };
         private ClanEvent.ClanEventHandler onRecover = (actor, clan) -> {
-            Debug.print("Synchronizing clan {0} recover with db...", clan);
+            Debug.tprint("Database Syncer", "Synchronizing clan {0} recover with db...", clan.getId());
             DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
                     .sql("UPDATE clans SET deleted=0 WHERE id=?")
                     .exceptionally(e -> {
@@ -370,6 +385,11 @@ public class ClanManager {
                     })
                     .setVerbose(true)
                     .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
+                    // TODO: Remove
+                    .updateCallback(resp -> {
+                        Debug.tprint("Database Syncer", "Sync complete!");
+                        return null;
+                    })
                     .executeAsync();
         };
     }

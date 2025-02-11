@@ -19,7 +19,7 @@ public class DatabaseService {
     private static ExecutorService pool;
 
     public static void initializeService(ConnectionProvider provider) throws IllegalAccessException {
-        Debug.print("Initializing DatabaseService...");
+        Debug.tprint("DBService", "Initializing DatabaseService...");
         if (DatabaseService.provider != null)
             throw new IllegalAccessException("Tried to initialize DatabaseService again");
         DatabaseService.provider = provider;
@@ -35,7 +35,7 @@ public class DatabaseService {
     }
 
     public static void destroyService() {
-        Debug.print("Destroying DatabaseService...");
+        Debug.tprint("DBService", "Destroying DatabaseService...");
         if (provider != null) {
             try {
                 provider.breakConnection();
