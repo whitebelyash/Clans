@@ -20,6 +20,7 @@ import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.cmd.exec.Command;
 import ru.whbex.develop.clans.common.misc.DisabledPlugin;
+import ru.whbex.develop.clans.common.misc.MiscUtils;
 import ru.whbex.develop.clans.common.task.DatabaseService;
 import ru.whbex.develop.clans.common.task.TaskScheduler;
 import ru.whbex.develop.clans.common.clan.ClanManager;
@@ -53,6 +54,8 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     // TODO: disable in prod/release
     private static final boolean REPLACE_LOCALES = true;
     private List<Command> commandList = new ArrayList<>();
+
+    private static final boolean DB_PROPERTIES_DEFINED = Boolean.getBoolean("clans.db-properties-defined");
 
 
     @Override
@@ -106,15 +109,18 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         LogContext.provideLogger(null);
     }
     private void setupDatabase() throws InvocationTargetException, SQLException, IllegalAccessException {
-        Config.DatabaseType type = config.getDatabaseBackend();
-        ConnectionConfig data = new ConnectionConfig(
+        Config.DatabaseType type = !DB_PROPERTIES_DEFINED ?
+                config.getDatabaseBackend() :
+                Config.DatabaseType.valueOf(System.getProperty("clans.db-backend"));
+        ConnectionConfig data = !DB_PROPERTIES_DEFINED ? new ConnectionConfig(
                 config.getDatabaseName(),
                 // Create db in plugin folder if db is file-backed
                 type.isFile() ? new File(getDataFolder(), config.getDatabaseAddress()).getAbsolutePath() : config.getDatabaseAddress(),
                 config.getDatabaseUser(),
-                config.getDatabasePassword());
-        Debug.print("database address: {0}", data.dbAddress());
-        ConnectionProvider prov = ConstructUtils.newInstance(config.getDatabaseBackend().provider(), data);
+                config.getDatabasePassword()) :
+                MiscUtils.systemConnectionConfig(type, getDataFolder());
+      //  Debug.print("database address: {0}", data.dbAddress());
+        ConnectionProvider prov = ConstructUtils.newInstance(type.provider(), data);
         if(prov == null){
             LogContext.log(Level.ERROR, "Failed to initialize connection provider instance!");
             return;
