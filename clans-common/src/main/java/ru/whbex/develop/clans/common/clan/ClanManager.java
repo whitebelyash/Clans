@@ -20,7 +20,7 @@ import java.util.*;
 public class ClanManager {
     // Blocks database writes
     // TODO: Disable when database syncing will be completed
-    private boolean transientSession = false;
+    private boolean transientSession = Boolean.getBoolean("clans.transient");
     // Main clan map
     private final Map<UUID, Clan> clans = new HashMap<>();
     // Tag to clan map
