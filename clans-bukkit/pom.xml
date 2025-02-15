@@ -85,6 +85,10 @@
       <groupId>ru.whbex.lib</groupId>
       <artifactId>reflect</artifactId>
     </dependency>
+    <dependency>
+      <groupId>ru.whbex.lib</groupId>
+      <artifactId>wlib-bukkit</artifactId>
+    </dependency>
   </dependencies>
 
   <parent>
