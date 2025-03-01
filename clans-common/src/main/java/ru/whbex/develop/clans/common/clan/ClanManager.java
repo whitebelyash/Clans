@@ -2,7 +2,6 @@ package ru.whbex.develop.clans.common.clan;
 
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
-
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.event.EventSystem;
 import ru.whbex.develop.clans.common.event.def.ClanEvent;
@@ -17,6 +16,9 @@ import ru.whbex.lib.sql.SQLAdapter;
 import java.sql.ResultSet;
 import java.util.*;
 
+/**
+ * Manages clans, including creation, disbanding, and synchronization with the database.
+ */
 public class ClanManager {
     // Blocks database writes
     // TODO: Disable when database syncing will be completed
@@ -61,7 +63,7 @@ public class ClanManager {
     }
     private void registerEvents(){
         Debug.tprint("ClanManager", "Registering events...");
-        EventSystem.CLAN_CREATE.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.create", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getProfile().getName()));
+        EventSystem.CLAN_CREATE.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.create", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getName()));
         EventSystem.CLAN_DISBAND.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband", clan.getMeta().getTag(), clan.getMeta().getName()));
         EventSystem.CLAN_DISBAND_OTHER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.disband-admin", clan.getMeta().getTag(), clan.getMeta().getName()));
         EventSystem.CLAN_RECOVER.register((actor, clan) -> ClansPlugin.playerManager().broadcastT("notify.clan.recover", clan.getMeta().getTag(), clan.getMeta().getName(), actor.getName()));
@@ -69,6 +71,9 @@ public class ClanManager {
         EventSystem.CLAN_LVLUP.register(((actor, clan) -> clan.sendMessageT("notify.clan.lvlup", clan.getLevelling().getLevel(), clan.getLevelling().nextExp())));
     }
 
+    /**
+     * Shuts down the ClanManager, cancels the sync task, and clears all clan maps.
+     */
     public void shutdown() {
         LogContext.log(Level.INFO, "ClanManager is shutting down...");
         if(!transientSession){
@@ -82,7 +87,14 @@ public class ClanManager {
         leadClans.clear();
     }
 
-
+    /**
+     * Creates a new clan with the specified tag, name, and leader.
+     *
+     * @param tag The tag of the new clan.
+     * @param name The name of the new clan.
+     * @param leader The UUID of the leader of the new clan.
+     * @return An Error enum indicating the result of the operation.
+     */
     public Error createClan(String tag, String name, UUID leader) {
         if (tagClans.containsKey(tag))
             return Error.CLAN_TAG_EXISTS;
@@ -101,6 +113,13 @@ public class ClanManager {
         return Error.SUCCESS;
     }
 
+    /**
+     * Disbands the specified clan.
+     *
+     * @param clan The clan to disband.
+     * @param actor The actor performing the disband operation.
+     * @return An Error enum indicating the result of the operation.
+     */
     public Error disbandClan(Clan clan, CommandActor actor) {
         if (clan.isDeleted() || !clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
@@ -114,12 +133,25 @@ public class ClanManager {
         return Error.SUCCESS;
     }
 
+    /**
+     * Disbands the clan with the specified tag.
+     *
+     * @param tag The tag of the clan to disband.
+     * @param actor The actor performing the disband operation.
+     * @return An Error enum indicating the result of the operation.
+     */
     public Error disbandClan(String tag, CommandActor actor) {
         if (!tagClans.containsKey(tag.toLowerCase()))
             return Error.CLAN_NOT_FOUND;
         return disbandClan(tagClans.get(tag), actor);
     }
 
+    /**
+     * Removes the specified clan from the manager.
+     *
+     * @param clan The clan to remove.
+     * @return An Error enum indicating the result of the operation.
+     */
     public Error removeClan(Clan clan) {
         if (!clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
@@ -133,18 +165,38 @@ public class ClanManager {
         return Error.SUCCESS;
     }
 
+    /**
+     * Removes the clan with the specified UUID from the manager.
+     *
+     * @param uuid The UUID of the clan to remove.
+     * @return An Error enum indicating the result of the operation.
+     */
     public Error removeClan(UUID uuid) {
         if (!clans.containsKey(uuid))
             return Error.CLAN_NOT_FOUND;
         return removeClan(clans.get(uuid));
     }
 
+    /**
+     * Removes the clan with the specified tag from the manager.
+     *
+     * @param tag The tag of the clan to remove.
+     * @return An Error enum indicating the result of the operation.
+     */
     public Error removeClan(String tag) {
         if (!tagClans.containsKey(tag.toLowerCase()))
             return Error.CLAN_NOT_FOUND;
         return this.removeClan(tagClans.get(tag.toLowerCase()));
     }
 
+    /**
+     * Recovers a previously disbanded clan.
+     *
+     * @param clan The clan to recover.
+     * @param newTag The new tag for the clan, or null to keep the existing tag.
+     * @param actor The actor performing the recovery operation.
+     * @return An Error enum indicating the result of the operation.
+     */
     public Error recoverClan(Clan clan, String newTag, CommandActor actor) {
         if (!clans.containsKey(clan.getId()))
             return Error.CLAN_NOT_FOUND;
@@ -167,38 +219,83 @@ public class ClanManager {
         return Error.SUCCESS;
     }
 
+    /**
+     * Retrieves the clan with the specified UUID.
+     *
+     * @param id The UUID of the clan to retrieve.
+     * @return The clan with the specified UUID, or null if not found.
+     */
     public Clan getClan(UUID id) {
         return clans.get(id);
     }
 
+    /**
+     * Retrieves the clan with the specified tag.
+     *
+     * @param tag The tag of the clan to retrieve.
+     * @return The clan with the specified tag, or null if not found.
+     */
     public Clan getClan(String tag) {
         return tagClans.get(tag.toLowerCase());
     }
 
+    /**
+     * Retrieves the clan led by the specified player.
+     *
+     * @param leader The player actor representing the leader.
+     * @return The clan led by the specified player, or null if not found.
+     */
     public Clan getClan(PlayerActor leader) {
         return leadClans.get(leader.getUniqueId());
     }
 
+    /**
+     * Checks if a clan with the specified tag exists.
+     *
+     * @param tag The tag to check.
+     * @return true if a clan with the specified tag exists, false otherwise.
+     */
     public boolean clanExists(String tag) {
         return tagClans.containsKey(tag.toLowerCase()) && clans.containsKey(tagClans.get(tag.toLowerCase()).getId());
     }
 
+    /**
+     * Checks if a clan with the specified UUID exists.
+     *
+     * @param id The UUID to check.
+     * @return true if a clan with the specified UUID exists, false otherwise.
+     */
     public boolean clanExists(UUID id) {
         return clans.containsKey(id);
     }
 
+    /**
+     * Checks if the specified player is a leader of any clan.
+     *
+     * @param leader The UUID of the player to check.
+     * @return true if the player is a leader of any clan, false otherwise.
+     */
     public boolean isClanLeader(UUID leader) {
         return leadClans.containsKey(leader);
     }
 
+    /**
+     * Retrieves all clans managed by this ClanManager.
+     *
+     * @return A collection of all clans.
+     */
     public Collection<Clan> getAllClans() {
         return clans.values();
     }
 
+    /**
+     * Retrieves all clans managed by this ClanManager, indexed by tag. (i.e. not removed)
+     *
+     * @return A collection of all clans.
+     */
     public Collection<Clan> getClans() {
         return tagClans.values();
     }
-
 
     // TODO: Only load cached data instead of all clans
     private void preloadClans() {
@@ -286,6 +383,9 @@ public class ClanManager {
         else syncTask = null;
     }
 
+    /**
+     * Triggers an immediate synchronization of clans with the database.
+     */
     public void triggerSync(){
         if(syncTask == null){
             LogContext.log(Level.WARN, "Unable to trigger sync task because it's not created");
@@ -294,7 +394,9 @@ public class ClanManager {
         syncTask.run();
     }
 
-
+    /**
+     * Enum representing possible errors that can occur during clan management operations.
+     */
     public enum Error {
         // Return if clan was not found in maps
         CLAN_NOT_FOUND,
@@ -311,6 +413,7 @@ public class ClanManager {
         // Says for itself
         SUCCESS
     }
+
     private static class DatabaseSyncer {
         private DatabaseSyncer(){
             EventSystem.CLAN_CREATE.register(onCreate);
