@@ -6,12 +6,14 @@ import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.clan.ClanLevelling;
 import ru.whbex.develop.clans.common.clan.ClanMeta;
 import ru.whbex.develop.clans.common.clan.ClanRank;
+import ru.whbex.develop.clans.common.player.PlayerProfile;
 import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.string.StringUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 import java.util.UUID;
 
 public class SQLUtils {
@@ -66,5 +68,21 @@ public class SQLUtils {
         Clan c = new Clan(cid, meta, levelling, false);
         c.setDeleted(deleted);
         return c;
+    }
+
+    public static PlayerProfile profileFromQuery(ResultSet rs) throws SQLException {
+        return new PlayerProfile(
+                Objects.requireNonNull(StringUtils.UUIDFromString(rs.getString("id")), "uuid"),
+                rs.getString("name"),
+                rs.getLong("regDate"),
+                rs.getLong("lastSeen"),
+                Objects.requireNonNull(StringUtils.UUIDFromString(rs.getString("id")), "cid"));
+    }
+    public static void profileToPrepStatement(PreparedStatement stat, PlayerProfile prof) throws SQLException {
+        stat.setString(1, prof.getOwner().toString());
+        stat.setString(2, prof.getName());
+        stat.setLong(3, prof.getRegDate());
+        stat.setLong(4, prof.getLastSeen());
+        stat.setString(5, prof.getClanId().toString());
     }
 }
