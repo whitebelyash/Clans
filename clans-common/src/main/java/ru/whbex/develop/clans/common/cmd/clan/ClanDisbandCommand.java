@@ -2,13 +2,10 @@ package ru.whbex.develop.clans.common.cmd.clan;
 
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
-import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.exec.Command;
 import ru.whbex.develop.clans.common.cmd.exec.CommandError;
-import ru.whbex.develop.clans.common.cmd.exec.CommandUsageError;
-import ru.whbex.develop.clans.common.event.EventSystem;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.lib.log.LogContext;
 
@@ -24,7 +21,7 @@ public class ClanDisbandCommand implements Command {
         } else {
             // other
             // TODO: Add permission check
-            ClanManager.Error e = ClansPlugin.clanManager().disbandClan(args[1], actor);
+            ClanManager.Result e = ClansPlugin.clanManager().disbandClan(args[1], actor);
             switch (e){
                 case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
                 case CLAN_ALR_DISBAND -> throw new CommandError("command.disband.fail-deleted");
@@ -40,7 +37,7 @@ public class ClanDisbandCommand implements Command {
     private void execute_self(PlayerActor pa){
         if(!ClansPlugin.clanManager().isClanLeader(pa.getUniqueId()))
             throw new CommandError("meta.command.leadership-required");
-        ClanManager.Error e = ClansPlugin.clanManager().disbandClan(ClansPlugin.clanManager().getClan(pa), (CommandActor) pa);
+        ClanManager.Result e = ClansPlugin.clanManager().disbandClan(ClansPlugin.clanManager().getClan(pa), (CommandActor) pa);
         switch(e){
             case CLAN_NOT_FOUND -> throw new CommandError("meta.command.leadership-required");
             case CLAN_ALR_DISBAND -> throw new CommandError("command.disband.fail-deleted-self");

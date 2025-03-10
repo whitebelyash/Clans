@@ -44,7 +44,7 @@ public class ClanCreateCommand implements Command {
             }
         }
 
-        ClanManager.Error e = cm.createClan(tag, name, pa.getUniqueId());
+        ClanManager.Result e = cm.createClan(tag, name, pa.getUniqueId());
         switch(e){
             case CLAN_TAG_EXISTS -> throw new CommandError("command.create.clan-exists");
             case LEAD_HAS_CLAN -> throw new CommandError("command.create.leave-leader");

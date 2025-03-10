@@ -95,11 +95,11 @@ public class ClanManager {
      * @param leader The UUID of the leader of the new clan.
      * @return An Error enum indicating the result of the operation.
      */
-    public Error createClan(String tag, String name, UUID leader) {
+    public Result createClan(String tag, String name, UUID leader) {
         if (tagClans.containsKey(tag))
-            return Error.CLAN_TAG_EXISTS;
+            return Result.CLAN_TAG_EXISTS;
         if (leadClans.containsKey(leader))
-            return Error.LEAD_HAS_CLAN;
+            return Result.LEAD_HAS_CLAN;
         // TODO: Add check for clan membership
 
         PlayerActor actor = ClansPlugin.playerManager().getPlayerActor(leader);
@@ -110,7 +110,7 @@ public class ClanManager {
         leadClans.put(c.getMeta().getLeader(), c);
         LogContext.log(Level.INFO, "New clan was created. Welcome there, {0}!", c.getMeta().getTag());
         EventSystem.CLAN_CREATE.call((CommandActor) actor, c);
-        return Error.SUCCESS;
+        return Result.SUCCESS;
     }
 
     /**
@@ -120,9 +120,9 @@ public class ClanManager {
      * @param actor The actor performing the disband operation.
      * @return An Error enum indicating the result of the operation.
      */
-    public Error disbandClan(Clan clan, CommandActor actor) {
+    public Result disbandClan(Clan clan, CommandActor actor) {
         if (clan.isDeleted() || !clans.containsKey(clan.getId()))
-            return Error.CLAN_NOT_FOUND;
+            return Result.CLAN_NOT_FOUND;
         clan.setDeleted(true);
         clan.touch();
         tagClans.remove(clan.getMeta().getTag().toLowerCase());
@@ -130,7 +130,7 @@ public class ClanManager {
         ClanEvent ev = self ? EventSystem.CLAN_DISBAND : EventSystem.CLAN_DISBAND_OTHER;
         ev.call(actor, clan);
         LogContext.log(Level.INFO, "Clan {0} was disbanded :(", clan.getMeta().getTag());
-        return Error.SUCCESS;
+        return Result.SUCCESS;
     }
 
     /**
@@ -140,9 +140,9 @@ public class ClanManager {
      * @param actor The actor performing the disband operation.
      * @return An Error enum indicating the result of the operation.
      */
-    public Error disbandClan(String tag, CommandActor actor) {
+    public Result disbandClan(String tag, CommandActor actor) {
         if (!tagClans.containsKey(tag.toLowerCase()))
-            return Error.CLAN_NOT_FOUND;
+            return Result.CLAN_NOT_FOUND;
         return disbandClan(tagClans.get(tag), actor);
     }
 
@@ -152,17 +152,17 @@ public class ClanManager {
      * @param clan The clan to remove.
      * @return An Error enum indicating the result of the operation.
      */
-    public Error removeClan(Clan clan) {
+    public Result removeClan(Clan clan) {
         if (!clans.containsKey(clan.getId()))
-            return Error.CLAN_NOT_FOUND;
+            return Result.CLAN_NOT_FOUND;
         tagClans.remove(clan.getMeta().getTag());
         leadClans.remove(clan.getMeta().getLeader());
         Clan c = clans.remove(clan.getId());
         if (c == null)
-            return Error.CLAN_NOT_FOUND;
+            return Result.CLAN_NOT_FOUND;
         EventSystem.CLAN_DELETE.call((CommandActor) ClansPlugin.playerManager().getPlayerActor(clan.getMeta().getLeader()), clan);
         LogContext.log(Level.INFO, "Clan {0} was removed. We won't see you ever again );", c.getMeta().getTag());
-        return Error.SUCCESS;
+        return Result.SUCCESS;
     }
 
     /**
@@ -171,9 +171,9 @@ public class ClanManager {
      * @param uuid The UUID of the clan to remove.
      * @return An Error enum indicating the result of the operation.
      */
-    public Error removeClan(UUID uuid) {
+    public Result removeClan(UUID uuid) {
         if (!clans.containsKey(uuid))
-            return Error.CLAN_NOT_FOUND;
+            return Result.CLAN_NOT_FOUND;
         return removeClan(clans.get(uuid));
     }
 
@@ -183,9 +183,9 @@ public class ClanManager {
      * @param tag The tag of the clan to remove.
      * @return An Error enum indicating the result of the operation.
      */
-    public Error removeClan(String tag) {
+    public Result removeClan(String tag) {
         if (!tagClans.containsKey(tag.toLowerCase()))
-            return Error.CLAN_NOT_FOUND;
+            return Result.CLAN_NOT_FOUND;
         return this.removeClan(tagClans.get(tag.toLowerCase()));
     }
 
@@ -197,14 +197,14 @@ public class ClanManager {
      * @param actor The actor performing the recovery operation.
      * @return An Error enum indicating the result of the operation.
      */
-    public Error recoverClan(Clan clan, String newTag, CommandActor actor) {
+    public Result recoverClan(Clan clan, String newTag, CommandActor actor) {
         if (!clans.containsKey(clan.getId()))
-            return Error.CLAN_NOT_FOUND;
+            return Result.CLAN_NOT_FOUND;
         if (!clan.isDeleted())
-            return Error.CLAN_REC_EXISTS;
+            return Result.CLAN_REC_EXISTS;
         if (tagClans.containsKey(clan.getMeta().getTag().toLowerCase())) {
             if (newTag == null)
-                return Error.CLAN_TAG_EXISTS;
+                return Result.CLAN_TAG_EXISTS;
             else {
                 clan.getMeta().setTag(newTag);
             }
@@ -216,7 +216,7 @@ public class ClanManager {
         ClanEvent ev = self ? EventSystem.CLAN_RECOVER : EventSystem.CLAN_RECOVER_OTHER;
         ev.call(actor, clan);
         LogContext.log(Level.INFO, "Clan {0} was recovered! (from ashes, I suppose?)", clan.getMeta().getTag());
-        return Error.SUCCESS;
+        return Result.SUCCESS;
     }
 
     /**
@@ -395,9 +395,9 @@ public class ClanManager {
     }
 
     /**
-     * Enum representing possible errors that can occur during clan management operations.
+     * Enum representing clan management operations result.
      */
-    public enum Error {
+    public enum Result {
         // Return if clan was not found in maps
         CLAN_NOT_FOUND,
         // Return if clan with provided tag exists in tagClans map

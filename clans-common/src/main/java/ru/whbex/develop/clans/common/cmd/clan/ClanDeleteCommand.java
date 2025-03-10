@@ -35,7 +35,7 @@ public class ClanDeleteCommand implements Command {
         }
 
         String tag = ClansPlugin.clanManager().getClan(cid) == null ? null : ClansPlugin.clanManager().getClan(cid).getMeta().getTag();
-        ClanManager.Error e = ClansPlugin.clanManager().removeClan(cid);
+        ClanManager.Result e = ClansPlugin.clanManager().removeClan(cid);
         switch(e){
             case SUCCESS -> actor.sendMessageT("command.delete.success", tag);
             case CLAN_SYNC_ERROR -> throw new CommandError(null);

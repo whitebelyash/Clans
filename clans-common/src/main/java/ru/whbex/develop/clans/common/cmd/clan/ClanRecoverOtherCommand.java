@@ -29,7 +29,7 @@ public class ClanRecoverOtherCommand implements Command {
         String tag = args.length < 3 ? null : args[2];
         if(tag != null && MiscUtils.validateClanTag(tag))
             throw new CommandError("meta.clan-check.invalid-tag");
-        ClanManager.Error e = cm.recoverClan(cm.getClan(id), tag, actor);
+        ClanManager.Result e = cm.recoverClan(cm.getClan(id), tag, actor);
         switch(e){
             case CLAN_NOT_FOUND -> throw new CommandError("meta.command.unknown-clan");
             case CLAN_REC_EXISTS -> throw new CommandError("command.recover.fail-exists");
