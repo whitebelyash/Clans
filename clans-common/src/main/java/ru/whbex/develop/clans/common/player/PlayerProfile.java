@@ -1,5 +1,8 @@
 package ru.whbex.develop.clans.common.player;
 
+import org.slf4j.event.Level;
+import ru.whbex.develop.clans.common.ClansPlugin;
+import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.string.StringUtils;
 
 import java.sql.ResultSet;
@@ -8,10 +11,14 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class PlayerProfile {
-    private UUID owner;
+    private final UUID owner;
     private String name;
     private final long regDate;
     private long lastSeen;
+
+    private UUID clanId;
+
+
 
     /**
      * Player profile
@@ -20,18 +27,16 @@ public class PlayerProfile {
      * @param regDate Registration date (-1 - sets time at object creation)
      * @param lastSeen Last seen time (update with updateLastSeen())
      */
-    public PlayerProfile(UUID owner, String name, long regDate, long lastSeen){
+    public PlayerProfile(UUID owner, String name, long regDate, long lastSeen, UUID cid){
         this.owner = owner;
         this.name = name;
         this.regDate = regDate == -1 ? System.currentTimeMillis() : regDate;
         this.lastSeen = lastSeen;
-    }
-    public static PlayerProfile fromResultSet(ResultSet rs) throws SQLException {
-        return new PlayerProfile(
-                Objects.requireNonNull(StringUtils.UUIDFromString(rs.getString("id")), "uuid"),
-                rs.getString("name"),
-                rs.getLong("regDate"),
-                rs.getLong("lastSeen"));
+        if(cid != null && !ClansPlugin.clanManager().clanExists(cid)){
+            LogContext.log(Level.WARN, "Loaded PlayerProfile with unknown clan id {0}, WTF?? Removing...", cid);
+            cid = null;
+        }
+        this.clanId = cid;
     }
 
     public UUID getOwner() {
@@ -56,5 +61,13 @@ public class PlayerProfile {
 
     public void updateLastSeen() {
         this.lastSeen = System.currentTimeMillis() / 1000L;
+    }
+
+    public void setClanId(UUID clanId) {
+        this.clanId = clanId;
+    }
+
+    public UUID getClanId() {
+        return clanId;
     }
 }

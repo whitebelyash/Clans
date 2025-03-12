@@ -6,6 +6,7 @@ import ru.whbex.develop.clans.common.misc.requests.Request;
 import ru.whbex.lib.lang.Language;
 
 import java.util.UUID;
+import java.util.concurrent.Future;
 
 public interface PlayerActor extends Messenger {
     
@@ -34,4 +35,9 @@ public interface PlayerActor extends Messenger {
     boolean hasData(String key);
     void removeData(String key);
     void removeDataAll();
+
+    // Fetcher (used for PlayerProfile fetching)
+    void bindFetcher(Future<?> future);
+    Future<?> getFetcher();
+    void unbindFetcher();
 }

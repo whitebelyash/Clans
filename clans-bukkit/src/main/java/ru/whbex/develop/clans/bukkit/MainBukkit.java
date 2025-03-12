@@ -128,7 +128,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         DatabaseService.initializeService(prov);
         if(!DatabaseService.isInitialized())
             LogContext.log(Level.ERROR, "Failed to initialize DatabaseService");
-
     }
     private void setupLogging(){
         LOG = this.getLogger();
