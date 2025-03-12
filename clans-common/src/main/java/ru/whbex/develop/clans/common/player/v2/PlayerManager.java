@@ -13,10 +13,10 @@ import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.sql.SQLAdapter;
 
 import java.sql.ResultSet;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
@@ -64,6 +64,15 @@ public abstract class PlayerManager {
     public UUID resolveUUID(String name){
         return nameIdMap.get(name);
     }
+
+    public Collection<PlayerActor> getOnlineActors() {
+        return onlineActors.values();
+    }
+
+    public Collection<PlayerActor> getActors() {
+        return actors.values();
+    }
+
     public PlayerActor loadPlayerActor(UUID uuid){
         if(actors.containsKey(uuid))
             return actors.get(uuid);
