@@ -11,6 +11,7 @@ import ru.whbex.develop.clans.common.task.DatabaseService;
 import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.sql.SQLAdapter;
+import ru.whbex.lib.string.StringUtils;
 
 import java.sql.ResultSet;
 import java.util.Collection;
@@ -71,6 +72,24 @@ public abstract class PlayerManager {
 
     public Collection<PlayerActor> getActors() {
         return actors.values();
+    }
+
+    // Utils
+    public void broadcast(String string){
+        onlineActors.values().forEach(a -> a.sendMessage(string));
+    }
+    public void broadcast(String format, Object... args){
+        onlineActors.values().forEach(a -> a.sendMessage(StringUtils.simpleformat(format, args)));
+    }
+    public void broadcastT(String translatableString){
+        String t = ClansPlugin.mainLanguage().getPhrase(translatableString);
+        onlineActors.values().forEach(a -> {
+            a.sendMessage(t);
+        });
+    }
+    public void broadcastT(String translatableFormat, Object... args){
+        String t = StringUtils.simpleformat(ClansPlugin.mainLanguage().getPhrase(translatableFormat), args);
+        onlineActors.values().forEach(a -> a.sendMessage(t));
     }
 
     public PlayerActor loadPlayerActor(UUID uuid){
