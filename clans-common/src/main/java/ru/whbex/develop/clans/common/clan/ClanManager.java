@@ -29,7 +29,6 @@ public class ClanManager {
     private final Map<String, Clan> tagClans = new HashMap<>();
     // Leader to clan map
     private final Map<UUID, Clan> leadClans = new HashMap<>();
-    private Task syncTask;
     private DatabaseSyncer databaseSyncer;
 
     public ClanManager() {
@@ -48,7 +47,6 @@ public class ClanManager {
         else {
 
             this.databaseSyncer = new DatabaseSyncer();
-            startSyncTask();
         }
         registerEvents();
         Debug.tprint("ClanManager", "ClanManager init complete!");
@@ -76,10 +74,6 @@ public class ClanManager {
      */
     public void shutdown() {
         LogContext.log(Level.INFO, "ClanManager is shutting down...");
-        if(!transientSession){
-            syncTask.cancel();
-            syncTask = null;
-        }
         // As we're now doing immediate sync, all clans should be flushed to disk already at this point
         // if not - skill issue. Cleaning maps anyway
         clans.clear();
@@ -352,46 +346,11 @@ public class ClanManager {
                 .execute();
     }
 
-    private void startSyncTask(){
-        long flushDelay = ClansPlugin.config().getClanFlushDelay();
-        if(ClansPlugin.config().getClanFlushDelay() > 1) {
-            Debug.tprint("ClanManager/synctask", "Starting sync task");
-            // multiple delay by 20 because taskScheduler uses ticks, not seconds
-            // TODO: Change var names to sync too idk im lazy
-            this.syncTask = ClansPlugin.taskScheduler().runRepeatingAsync(() -> {
-                throw new RuntimeException("Not implemented");
-                // TODO: Switch to UPDATE statement instead of merge/replace
-                /* SQLAdapter<Void>.Executor<Void> exec = DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
-                        .sql(SQLString.REPLACE_OR_INSERT_CLANS.current());
-                // WholesomeLib bug workaround. Will fix it there too
-                AtomicBoolean doUpdate = new AtomicBoolean(false);
-                clans.values().stream().filter(Clan::checkTouch).forEach(clan -> {
-                    exec.addPrepared(ps -> SQLUtils.clanToPrepStatement(ps, clan));
-                    doUpdate.set(true);
-                });
-                // Do not continue if there are no clans to update
-                if(!doUpdate.get())
-                    return;
-                exec.exceptionally(e -> {
-                            LogContext.log(Level.ERROR, "Failed to execute clan sync task, see below stacktrace for more info");
-                            e.printStackTrace();
-                        })
-                        .execute();
-                 */
-            }, flushDelay * 20, flushDelay * 20);
-        }
-        else syncTask = null;
-    }
-
     /**
      * Triggers an immediate synchronization of clans with the database.
      */
     public void triggerSync(){
-        if(syncTask == null){
-            LogContext.log(Level.WARN, "Unable to trigger sync task because it's not created");
-            return;
-        }
-        syncTask.run();
+        // TODO: Drop this
     }
 
     /**
