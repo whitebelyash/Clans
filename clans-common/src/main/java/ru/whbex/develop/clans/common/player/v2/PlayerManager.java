@@ -26,34 +26,13 @@ public abstract class PlayerManager {
     private final Map<UUID, PlayerActor> actors = new HashMap<>();
     private final Map<UUID, PlayerActor> onlineActors = new HashMap<>();
     private final Map<String, UUID> nameIdMap = new HashMap<>();
-
-    private static final boolean PM_TRANSIENT = true;
+    private DatabaseBridge db;
 
     public PlayerManager(){
         Debug.tprint("PlayerManager", "initializing...");
-        if(!PM_TRANSIENT) {
-            Debug.tprint("PlayerManager", "Creating actor table");
-            DatabaseService.getExecutor(SQLAdapter::update)
-                    .sql("CREATE TABLE IF NOT EXISTS actors(" +
-                            // Actor UUID
-                            "id varchar(36) UNIQUE NOT NULL" + ',' +
-                            // Actor nickname
-                            "name varchar(32) UNIQUE NOT NULL" + ',' +
-                            // Actor reg date (epoch)
-                            "reg BIGINT" + ',' +
-                            // Actor last seen date (epoch)
-                            "last BIGINT" + ',' +
-                            // Actor clan id
-                            "cid varchar(36)" +
-                            ");"
-                    )
-                    .exceptionally(t -> {
-                        LogContext.log(Level.ERROR, "Unable to create players table. See below stacktrace for more info");
-                        t.printStackTrace();
-                    })
-                    .execute();
-            Debug.tprint("PlayerManager", "Complete");
-        }
+        db = new DatabaseBridge();
+        db.createTable();
+        Debug.tprint("PlayerManager", "Complete");
     }
     public PlayerActor playerActor(UUID uuid){
         return actors.get(uuid);
@@ -102,7 +81,7 @@ public abstract class PlayerManager {
         // Set a stub profile before real is fetched
         PlayerProfile stubProfile = new PlayerProfile(uuid, null, currentTime, currentTime, null);
         a.setProfile(stubProfile);
-        Future<PlayerProfile> playerProfileFetcher = loadProfileAsync(uuid);
+        Future<PlayerProfile> playerProfileFetcher = db.loadProfileAsync(uuid);
         a.bindFetcher(playerProfileFetcher);
         // LOAD PLAYER DATA FINALLY!!!
         ClansPlugin.taskScheduler().runAsync(() -> {
@@ -115,7 +94,7 @@ public abstract class PlayerManager {
                 Debug.lprint("Profile data fetched for {0}!", uuid);
                 // Save data back
                 // TODO: Autoinsert values in loadProfile()
-                insertProfile(uuid);
+                db.insertProfile(uuid);
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 LogContext.log(Level.ERROR, "Unable to load actor data for UUID " + uuid + "! See below stacktrace for more info");
                 e.printStackTrace();
@@ -135,67 +114,81 @@ public abstract class PlayerManager {
         nameIdMap.remove(n);
     }
 
-    private PlayerProfile loadProfile(UUID uuid){
-        return DatabaseService.getExecutor(PlayerProfile.class, SQLAdapter::preparedQuery)
-                .sql("SELECT * FROM actors WHERE id=?;")
-                .setPrepared(ps -> ps.setString(1, uuid.toString()))
-                .queryCallback(resp -> {
-                    ResultSet r = resp.resultSet();
-                    if(r.next())
-                        do {
-                            return SQLUtils.profileFromQuery(r);
-                        } while (r.next());
-                    else {
-                        Debug.lprint("Profile data was not found for {0} :(", uuid);
-                        return null;
-                    }
-                })
-                .execute();
-    }
-    private Future<PlayerProfile> loadProfileAsync(UUID uuid){
-        return DatabaseService.getAsyncExecutor(PlayerProfile.class, SQLAdapter::preparedQuery)
-                .sql("SELECT * FROM actors WHERE id=?;")
-                .setPrepared(ps -> ps.setString(1, uuid.toString()))
-                .queryCallback(resp -> {
-                    ResultSet r = resp.resultSet();
-                    if(r.next())
-                        do {
-                            return SQLUtils.profileFromQuery(r);
-                        } while (r.next());
-                    else {
-                        Debug.lprint("Profile data was not found for {0} :(", uuid);
-                        return null;
-                    }
-                })
-                .executeAsync();
-    }
 
-    private void insertProfile(UUID uuid){
-        if(actors.get(uuid) == null)
-            throw new NullPointerException("No such actor " + uuid + "!");
-        if(actors.get(uuid).getProfile() == null)
-            throw new NullPointerException("PlayerProfile on " + uuid + " is null!");
-        DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
-                .sql("INSERT INTO actors VALUES(?,?,?,?,?);")
-                .setPrepared(ps -> SQLUtils.profileToPrepStatement(ps, actors.get(uuid).getProfile()))
-                .execute();
-    }
-    private Future<Void> insertProfileAsync(UUID uuid){
-        if(actors.get(uuid) == null)
-            throw new NullPointerException("No such actor " + uuid + "!");
-        if(actors.get(uuid).getProfile() == null)
-            throw new NullPointerException("PlayerProfile on " + uuid + " is null!");
-        return DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
-                .sql("INSERT INTO actors VALUES(?,?,?,?,?);")
-                .setPrepared(ps -> SQLUtils.profileToPrepStatement(ps, actors.get(uuid).getProfile()))
-                .executeAsync();
-    }
     // Same logic as in ClanManager
     private class DatabaseBridge {
         private DatabaseBridge(){
 
+        }
+        private void createTable(){
+            DatabaseService.getExecutor(SQLAdapter::update)
+                    .sql("CREATE TABLE IF NOT EXISTS actors(" +
+                            "id varchar(18) PRIMARY KEY NOT NULL UNIQUE, " +
+                            "name varchar(32) NOT NULL, " +
+                            "regDate BIGINT, " +
+                            "lastSeen BIGINT, " +
+                            "cid varchar(18)" +
+                            ");")
+                    .exceptionally(e -> {
+                        LogContext.log(Level.ERROR, "Failed to initialize players database table! See below stacktrace for more info");
+                        e.printStackTrace();
+                    })
+                    .execute();
+        }
+        private PlayerProfile loadProfile(UUID uuid){
+            return DatabaseService.getExecutor(PlayerProfile.class, SQLAdapter::preparedQuery)
+                    .sql("SELECT * FROM actors WHERE id=?;")
+                    .setPrepared(ps -> ps.setString(1, uuid.toString()))
+                    .queryCallback(resp -> {
+                        ResultSet r = resp.resultSet();
+                        if(r.next())
+                            do {
+                                return SQLUtils.profileFromQuery(r);
+                            } while (r.next());
+                        else {
+                            Debug.lprint("Profile data was not found for {0} :(", uuid);
+                            return null;
+                        }
+                    })
+                    .execute();
+        }
+        private Future<PlayerProfile> loadProfileAsync(UUID uuid){
+            return DatabaseService.getAsyncExecutor(PlayerProfile.class, SQLAdapter::preparedQuery)
+                    .sql("SELECT * FROM actors WHERE id=?;")
+                    .setPrepared(ps -> ps.setString(1, uuid.toString()))
+                    .queryCallback(resp -> {
+                        ResultSet r = resp.resultSet();
+                        if(r.next())
+                            do {
+                                return SQLUtils.profileFromQuery(r);
+                            } while (r.next());
+                        else {
+                            Debug.lprint("Profile data was not found for {0} :(", uuid);
+                            return null;
+                        }
+                    })
+                    .executeAsync();
+        }
 
-
+        private void insertProfile(UUID uuid){
+            if(actors.get(uuid) == null)
+                throw new NullPointerException("No such actor " + uuid + "!");
+            if(actors.get(uuid).getProfile() == null)
+                throw new NullPointerException("PlayerProfile on " + uuid + " is null!");
+            DatabaseService.getExecutor(SQLAdapter::preparedUpdate)
+                    .sql("INSERT INTO actors VALUES(?,?,?,?,?);")
+                    .setPrepared(ps -> SQLUtils.profileToPrepStatement(ps, actors.get(uuid).getProfile()))
+                    .execute();
+        }
+        private Future<Void> insertProfileAsync(UUID uuid){
+            if(actors.get(uuid) == null)
+                throw new NullPointerException("No such actor " + uuid + "!");
+            if(actors.get(uuid).getProfile() == null)
+                throw new NullPointerException("PlayerProfile on " + uuid + " is null!");
+            return DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
+                    .sql("INSERT INTO actors VALUES(?,?,?,?,?);")
+                    .setPrepared(ps -> SQLUtils.profileToPrepStatement(ps, actors.get(uuid).getProfile()))
+                    .executeAsync();
         }
     }
 
