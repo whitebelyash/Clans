@@ -38,16 +38,11 @@ public class ClanManager {
             transientSession = true;
         }
         // This should not write to the database
-        else {
-            createClanTable();
-            preloadClans();
-        }
-        if (transientSession)
-            notifyAboutTransient();
-        else {
-
+        if(!transientSession){
             this.databaseBridge = new DatabaseBridge();
-        }
+            databaseBridge.createTable();
+            databaseBridge.preloadClans();
+        } else notifyAboutTransient();
         registerEvents();
         Debug.tprint("ClanManager", "ClanManager init complete!");
     }
@@ -291,60 +286,6 @@ public class ClanManager {
         return tagClans.values();
     }
 
-    // TODO: Only load cached data instead of all clans
-    private void preloadClans() {
-        DatabaseService.getExecutor(SQLAdapter::preparedQuery)
-                .sql("SELECT * FROM clans;")
-                .exceptionally(e -> {
-                    LogContext.log(Level.ERROR, "Exception was thrown while preloading clans from the database. See below stacktrace for more info");
-                    e.printStackTrace();
-                    transientSession = true;
-                })
-                .setVerbose(true)
-                .queryCallback(resp -> {
-                    ResultSet r = resp.resultSet();
-                    if (r.next())
-                        do {
-                            Clan c = SQLUtils.clanFromQuery(r);
-                            if (c == null) {
-                                LogContext.log(Level.ERROR, "Failed to preload clan");
-                                continue;
-                            }
-                            clans.put(c.getId(), c);
-                            if (!c.isDeleted())
-                                tagClans.put(c.getMeta().getTag(), c);
-                            leadClans.put(c.getMeta().getLeader(), c);
-                            Debug.tprint("ClanManager/preloadClans", "Loaded clan {0}/{1}", c.getId(), c.getMeta().getTag());
-                        } while (r.next());
-                    return null;
-                })
-                .execute();
-    }
-
-    private void createClanTable() {
-        DatabaseService.getExecutor(SQLAdapter::update)
-                .sql("CREATE TABLE IF NOT EXISTS clans (" +
-                        "id varchar(36) NOT NULL UNIQUE PRIMARY KEY, " +
-                        "tag varchar(16), " +
-                        "name varchar(24), " +
-                        "description varchar(255), " +
-                        "creationEpoch LONG, " +
-                        "leader varchar(36), " +
-                        "deleted TINYINT, " +
-                        "level INT, " +
-                        "exp INT, " +
-                        "defaultRank INT);")
-                .exceptionally(e -> {
-                    LogContext.log(Level.ERROR, "Unable to create clans table in the database. See below stacktrace for more info");
-                    e.printStackTrace();
-                    transientSession = true;
-                })
-                .updateCallback(resp -> {
-                    Debug.tprint("ClanManager/createTable", "Created table, updated rows -> {0}", resp.updateResult());
-                    return null;
-                })
-                .execute();
-    }
 
     /**
      * Triggers an immediate synchronization of clans with the database.
@@ -373,7 +314,7 @@ public class ClanManager {
         SUCCESS
     }
 
-    private static class DatabaseBridge {
+    private class DatabaseBridge {
         private DatabaseBridge(){
             EventSystem.CLAN_CREATE.register(onCreate);
             EventSystem.CLAN_DELETE.register(onDelete);
@@ -384,6 +325,62 @@ public class ClanManager {
 
             Debug.tprint("DatabaseBridge", "DatabaseBridge is alive");
         }
+
+        private void createTable() {
+            DatabaseService.getExecutor(SQLAdapter::update)
+                    .sql("CREATE TABLE IF NOT EXISTS clans (" +
+                            "id varchar(36) NOT NULL UNIQUE PRIMARY KEY, " +
+                            "tag varchar(16) NOT NULL, " +
+                            "name varchar(24), " +
+                            "description varchar(255), " +
+                            "creationEpoch LONG, " +
+                            "leader varchar(36), " +
+                            "deleted TINYINT, " +
+                            "level INT, " +
+                            "exp INT, " +
+                            "defaultRank INT);")
+                    .exceptionally(e -> {
+                        LogContext.log(Level.ERROR, "Unable to create clans table in the database. See below stacktrace for more info");
+                        e.printStackTrace();
+                        ClanManager.this.transientSession = true;
+                    })
+                    .updateCallback(resp -> {
+                        Debug.tprint("ClanManager/createTable", "Created table, updated rows -> {0}", resp.updateResult());
+                        return null;
+                    })
+                    .execute();
+        }
+
+        // TODO: Only load cached data instead of all clans
+        private void preloadClans() {
+            DatabaseService.getExecutor(SQLAdapter::preparedQuery)
+                    .sql("SELECT * FROM clans;")
+                    .exceptionally(e -> {
+                        LogContext.log(Level.ERROR, "Exception was thrown while preloading clans from the database. See below stacktrace for more info");
+                        e.printStackTrace();
+                        transientSession = true;
+                    })
+                    .setVerbose(true)
+                    .queryCallback(resp -> {
+                        ResultSet r = resp.resultSet();
+                        if (r.next())
+                            do {
+                                Clan c = SQLUtils.clanFromQuery(r);
+                                if (c == null) {
+                                    LogContext.log(Level.ERROR, "Failed to preload clan");
+                                    continue;
+                                }
+                                clans.put(c.getId(), c);
+                                if (!c.isDeleted())
+                                    tagClans.put(c.getMeta().getTag(), c);
+                                leadClans.put(c.getMeta().getLeader(), c);
+                                Debug.tprint("ClanManager/preloadClans", "Loaded clan {0}/{1}", c.getId(), c.getMeta().getTag());
+                            } while (r.next());
+                        return null;
+                    })
+                    .execute();
+        }
+
 
 
 
