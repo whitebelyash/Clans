@@ -84,6 +84,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         } catch (IllegalAccessException e) {
             LogContext.log(Level.ERROR, "Failed to initialize database service: {0}!", e.getMessage());
         }
+        registerCommands();
 
         LogContext.log(Level.INFO, "=== Load complete ===");
 
@@ -92,7 +93,6 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
     public void onEnable(){
         setupPM();
         this.clanManager = new ClanManager();
-        registerCommands();
         Bukkit.getPluginManager().registerEvents(new ListenerBukkit(), this);
         LogContext.log(Level.INFO, "Startup completed");
     }
@@ -160,7 +160,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         this.lang.load();
     }
     private void registerCommands(){
-        LogContext.log(Level.INFO, "Registering commands");
+        LogContext.log(Level.INFO, "Registering commands...");
         commandList.add(new ClanCommandBukkit());
         commandList.add(new ClansPluginCommandBukkit());
         //commandList.add(new ClanChatCommandBukkit());
