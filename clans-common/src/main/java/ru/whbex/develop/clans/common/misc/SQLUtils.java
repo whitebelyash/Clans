@@ -76,13 +76,13 @@ public class SQLUtils {
                 rs.getString("name"),
                 rs.getLong("regDate"),
                 rs.getLong("lastSeen"),
-                Objects.requireNonNull(StringUtils.UUIDFromString(rs.getString("id")), "cid"));
+                StringUtils.UUIDFromString(rs.getString("id")));
     }
     public static void profileToPrepStatement(PreparedStatement stat, PlayerProfile prof) throws SQLException {
         stat.setString(1, prof.getOwner().toString());
         stat.setString(2, prof.getName());
         stat.setLong(3, prof.getRegDate());
         stat.setLong(4, prof.getLastSeen());
-        stat.setString(5, prof.getClanId().toString());
+        stat.setString(5, prof.getClanId() == null ? null : prof.getClanId().toString());
     }
 }
