@@ -29,7 +29,7 @@ public class ClanManager {
     private final Map<String, Clan> tagClans = new HashMap<>();
     // Leader to clan map
     private final Map<UUID, Clan> leadClans = new HashMap<>();
-    private DatabaseSyncer databaseSyncer;
+    private DatabaseBridge databaseBridge;
 
     public ClanManager() {
         Debug.tprint("ClanManager", "ClanManager is initializing...");
@@ -46,7 +46,7 @@ public class ClanManager {
             notifyAboutTransient();
         else {
 
-            this.databaseSyncer = new DatabaseSyncer();
+            this.databaseBridge = new DatabaseBridge();
         }
         registerEvents();
         Debug.tprint("ClanManager", "ClanManager init complete!");
@@ -373,8 +373,8 @@ public class ClanManager {
         SUCCESS
     }
 
-    private static class DatabaseSyncer {
-        private DatabaseSyncer(){
+    private static class DatabaseBridge {
+        private DatabaseBridge(){
             EventSystem.CLAN_CREATE.register(onCreate);
             EventSystem.CLAN_DELETE.register(onDelete);
             EventSystem.CLAN_DISBAND.register(onDisband);
@@ -382,15 +382,17 @@ public class ClanManager {
             EventSystem.CLAN_RECOVER.register(onRecover);
             EventSystem.CLAN_RECOVER_OTHER.register(onRecover);
 
-            Debug.tprint("Database Syncer", "DatabaseSyncer is alive");
+            Debug.tprint("DatabaseBridge", "DatabaseBridge is alive");
         }
+
+
 
         // TODO: Do clan existence checks on the db side
         // TODO: Handle sync errors properly
         // TODO: Rollback changes if sync failed
         // TODO: Throttle fast syncs somehow.
         private ClanEvent.ClanEventHandler onCreate = (actor, clan) -> {
-            Debug.tprint("Database Syncer", "Synchronizing clan {0} create with db...", clan.getId());
+            Debug.tprint("DatabaseBridge", "Synchronizing clan {0} create with db...", clan.getId());
             DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
                     .sql("INSERT INTO clans VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
                     .exceptionally(e -> {
@@ -400,13 +402,13 @@ public class ClanManager {
                     .setPrepared(ps -> SQLUtils.clanToPrepStatement(ps, clan))
                     // TODO: Remove
                     .updateCallback(resp -> {
-                        Debug.tprint("Database Syncer", "Sync complete!");
+                        Debug.tprint("DatabaseBridge", "Sync complete!");
                         return null;
                     })
                     .executeAsync();
         };
         private ClanEvent.ClanEventHandler onDelete = (actor, clan) -> {
-            Debug.tprint("Database Syncer", "Synchronizing clan {0} delete with db...", clan.getId());
+            Debug.tprint("DatabaseBridge", "Synchronizing clan {0} delete with db...", clan.getId());
             DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
                     .sql("DELETE FROM clans WHERE id=?")
                     .exceptionally(e -> {
@@ -417,13 +419,13 @@ public class ClanManager {
                     .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
                     // TODO: Remove
                     .updateCallback(resp -> {
-                        Debug.tprint("Database Syncer", "Sync complete!");
+                        Debug.tprint("DatabaseBridge", "Sync complete!");
                         return null;
                     })
                     .executeAsync();
         };
         private ClanEvent.ClanEventHandler onDisband = (actor, clan) -> {
-            Debug.tprint("Database Syncer", "Synchronizing clan {0} disband with db...", clan.getId());
+            Debug.tprint("DatabaseBridge", "Synchronizing clan {0} disband with db...", clan.getId());
             DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
                     .sql("UPDATE clans SET deleted=1 WHERE id=?")
                     .exceptionally(e -> {
@@ -439,7 +441,7 @@ public class ClanManager {
                     .executeAsync();
         };
         private ClanEvent.ClanEventHandler onRecover = (actor, clan) -> {
-            Debug.tprint("Database Syncer", "Synchronizing clan {0} recover with db...", clan.getId());
+            Debug.tprint("DatabaseBridge", "Synchronizing clan {0} recover with db...", clan.getId());
             DatabaseService.getAsyncExecutor(SQLAdapter::preparedUpdate)
                     .sql("UPDATE clans SET deleted=0 WHERE id=?")
                     .exceptionally(e -> {
@@ -449,7 +451,7 @@ public class ClanManager {
                     .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
                     // TODO: Remove
                     .updateCallback(resp -> {
-                        Debug.tprint("Database Syncer", "Sync complete!");
+                        Debug.tprint("DatabaseBridge", "Sync complete!");
                         return null;
                     })
                     .executeAsync();
