@@ -191,8 +191,8 @@ public abstract class PlayerManager {
                 .executeAsync();
     }
     // Same logic as in ClanManager
-    private static class DatabaseSyncer {
-        private DatabaseSyncer(){
+    private class DatabaseBridge {
+        private DatabaseBridge(){
 
 
 
