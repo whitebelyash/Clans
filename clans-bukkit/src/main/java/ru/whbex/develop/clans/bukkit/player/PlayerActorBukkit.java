@@ -25,7 +25,7 @@ import java.util.concurrent.Future;
 public class PlayerActorBukkit implements PlayerActor, CommandActor {
     private UUID id;
     private String name;
-    private Future<Void> fetch;
+    private Future<?> fetch;
     private PlayerProfile profile;
     private final Map<PlayerActor, Request> requests = new HashMap<>();
     private final Map<String, Object> data = new HashMap<>();
@@ -179,9 +179,6 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
         return true;
     }
 
-
-
-
     @Override
     public String toString() {
         return "PlayerActorBukkit{" +
@@ -193,11 +190,14 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     public void setName(String name){
         this.name = name;
     }
-    public void setFetcher(Future<Void> fetcher){
+    public void bindFetcher(Future<?> fetcher){
         this.fetch = fetch;
     }
+    public void unbindFetcher(){
+        fetch = null;
+    }
 
-    public Future<Void> getFetcher() {
+    public Future<?> getFetcher() {
         return fetch;
     }
 

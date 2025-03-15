@@ -2,7 +2,7 @@ package ru.whbex.develop.clans.common;
 
 import ru.whbex.develop.clans.common.clan.ClanManager;
 import ru.whbex.develop.clans.common.misc.DisabledPlugin;
-import ru.whbex.develop.clans.common.player.PlayerManager;
+import ru.whbex.develop.clans.common.player.v2.PlayerManager;
 import ru.whbex.develop.clans.common.task.TaskScheduler;
 import ru.whbex.develop.clans.common.conf.Config;
 import ru.whbex.lib.lang.Language;

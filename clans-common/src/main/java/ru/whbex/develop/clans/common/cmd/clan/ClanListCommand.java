@@ -33,7 +33,7 @@ public class ClanListCommand implements Command {
             if(actor instanceof PlayerActor && clan.isMember((PlayerActor) actor))
                 entry_t = "command.list.entry-self";
             else entry_t = "command.list.entry";
-            PlayerActor lead = ClansPlugin.playerManager().getPlayerActor(clan.getMeta().getLeader());
+            PlayerActor lead = ClansPlugin.playerManager().loadPlayerActor(clan.getMeta().getLeader());
             actor.sendMessage(StringUtils.simpleformat(ClansPlugin.mainLanguage().getPhrase(entry_t), clan.getMeta().getTag(), clan.getMeta().getName(), lead.getName()));
         });
         if(pviewer.pageAmount() > 1)

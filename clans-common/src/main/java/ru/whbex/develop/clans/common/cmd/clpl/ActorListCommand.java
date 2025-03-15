@@ -13,7 +13,7 @@ import java.util.List;
 public class ActorListCommand implements Command {
     @Override
     public void execute(CommandActor actor, Command command, String label, String... args) {
-        Collection<PlayerActor> e = ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOnlinePlayerActors();
+        Collection<PlayerActor> e = ClansPlugin.Context.INSTANCE.plugin.getPlayerManager().getOnlineActors();
         List<PlayerActor> l = new ArrayList<>(e);
         PagedListView<PlayerActor> lp = new PagedListView<>(l);
         int p = args.length < 2 ? 1 : Integer.parseInt(args[1]);

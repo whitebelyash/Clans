@@ -3,11 +3,7 @@ package ru.whbex.develop.clans.common.player;
 import org.slf4j.event.Level;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.lib.log.LogContext;
-import ru.whbex.lib.string.StringUtils;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Objects;
 import java.util.UUID;
 
 public class PlayerProfile {

@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.event.EventSystem;
 import ru.whbex.develop.clans.common.event.def.PlayerEvent;
+import ru.whbex.develop.clans.common.misc.SQLUtils;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.player.PlayerManager;
 import ru.whbex.develop.clans.common.player.ConsoleActor;
@@ -61,7 +62,7 @@ public class PlayerManagerBukkit implements PlayerManager {
         if(actor.getProfile() == null){
             Debug.print("Player profile not set, fetching...");
             // Set stub profile before real is fetched
-            actor.setProfile(new PlayerProfile(actor.getUniqueId(), null, -1, 0));
+            actor.setProfile(new PlayerProfile(actor.getUniqueId(), null, -1, 0, null));
             // Set name if online
             if(actor.isOnline()) {
                 actor.getProfile().setName(((PlayerActorBukkit) actor).getBukkitPlayer().getName());
@@ -75,7 +76,7 @@ public class PlayerManagerBukkit implements PlayerManager {
                         if(resp.resultSet().next())
                             do {
                                 String old = actor.getProfile() != null ? actor.getProfile().getName() : null;
-                                actor.setProfile(PlayerProfile.fromResultSet(resp.resultSet()));
+                                actor.setProfile(SQLUtils.profileFromQuery(resp.resultSet()));
                                 if(old != null)
                                     actor.getProfile().setName(old);
                                 actorsN.put(actor.getProfile().getName(), actor);

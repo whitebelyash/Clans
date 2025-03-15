@@ -127,24 +127,24 @@ public class Clan implements Messenger {
 
     @Override
     public void sendMessage(String string) {
-        members.forEach(m -> ClansPlugin.playerManager().getPlayerActor(m).sendMessage(string));
+        members.forEach(m -> ClansPlugin.playerManager().loadPlayerActor(m).sendMessage(string));
     }
 
     @Override
     public void sendMessage(String format, Object... args) {
         String to = StringUtils.simpleformat(format, args);
-        members.forEach(m -> ClansPlugin.playerManager().getPlayerActor(m).sendMessage(to));
+        members.forEach(m -> ClansPlugin.playerManager().loadPlayerActor(m).sendMessage(to));
     }
 
     @Override
     public void sendMessageT(String translatableString) {
         String to = ClansPlugin.mainLanguage().getPhrase(translatableString);
-        members.forEach(m -> ClansPlugin.playerManager().getPlayerActor(m).sendMessage(to));
+        members.forEach(m -> ClansPlugin.playerManager().loadPlayerActor(m).sendMessage(to));
     }
 
     @Override
     public void sendMessageT(String translatableFormat, Object... args) {
         String to = StringUtils.simpleformat(ClansPlugin.mainLanguage().getPhrase(translatableFormat), args);
-        members.forEach(m -> ClansPlugin.playerManager().getPlayerActor(m).sendMessage(to));
+        members.forEach(m -> ClansPlugin.playerManager().loadPlayerActor(m).sendMessage(to));
     }
 }

@@ -13,7 +13,7 @@ import ru.whbex.develop.clans.common.event.EventSystem;
 public class ListenerBukkit implements Listener {
     @EventHandler(priority =  EventPriority.HIGHEST)
     public void on(PlayerLoginEvent e){
-        PlayerActorBukkit actor = (PlayerActorBukkit) ClansPlugin.playerManager().registerPlayerActor(e.getPlayer().getUniqueId());
+        PlayerActorBukkit actor = (PlayerActorBukkit) ClansPlugin.playerManager().loadPlayerActor(e.getPlayer().getUniqueId());
         actor.setBukkitPlayer(e.getPlayer());
     }
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -24,7 +24,7 @@ public class ListenerBukkit implements Listener {
     public void on(PlayerQuitEvent e){
         // Remove playerobj
         // TODO: Check for NPE
-        ((PlayerActorBukkit) ClansPlugin.playerManager().getPlayerActor(e.getPlayer().getUniqueId())).setBukkitPlayer(null);
+        ((PlayerActorBukkit) ClansPlugin.playerManager().loadPlayerActor(e.getPlayer().getUniqueId())).setBukkitPlayer(null);
         EventSystem.PLAYER_LEFT.call(e.getPlayer().getUniqueId());
     }
 }

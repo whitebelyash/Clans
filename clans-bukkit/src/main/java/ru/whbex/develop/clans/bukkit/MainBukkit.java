@@ -8,12 +8,10 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
-import ru.whbex.develop.clans.bukkit.cmd.AllyChatCommandBukkit;
-import ru.whbex.develop.clans.bukkit.cmd.ClanChatCommandBukkit;
 import ru.whbex.develop.clans.bukkit.cmd.ClanCommandBukkit;
 import ru.whbex.develop.clans.bukkit.cmd.ClansPluginCommandBukkit;
 import ru.whbex.develop.clans.bukkit.listener.ListenerBukkit;
-import ru.whbex.develop.clans.bukkit.player.PlayerManagerBukkit;
+import ru.whbex.develop.clans.bukkit.player.v2.PlayerManagerBukkit;
 import ru.whbex.develop.clans.bukkit.conf.ConfigBukkit;
 import ru.whbex.develop.clans.bukkit.task.TaskSchedulerBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
@@ -24,8 +22,10 @@ import ru.whbex.develop.clans.common.misc.MiscUtils;
 import ru.whbex.develop.clans.common.task.DatabaseService;
 import ru.whbex.develop.clans.common.task.TaskScheduler;
 import ru.whbex.develop.clans.common.clan.ClanManager;
-import ru.whbex.develop.clans.common.player.PlayerManager;
+import ru.whbex.develop.clans.common.player.v2.PlayerManager;
 import ru.whbex.develop.clans.common.conf.Config;
+import ru.whbex.lib.bukkit.cmd.CommandManager;
+import ru.whbex.lib.bukkit.cmd.StubCommand;
 import ru.whbex.lib.lang.LanguageFile;
 import ru.whbex.lib.lang.Language;
 import ru.whbex.lib.log.Debug;
@@ -166,7 +166,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
         //commandList.add(new ClanChatCommandBukkit());
         //commandList.add(new AllyChatCommandBukkit());
 
-        commandList.forEach(c -> this.getCommand(c.name()).setExecutor((CommandExecutor) c));
+        commandList.forEach(c -> CommandManager.registerCommand("clans", new StubCommand(c.name(), (CommandExecutor) c)));
     }
 
 

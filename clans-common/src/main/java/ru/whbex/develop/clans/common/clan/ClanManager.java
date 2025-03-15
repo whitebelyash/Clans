@@ -102,7 +102,7 @@ public class ClanManager {
             return Result.LEAD_HAS_CLAN;
         // TODO: Add check for clan membership
 
-        PlayerActor actor = ClansPlugin.playerManager().getPlayerActor(leader);
+        PlayerActor actor = ClansPlugin.playerManager().loadPlayerActor(leader);
         Clan c = Clan.newClan(tag, name, actor, false);
 
         clans.put(c.getId(),c);
@@ -160,7 +160,7 @@ public class ClanManager {
         Clan c = clans.remove(clan.getId());
         if (c == null)
             return Result.CLAN_NOT_FOUND;
-        EventSystem.CLAN_DELETE.call((CommandActor) ClansPlugin.playerManager().getPlayerActor(clan.getMeta().getLeader()), clan);
+        EventSystem.CLAN_DELETE.call((CommandActor) ClansPlugin.playerManager().loadPlayerActor(clan.getMeta().getLeader()), clan);
         LogContext.log(Level.INFO, "Clan {0} was removed. We won't see you ever again );", c.getMeta().getTag());
         return Result.SUCCESS;
     }

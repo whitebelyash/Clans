@@ -26,7 +26,6 @@ public abstract class PlayerManager {
     private final Map<UUID, PlayerActor> actors = new HashMap<>();
     private final Map<UUID, PlayerActor> onlineActors = new HashMap<>();
     private final Map<String, UUID> nameIdMap = new HashMap<>();
-    public abstract ConsoleActor consoleActor();
 
     private static final boolean PM_TRANSIENT = true;
 
@@ -201,5 +200,5 @@ public abstract class PlayerManager {
     }
 
     protected abstract PlayerActor createActorObject(UUID uuid);
-
+    public abstract ConsoleActor consoleActor();
 }
