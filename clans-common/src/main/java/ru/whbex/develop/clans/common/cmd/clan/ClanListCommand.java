@@ -15,10 +15,9 @@ import ru.whbex.lib.string.StringUtils;
 import java.util.ArrayList;
 
 public class ClanListCommand implements Command {
-    private final ClanManager cm = ClansPlugin.clanManager();
     @Override
     public void execute(CommandActor actor, Command command, String label, String... args) {
-        if(cm.getAllClans().isEmpty()){
+        if(ClansPlugin.clanManager().getAllClans().isEmpty()){
             actor.sendMessageT("command.list.no-clans");
             return;
         }
