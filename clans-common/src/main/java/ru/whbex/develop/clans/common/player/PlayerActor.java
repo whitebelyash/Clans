@@ -14,6 +14,7 @@ public interface PlayerActor extends Messenger {
     void teleport(int x, int y, int z, String world);
     UUID getUniqueId();
     String getName();
+    String getOnlineName();
     Language getLanguage();
     PlayerProfile getProfile();
     void setProfile(PlayerProfile profile);

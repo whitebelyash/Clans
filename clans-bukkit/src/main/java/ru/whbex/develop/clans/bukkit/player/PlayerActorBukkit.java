@@ -67,6 +67,11 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     }
 
     @Override
+    public String getOnlineName() {
+        return playerobj == null ? null : playerobj.getName();
+    }
+
+    @Override
     public Language getLanguage() {
         // TODO: Implement per-player locale support
         return ClansPlugin.Context.INSTANCE.plugin.getLanguage();
