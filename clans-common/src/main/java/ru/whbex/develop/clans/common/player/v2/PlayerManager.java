@@ -73,28 +73,36 @@ public abstract class PlayerManager {
     public PlayerActor loadPlayerActor(UUID uuid){
         if(actors.containsKey(uuid))
             return actors.get(uuid);
+        // Actor is non-existent
         PlayerActor a = createActorObject(uuid);
         actors.put(uuid, a);
-        if(a.isOnline())
-            onlineActors.put(uuid, a);
         long currentTime = System.currentTimeMillis()/1000L;
         // Set a stub profile before real is fetched
         PlayerProfile stubProfile = new PlayerProfile(uuid, null, currentTime, currentTime, null);
         a.setProfile(stubProfile);
+        boolean online = a.isOnline();
+        if(online) {
+            onlineActors.put(uuid, a);
+            stubProfile.setName(a.getOnlineName());
+        }
+
+
         Future<PlayerProfile> playerProfileFetcher = db.loadProfileAsync(uuid);
         a.bindFetcher(playerProfileFetcher);
-        // LOAD PLAYER DATA FINALLY!!!
         ClansPlugin.taskScheduler().runAsync(() -> {
             try {
                 Debug.lprint("Waiting on Future<PlayerProfile> for {0}...", uuid);
-                // smol??
                 PlayerProfile pp = playerProfileFetcher.get(Constants.TASK_WAIT_TIMEOUT, Constants.TASK_WAIT_TIMEOUT_UNIT);
                 if(pp != null)
                     a.setProfile(pp);
                 Debug.lprint("Profile data fetched for {0}!", uuid);
-                // Save data back
-                // TODO: Autoinsert values in loadProfile()
-                db.insertProfile(uuid);
+                if(online){
+                    // Save data back
+                    // TODO: Autoinsert values in loadProfile()
+                    db.insertProfile(uuid);
+                }
+                else LogContext.log(Level.WARN, "Skipping inserting offline actor profile");
+
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 LogContext.log(Level.ERROR, "Unable to load actor data for UUID " + uuid + "! See below stacktrace for more info");
                 e.printStackTrace();
@@ -114,6 +122,9 @@ public abstract class PlayerManager {
         nameIdMap.remove(n);
     }
 
+    protected abstract PlayerActor createActorObject(UUID uuid);
+    public abstract ConsoleActor consoleActor();
+
 
     // Same logic as in ClanManager
     private class DatabaseBridge {
@@ -124,7 +135,7 @@ public abstract class PlayerManager {
             DatabaseService.getExecutor(SQLAdapter::update)
                     .sql("CREATE TABLE IF NOT EXISTS actors(" +
                             "id varchar(18) PRIMARY KEY NOT NULL UNIQUE, " +
-                            "name varchar(32), " +
+                            "name varchar(32),   " +
                             "regDate BIGINT, " +
                             "lastSeen BIGINT, " +
                             "cid varchar(18)" +
@@ -192,6 +203,5 @@ public abstract class PlayerManager {
         }
     }
 
-    protected abstract PlayerActor createActorObject(UUID uuid);
-    public abstract ConsoleActor consoleActor();
+
 }
