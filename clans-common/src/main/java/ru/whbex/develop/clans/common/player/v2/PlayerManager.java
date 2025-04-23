@@ -135,7 +135,7 @@ public abstract class PlayerManager {
         private void createTable(){
             DatabaseService.getExecutor(SQLAdapter::update)
                     .sql("CREATE TABLE IF NOT EXISTS actors(" +
-                            "id varchar(18) PRIMARY KEY NOT NULL UNIQUE, " +
+                            "id varchar(36) PRIMARY KEY NOT NULL UNIQUE, " +
                             "name varchar(32),   " +
                             "regDate BIGINT, " +
                             "lastSeen BIGINT, " +
