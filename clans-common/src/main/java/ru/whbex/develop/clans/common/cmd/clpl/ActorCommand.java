@@ -29,10 +29,10 @@ public class ActorCommand implements Command {
             return;
         }
         actor.sendMessage("--- Actor info ---");
-        UUID id = target.getProfile().getOwner(); actor.sendMessage(" - ID: " + id);
+        UUID id = target.getProfile().getOwner(); actor.sendMessage("- ID: " + id);
         String name = target.getProfile().getName(); actor.sendMessage("- Name: " + name);
         String oname = target.getOnlineName(); actor.sendMessage("- Online Name: " + oname);
-        UUID cid = target.getProfile().getClanId(); actor.sendMessage(" - Bound Clan: " + cid);
+        UUID cid = target.getProfile().getClanId(); actor.sendMessage("- Bound Clan: " + cid);
         long reg = target.getProfile().getRegDate(); actor.sendMessage("- Reg Date: " + reg);
         long seen = target.getProfile().getLastSeen(); actor.sendMessage("- Last Seen: " + seen);
         boolean fetch = target.getFetcher() != null && target.getFetcher().isDone(); actor.sendMessage("- PP Fetch in progress: " + fetch);
