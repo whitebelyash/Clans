@@ -165,7 +165,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
 
     @Override
     public boolean isOnline() {
-        return Bukkit.getPlayer(id) != null;
+        return playerobj != null && playerobj.isOnline();
      }
 
     @Override
