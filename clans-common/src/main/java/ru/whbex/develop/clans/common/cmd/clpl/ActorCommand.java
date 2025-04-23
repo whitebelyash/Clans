@@ -35,6 +35,7 @@ public class ActorCommand implements Command {
         UUID cid = target.getProfile().getClanId(); actor.sendMessage(" - Bound Clan: " + cid);
         long reg = target.getProfile().getRegDate(); actor.sendMessage("- Reg Date: " + reg);
         long seen = target.getProfile().getLastSeen(); actor.sendMessage("- Last Seen: " + seen);
+        boolean fetch = target.getFetcher() != null && target.getFetcher().isDone(); actor.sendMessage("- PP Fetch in progress: " + fetch);
     }
 
     @Override
