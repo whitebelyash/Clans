@@ -19,7 +19,7 @@ public class PlayerManagerBukkit extends PlayerManager {
     }
 
     @Override
-    protected PlayerActor createActorObject(UUID uuid) {
+    public PlayerActor createActorObject(UUID uuid) {
         return new PlayerActorBukkit(uuid);
     }
     public CommandActor asCommandActor(CommandSender sender){

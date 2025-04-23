@@ -123,7 +123,7 @@ public abstract class PlayerManager {
         nameIdMap.remove(n);
     }
 
-    protected abstract PlayerActor createActorObject(UUID uuid);
+    public abstract PlayerActor createActorObject(UUID uuid);
     public abstract ConsoleActor consoleActor();
 
 
