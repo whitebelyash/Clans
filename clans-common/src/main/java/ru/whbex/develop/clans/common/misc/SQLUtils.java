@@ -76,7 +76,7 @@ public class SQLUtils {
                 rs.getString("name"),
                 rs.getLong("regDate"),
                 rs.getLong("lastSeen"),
-                StringUtils.UUIDFromString(rs.getString("id")));
+                StringUtils.UUIDFromString(rs.getString("cid")));
     }
     public static void profileToPrepStatement(PreparedStatement stat, PlayerProfile prof) throws SQLException {
         stat.setString(1, prof.getOwner().toString());
