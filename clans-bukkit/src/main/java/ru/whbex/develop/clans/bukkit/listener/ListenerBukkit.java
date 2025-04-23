@@ -21,7 +21,7 @@ public class ListenerBukkit implements Listener {
     public void on(PlayerJoinEvent e){
         PlayerActorBukkit actor = (PlayerActorBukkit) ClansPlugin.playerManager().createActorObject(e.getPlayer().getUniqueId());
         actor.setBukkitPlayer(e.getPlayer());
-        ClansPlugin.playerManager().loadPlayerActor(actor);
+        ClansPlugin.playerManager().loadPlayerActor(actor, true);
         EventSystem.PLAYER_JOIN.call(e.getPlayer().getUniqueId());
     }
     @EventHandler(priority = EventPriority.HIGHEST)

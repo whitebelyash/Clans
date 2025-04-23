@@ -76,10 +76,10 @@ public abstract class PlayerManager {
         // Actor is non-existent
         // Bukkit#getPlayer returns null here if everything is being handled on login
         PlayerActor a = createActorObject(uuid);
-        return loadPlayerActor(a);
+        return loadPlayerActor(a, false);
     }
 
-    public PlayerActor loadPlayerActor(PlayerActor a){
+    public PlayerActor loadPlayerActor(PlayerActor a, boolean login){
         UUID uuid = a.getUniqueId();
         actors.put(uuid, a);
         long currentTime = System.currentTimeMillis()/1000L;
@@ -87,7 +87,8 @@ public abstract class PlayerManager {
         PlayerProfile stubProfile = new PlayerProfile(uuid, null, currentTime, currentTime, null);
         a.setProfile(stubProfile);
         boolean online = a.isOnline();
-        if(online) {
+
+        if(online || login) {
             onlineActors.put(uuid, a);
             stubProfile.setName(a.getOnlineName());
         }
@@ -95,6 +96,7 @@ public abstract class PlayerManager {
 
         Future<PlayerProfile> playerProfileFetcher = db.loadProfileAsync(uuid);
         a.bindFetcher(playerProfileFetcher);
+        // TODO: Move somewhere?
         ClansPlugin.taskScheduler().runAsync(() -> {
             try {
                 Debug.lprint("Waiting on Future<PlayerProfile> for {0}...", uuid);
@@ -102,12 +104,13 @@ public abstract class PlayerManager {
                 if(pp != null)
                     a.setProfile(pp);
                 Debug.lprint("Profile data fetched for {0}!", uuid);
-                if(online){
-                    // Save data back
+                // Save player profile if player hasn't registered before
+                if(pp == null && (online || login)){
                     // TODO: Autoinsert values in loadProfile()
                     db.insertProfile(uuid);
                 }
-                else LogContext.log(Level.WARN, "Skipping inserting offline actor profile");
+                // TODO: Update player nickname in db
+                else Debug.print("PlayerManager", "Skipping actor insert");
 
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 LogContext.log(Level.ERROR, "Unable to load actor data for UUID " + uuid + "! See below stacktrace for more info");
