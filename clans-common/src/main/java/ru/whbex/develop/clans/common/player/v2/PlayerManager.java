@@ -76,6 +76,11 @@ public abstract class PlayerManager {
         // Actor is non-existent
         // Bukkit#getPlayer returns null here if everything is being handled on login
         PlayerActor a = createActorObject(uuid);
+        return loadPlayerActor(a);
+    }
+
+    public PlayerActor loadPlayerActor(PlayerActor a){
+        UUID uuid = a.getUniqueId();
         actors.put(uuid, a);
         long currentTime = System.currentTimeMillis()/1000L;
         // Set a stub profile before real is fetched
