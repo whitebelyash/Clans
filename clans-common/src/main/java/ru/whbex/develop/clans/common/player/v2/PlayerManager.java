@@ -74,6 +74,7 @@ public abstract class PlayerManager {
         if(actors.containsKey(uuid))
             return actors.get(uuid);
         // Actor is non-existent
+        // Bukkit#getPlayer returns null here if everything is being handled on login
         PlayerActor a = createActorObject(uuid);
         actors.put(uuid, a);
         long currentTime = System.currentTimeMillis()/1000L;

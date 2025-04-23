@@ -13,11 +13,12 @@ import ru.whbex.develop.clans.common.event.EventSystem;
 public class ListenerBukkit implements Listener {
     @EventHandler(priority =  EventPriority.HIGHEST)
     public void on(PlayerLoginEvent e){
-        PlayerActorBukkit actor = (PlayerActorBukkit) ClansPlugin.playerManager().loadPlayerActor(e.getPlayer().getUniqueId());
-        actor.setBukkitPlayer(e.getPlayer());
+
     }
     @EventHandler(priority = EventPriority.HIGHEST)
     public void on(PlayerJoinEvent e){
+        PlayerActorBukkit actor = (PlayerActorBukkit) ClansPlugin.playerManager().loadPlayerActor(e.getPlayer().getUniqueId());
+        actor.setBukkitPlayer(e.getPlayer());
         EventSystem.PLAYER_JOIN.call(e.getPlayer().getUniqueId());
     }
     @EventHandler(priority = EventPriority.HIGHEST)
