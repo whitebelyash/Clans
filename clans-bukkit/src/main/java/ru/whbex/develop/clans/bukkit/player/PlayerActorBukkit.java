@@ -188,7 +188,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     public String toString() {
         return "PlayerActorBukkit{" +
                 "id=" + id +
-                "online="+ isOnline() +
+                ", online="+ isOnline() +
                 '}';
     }
 
@@ -196,7 +196,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
         this.name = name;
     }
     public void bindFetcher(Future<?> fetcher){
-        this.fetch = fetch;
+        this.fetch = fetcher;
     }
     public void unbindFetcher(){
         fetch = null;
