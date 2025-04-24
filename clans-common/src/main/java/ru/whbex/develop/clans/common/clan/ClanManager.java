@@ -446,7 +446,7 @@ public class ClanManager {
                     .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
                     // TODO: Remove
                     .updateCallback(resp -> {
-                        Debug.tprint("Database Syncer", "Sync complete!");
+                        Debug.tprint("DatabaseBridge", "Sync complete!");
                         return null;
                     })
                     .executeAsync();
