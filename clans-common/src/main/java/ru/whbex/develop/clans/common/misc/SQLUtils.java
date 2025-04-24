@@ -83,6 +83,6 @@ public class SQLUtils {
         stat.setString(2, prof.getName());
         stat.setLong(3, prof.getRegDate());
         stat.setLong(4, prof.getLastSeen());
-        stat.setString(5, prof.getClanId() == null ? null : prof.getClanId().toString());
+        stat.setString(5, prof.getClanId() == null ? "" : prof.getClanId().toString());
     }
 }

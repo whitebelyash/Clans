@@ -79,6 +79,7 @@ public abstract class PlayerManager {
         return loadPlayerActor(a, false);
     }
 
+    // with login playerobj must be available on actor
     public PlayerActor loadPlayerActor(PlayerActor a, boolean login){
         UUID uuid = a.getUniqueId();
         actors.put(uuid, a);
@@ -87,13 +88,11 @@ public abstract class PlayerManager {
         PlayerProfile stubProfile = new PlayerProfile(uuid, null, currentTime, currentTime, null);
         a.setProfile(stubProfile);
         boolean online = a.isOnline();
-
         if(online || login) {
             onlineActors.put(uuid, a);
             stubProfile.setName(a.getOnlineName());
+            nameIdMap.put(stubProfile.getName(), a.getUniqueId());
         }
-
-
         Future<PlayerProfile> playerProfileFetcher = db.loadProfileAsync(uuid);
         a.bindFetcher(playerProfileFetcher);
         // TODO: Move somewhere?
@@ -101,10 +100,11 @@ public abstract class PlayerManager {
             try {
                 Debug.lprint("Waiting on Future<PlayerProfile> for {0}...", uuid);
                 PlayerProfile pp = playerProfileFetcher.get(Constants.TASK_WAIT_TIMEOUT, Constants.TASK_WAIT_TIMEOUT_UNIT);
-                if(pp != null)
+                if(pp != null) {
                     a.setProfile(pp);
+                }
                 Debug.lprint("Profile data fetched for {0}!", uuid);
-                // Save player profile if player hasn't registered before
+                // Save player profile if player wasn't registered before
                 if(pp == null && (online || login)){
                     // TODO: Autoinsert values in loadProfile()
                     db.insertProfile(uuid);
@@ -161,14 +161,17 @@ public abstract class PlayerManager {
                     .setPrepared(ps -> ps.setString(1, uuid.toString()))
                     .queryCallback(resp -> {
                         ResultSet r = resp.resultSet();
+                        PlayerProfile ret;
                         if(r.next())
                             do {
-                                return SQLUtils.profileFromQuery(r);
+                                Debug.lprint("Found PlayerProfile!");
+                                ret = SQLUtils.profileFromQuery(r);
                             } while (r.next());
                         else {
                             Debug.lprint("Profile data was not found for {0} :(", uuid);
                             return null;
                         }
+                        return ret;
                     })
                     .execute();
         }
@@ -178,14 +181,19 @@ public abstract class PlayerManager {
                     .setPrepared(ps -> ps.setString(1, uuid.toString()))
                     .queryCallback(resp -> {
                         ResultSet r = resp.resultSet();
+                        PlayerProfile ret;
+                        int i = 0;
                         if(r.next())
                             do {
-                                return SQLUtils.profileFromQuery(r);
+                                i++;
+                                Debug.lprint("Profile found, iter: {0}", i);
+                                ret =  SQLUtils.profileFromQuery(r);
                             } while (r.next());
                         else {
                             Debug.lprint("Profile data was not found for {0} :(", uuid);
                             return null;
                         }
+                        return ret;
                     })
                     .executeAsync();
         }
