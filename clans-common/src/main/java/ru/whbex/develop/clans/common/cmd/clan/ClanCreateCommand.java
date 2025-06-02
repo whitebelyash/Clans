@@ -14,13 +14,13 @@ import ru.whbex.lib.log.LogContext;
 import ru.whbex.lib.string.StringUtils;
 
 public class ClanCreateCommand implements Command {
-    private final ClanManager cm = ClansPlugin.clanManager();
     @Override
     public void execute(CommandActor actor, Command command, String label, String... args) {
         if(args.length < 2)
             throw new CommandUsageError();
         if(!actor.isPlayer())
             throw new CommandError("meta.command.player-required");
+        ClanManager cm = ClansPlugin.clanManager();
         PlayerActor pa = (PlayerActor) actor;
         String tag = args[1];
         if(!MiscUtils.validateClanTag(tag))

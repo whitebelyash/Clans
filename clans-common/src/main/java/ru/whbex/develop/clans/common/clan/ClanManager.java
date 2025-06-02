@@ -76,13 +76,25 @@ public class ClanManager {
         leadClans.clear();
     }
 
+    // TODO: Javadocs for below methods
+    private void cleanClan(Clan clan){
+        clans.remove(clan.getId(), clan);
+        tagClans.remove(clan.getMeta().getTag().toLowerCase(), clan);
+        leadClans.remove(clan.getMeta().getLeader(), clan);
+    }
+    private void putClan(Clan clan){
+        clans.put(clan.getId(), clan);
+        if(!clan.isDeleted()) tagClans.put(clan.getMeta().getTag().toLowerCase(), clan);
+        leadClans.put(clan.getMeta().getLeader(), clan);
+    }
+
     /**
      * Creates a new clan with the specified tag, name, and leader.
      *
      * @param tag The tag of the new clan.
      * @param name The name of the new clan.
      * @param leader The UUID of the leader of the new clan.
-     * @return An Error enum indicating the result of the operation.
+     * @return A Result enum indicating the result of the operation.
      */
     public Result createClan(String tag, String name, UUID leader) {
         if (tagClans.containsKey(tag))
@@ -107,7 +119,7 @@ public class ClanManager {
      *
      * @param clan The clan to disband.
      * @param actor The actor performing the disband operation.
-     * @return An Error enum indicating the result of the operation.
+     * @return A Result enum indicating the result of the operation.
      */
     public Result disbandClan(Clan clan, CommandActor actor) {
         if (clan.isDeleted() || !clans.containsKey(clan.getId()))
@@ -127,7 +139,7 @@ public class ClanManager {
      *
      * @param tag The tag of the clan to disband.
      * @param actor The actor performing the disband operation.
-     * @return An Error enum indicating the result of the operation.
+     * @return A Result enum indicating the result of the operation.
      */
     public Result disbandClan(String tag, CommandActor actor) {
         if (!tagClans.containsKey(tag.toLowerCase()))
@@ -139,7 +151,7 @@ public class ClanManager {
      * Removes the specified clan from the manager.
      *
      * @param clan The clan to remove.
-     * @return An Error enum indicating the result of the operation.
+     * @return A Result enum indicating the result of the operation.
      */
     public Result removeClan(Clan clan) {
         if (!clans.containsKey(clan.getId()))
@@ -158,7 +170,7 @@ public class ClanManager {
      * Removes the clan with the specified UUID from the manager.
      *
      * @param uuid The UUID of the clan to remove.
-     * @return An Error enum indicating the result of the operation.
+     * @return A Result enum indicating the result of the operation.
      */
     public Result removeClan(UUID uuid) {
         if (!clans.containsKey(uuid))
@@ -170,7 +182,7 @@ public class ClanManager {
      * Removes the clan with the specified tag from the manager.
      *
      * @param tag The tag of the clan to remove.
-     * @return An Error enum indicating the result of the operation.
+     * @return A Result enum indicating the result of the operation.
      */
     public Result removeClan(String tag) {
         if (!tagClans.containsKey(tag.toLowerCase()))
@@ -184,7 +196,7 @@ public class ClanManager {
      * @param clan The clan to recover.
      * @param newTag The new tag for the clan, or null to keep the existing tag.
      * @param actor The actor performing the recovery operation.
-     * @return An Error enum indicating the result of the operation.
+     * @return A Result enum indicating the result of the operation.
      */
     public Result recoverClan(Clan clan, String newTag, CommandActor actor) {
         if (!clans.containsKey(clan.getId()))
@@ -394,6 +406,7 @@ public class ClanManager {
                     .sql("INSERT INTO clans VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
                     .exceptionally(e -> {
                         LogContext.log(Level.ERROR, "Failed to sync created clan with database!");
+                        ClanManager.this.cleanClan(clan);
                     })
                     .setVerbose(true)
                     .setPrepared(ps -> SQLUtils.clanToPrepStatement(ps, clan))
@@ -411,6 +424,7 @@ public class ClanManager {
                     .exceptionally(e -> {
                         // TODO: Cancel remove somehow
                         LogContext.log(Level.ERROR, "Failed to sync removed clan with database!");
+                        clan.setDeleted(true);
                     })
                     .setVerbose(true)
                     .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
@@ -432,7 +446,7 @@ public class ClanManager {
                     .setPrepared(ps -> ps.setString(1, clan.getId().toString()))
                     // TODO: Remove
                     .updateCallback(resp -> {
-                        Debug.tprint("Database Syncer", "Sync complete!");
+                        Debug.tprint("DatabaseBridge", "Sync complete!");
                         return null;
                     })
                     .executeAsync();

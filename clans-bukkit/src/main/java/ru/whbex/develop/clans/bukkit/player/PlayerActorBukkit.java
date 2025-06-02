@@ -67,6 +67,11 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     }
 
     @Override
+    public String getOnlineName() {
+        return playerobj == null ? null : playerobj.getName();
+    }
+
+    @Override
     public Language getLanguage() {
         // TODO: Implement per-player locale support
         return ClansPlugin.Context.INSTANCE.plugin.getLanguage();
@@ -160,7 +165,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
 
     @Override
     public boolean isOnline() {
-        return Bukkit.getPlayer(id) != null;
+        return playerobj != null && playerobj.isOnline();
      }
 
     @Override
@@ -183,7 +188,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     public String toString() {
         return "PlayerActorBukkit{" +
                 "id=" + id +
-                "online="+ isOnline() +
+                ", online="+ isOnline() +
                 '}';
     }
 
@@ -191,7 +196,7 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
         this.name = name;
     }
     public void bindFetcher(Future<?> fetcher){
-        this.fetch = fetch;
+        this.fetch = fetcher;
     }
     public void unbindFetcher(){
         fetch = null;

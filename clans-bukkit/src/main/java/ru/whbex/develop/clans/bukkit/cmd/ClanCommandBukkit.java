@@ -4,8 +4,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import ru.whbex.develop.clans.bukkit.player.PlayerManagerBukkit;
-import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.cmd.clan.ClanCommand;
 

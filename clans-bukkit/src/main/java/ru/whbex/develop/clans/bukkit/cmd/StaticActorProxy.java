@@ -1,7 +1,7 @@
 package ru.whbex.develop.clans.bukkit.cmd;
 
 import org.bukkit.command.CommandSender;
-import ru.whbex.develop.clans.bukkit.player.v2.PlayerManagerBukkit;
+import ru.whbex.develop.clans.bukkit.player.PlayerManagerBukkit;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 
