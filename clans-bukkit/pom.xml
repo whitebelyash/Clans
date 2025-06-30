@@ -83,7 +83,7 @@
     </dependency>
     <dependency>
       <groupId>ru.whbex.lib</groupId>
-      <artifactId>reflect</artifactId>
+      <artifactId>wlib-reflect</artifactId>
     </dependency>
     <dependency>
       <groupId>ru.whbex.lib</groupId>
