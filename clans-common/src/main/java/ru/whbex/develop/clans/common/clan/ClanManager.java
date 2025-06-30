@@ -338,7 +338,8 @@ public class ClanManager {
             Debug.tprint("DatabaseBridge", "DatabaseBridge is alive");
         }
 
-        private void createTable() {
+        private boolean createTable() {
+            boolean[] ret = {true};
             DatabaseService.getExecutor(SQLAdapter::update)
                     .sql("CREATE TABLE IF NOT EXISTS clans (" +
                             "id varchar(36) NOT NULL UNIQUE PRIMARY KEY, " +
@@ -355,12 +356,14 @@ public class ClanManager {
                         LogContext.log(Level.ERROR, "Unable to create clans table in the database. See below stacktrace for more info");
                         e.printStackTrace();
                         ClanManager.this.transientSession = true;
+                        ret[0] = false;
                     })
                     .updateCallback(resp -> {
                         Debug.tprint("ClanManager/createTable", "Created table, updated rows -> {0}", resp.updateResult());
                         return null;
                     })
                     .execute();
+            return ret[0];
         }
 
         // TODO: Only load cached data instead of all clans
