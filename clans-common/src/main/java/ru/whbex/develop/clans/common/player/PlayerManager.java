@@ -164,7 +164,6 @@ public abstract class PlayerManager {
                         PlayerProfile ret;
                         if(r.next())
                             do {
-                                Debug.lprint("Found PlayerProfile!");
                                 ret = SQLUtils.profileFromQuery(r);
                             } while (r.next());
                         else {
@@ -186,7 +185,6 @@ public abstract class PlayerManager {
                         if(r.next())
                             do {
                                 i++;
-                                Debug.lprint("Profile found, iter: {0}", i);
                                 ret =  SQLUtils.profileFromQuery(r);
                             } while (r.next());
                         else {
