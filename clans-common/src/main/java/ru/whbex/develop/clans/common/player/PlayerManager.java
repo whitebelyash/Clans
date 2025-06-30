@@ -137,7 +137,8 @@ public abstract class PlayerManager {
         private DatabaseBridge(){
 
         }
-        private void createTable(){
+        private boolean createTable(){
+            boolean[] ret = {true};
             DatabaseService.getExecutor(SQLAdapter::update)
                     .sql("CREATE TABLE IF NOT EXISTS actors(" +
                             "id varchar(36) PRIMARY KEY NOT NULL UNIQUE, " +
@@ -149,8 +150,10 @@ public abstract class PlayerManager {
                     .exceptionally(e -> {
                         LogContext.log(Level.ERROR, "Failed to initialize players database table! See below stacktrace for more info");
                         e.printStackTrace();
+                        ret[0] = false;
                     })
                     .execute();
+            return ret[0];
         }
         private PlayerProfile loadProfile(UUID uuid){
             return DatabaseService.getExecutor(PlayerProfile.class, SQLAdapter::preparedQuery)
