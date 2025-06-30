@@ -4,6 +4,8 @@ package ru.whbex.develop.clans.common.clan;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.Constants;
 import ru.whbex.develop.clans.common.misc.Messenger;
+import ru.whbex.develop.clans.common.misc.text.FormattedText;
+import ru.whbex.develop.clans.common.misc.text.Text;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.string.StringUtils;
@@ -146,5 +148,16 @@ public class Clan implements Messenger {
     public void sendMessageT(String translatableFormat, Object... args) {
         String to = StringUtils.simpleformat(ClansPlugin.mainLanguage().getPhrase(translatableFormat), args);
         members.forEach(m -> ClansPlugin.playerManager().loadPlayerActor(m).sendMessage(to));
+    }
+
+    @Override
+    public void sendText(Text text) {
+        // TODO: implement
+
+    }
+
+    @Override
+    public void sendFormattedText(FormattedText text) {
+        // TODO: implement
     }
 }

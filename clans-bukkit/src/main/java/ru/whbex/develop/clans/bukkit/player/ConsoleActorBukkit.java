@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
+import ru.whbex.develop.clans.common.misc.text.FormattedText;
+import ru.whbex.develop.clans.common.misc.text.Text;
 import ru.whbex.develop.clans.common.player.ConsoleActor;
 import ru.whbex.lib.string.StringUtils;
 
@@ -35,6 +37,16 @@ public class ConsoleActorBukkit implements ConsoleActor, CommandActor {
     @Override
     public void sendMessageT(String s, Object... args) {
         sender.sendMessage(StringUtils.simpleformat(ClansPlugin.Context.INSTANCE.plugin.getLanguage().getPhrase(s), args));
+    }
+
+    @Override
+    public void sendText(Text text) {
+
+    }
+
+    @Override
+    public void sendFormattedText(FormattedText text) {
+
     }
 
     @Override

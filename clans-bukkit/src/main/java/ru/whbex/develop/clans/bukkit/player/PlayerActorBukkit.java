@@ -1,14 +1,16 @@
 package ru.whbex.develop.clans.bukkit.player;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import ru.whbex.develop.clans.bukkit.util.ComponentTranslator;
 import ru.whbex.develop.clans.common.ClansPlugin;
 import ru.whbex.develop.clans.common.clan.Clan;
 import ru.whbex.develop.clans.common.cmd.CommandActor;
 import ru.whbex.develop.clans.common.misc.requests.Request;
+import ru.whbex.develop.clans.common.misc.text.FormattedText;
+import ru.whbex.develop.clans.common.misc.text.Text;
 import ru.whbex.develop.clans.common.player.PlayerActor;
 import ru.whbex.develop.clans.common.player.PlayerProfile;
 import ru.whbex.lib.lang.Language;
@@ -59,6 +61,16 @@ public class PlayerActorBukkit implements PlayerActor, CommandActor {
     public void sendMessageT(String s, Object... args) {
         if(!isOnline()) return;
         this.sendMsg(StringUtils.simpleformat(ClansPlugin.Context.INSTANCE.plugin.getLanguage().getPhrase(s), args));
+    }
+
+    @Override
+    public void sendText(Text text) {
+        playerobj.spigot().sendMessage(ComponentTranslator.translate(text));
+    }
+
+    @Override
+    public void sendFormattedText(FormattedText text) {
+        playerobj.spigot().sendMessage(ComponentTranslator.translate(text));
     }
 
     @Override
