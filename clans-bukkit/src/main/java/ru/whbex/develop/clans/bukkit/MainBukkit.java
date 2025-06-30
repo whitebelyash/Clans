@@ -30,7 +30,7 @@ import ru.whbex.lib.lang.LanguageFile;
 import ru.whbex.lib.lang.Language;
 import ru.whbex.lib.log.Debug;
 import ru.whbex.lib.log.LogContext;
-import ru.whbex.lib.reflect.ConstructUtils;
+import ru.whbex.lib.reflect.ReflectUtils;
 import ru.whbex.lib.sql.conn.ConnectionConfig;
 import ru.whbex.lib.sql.conn.ConnectionProvider;
 
@@ -120,7 +120,7 @@ public class MainBukkit extends JavaPlugin implements ClansPlugin {
                 config.getDatabasePassword()) :
                 MiscUtils.systemConnectionConfig(type, getDataFolder());
       //  Debug.print("database address: {0}", data.dbAddress());
-        ConnectionProvider prov = ConstructUtils.newInstance(type.provider(), data);
+        ConnectionProvider prov = ReflectUtils.newInstance(type.provider(), data);
         if(prov == null){
             LogContext.log(Level.ERROR, "Failed to initialize connection provider instance!");
             return;
