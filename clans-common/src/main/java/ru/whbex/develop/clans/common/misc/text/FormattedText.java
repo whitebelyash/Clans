@@ -11,6 +11,11 @@ public class FormattedText extends Text {
         this.size = size;
         this.positions = new HashMap<>(size);
     }
+    public FormattedText(String base, boolean translate, int size){
+        super(base, translate);
+        this.size = size;
+        this.positions = new HashMap<>(size);
+    }
 
     public FormattedText addPosition(int pos, Text text){
         if(pos < 0) throw new IllegalArgumentException("Invalid arg position!");
