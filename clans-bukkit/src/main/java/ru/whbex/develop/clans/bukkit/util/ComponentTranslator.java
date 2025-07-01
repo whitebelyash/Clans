@@ -21,6 +21,8 @@ public class ComponentTranslator {
         // TODO: Implement more action types in Text
         if(text.hasClickableText())
             result.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, text.getClickableText()));
+        if(text.isRetain())
+            result.retain(ComponentBuilder.FormatRetention.ALL);
         return result;
     }
     public static BaseComponent[] translate(Text... objs){
