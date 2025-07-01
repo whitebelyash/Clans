@@ -131,8 +131,8 @@ meta.tag.stylized-level='⁰¹²³⁴⁵⁶⁷⁸⁹'
 
 # Navigation panel (paginator) in console - {0} - current page, {1} - page amount, {2} - command
 meta.tui.navpane.console=Страница {0}/{1}. Введите {2} <страница> для посмотра следующей страницы
-# Navigation panel (paginator) in player's chat - {0} - prev button, {1} - next button, {2} - current page, {3} - page amount
-meta.tui.navpane.chat={0} &8&l|&r {1} &7&o({2}&r&7&o/{3}&r&7&o)
+# Navigation panel (paginator) in player's chat - {0} - prev button, {1} - next button, {3} - page view (requires being separate Text object)
+meta.tui.navpane.chat={0} &8&l|&r {1} {2}
 # Design is derived from the CMI russian localization - will be changed eventually
 meta.tui.navpane.prev=&c[назад]&r
 meta.tui.navpane.next=&a[далeе]&r
@@ -140,7 +140,7 @@ meta.tui.navpane.prev-inactive=&7&o[назад]&r
 meta.tui.navpane.next-inactive=&7&o[далeе]&r
 meta.tui.navpane.next-hover=&aНажмите, чтобы перейти на следующую страницу
 meta.tui.navpane.prev-hover=&cНажмите, чтобы перейти на предыдущую страницу
-
+meta.tui.navpane.page-view=&7&o({0}/{1})
 
 meta.misc.not-exists=&7Неизвестно
 meta.misc.etc=и т.д.

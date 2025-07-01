@@ -35,8 +35,10 @@ public class ClanListCommand implements Command {
             PlayerActor lead = ClansPlugin.playerManager().loadPlayerActor(clan.getMeta().getLeader());
             actor.sendMessage(StringUtils.simpleformat(ClansPlugin.mainLanguage().getPhrase(entry_t), clan.getMeta().getTag(), clan.getMeta().getName(), lead.getName()));
         });
-        if(pviewer.pageAmount() > 1)
-            actor.sendMessageT(MiscUtils.makeNavPane(ClansPlugin.mainLanguage(), '/' + command.name() + " " + this.name() + " [страница]", pviewer, p));
+        if(pviewer.pageAmount() > 1){
+            String cmd_string = '/' + command.name() + " " + this.name();
+            actor.sendFormattedText(MiscUtils.makeChatNavPane(ClansPlugin.mainLanguage(), cmd_string, pviewer, p));
+        }
 
     }
 
