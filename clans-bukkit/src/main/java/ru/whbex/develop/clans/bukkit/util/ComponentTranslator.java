@@ -22,7 +22,7 @@ public class ComponentTranslator {
         if(text.hasClickableText())
             result.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, text.getClickableText()));
         if(text.isRetain())
-            result.retain(ComponentBuilder.FormatRetention.ALL);
+            result.retain(ComponentBuilder.FormatRetention.FORMATTING);
         return result;
     }
     public static BaseComponent[] translate(Text... objs){
@@ -36,8 +36,10 @@ public class ComponentTranslator {
         for(int i = 0; i < text.getSize(); i++){
             int index = base.indexOf("{" + i + "}");
             if(index > -1){
-                String part = base.replace(index, index + 3, "").substring(0, index);
-                list.add(new TextComponent(part)); // part before the formatted object
+                // part before the formatted object
+                TextComponent part = new TextComponent(base.replace(index, index + 3, "").substring(0, index));
+                part.retain(ComponentBuilder.FormatRetention.FORMATTING);
+                list.add(part);
                 if(text.at(i) == null)
                     continue;
                 list.add(translate(text.at(i))); // formatted object itself
@@ -45,8 +47,11 @@ public class ComponentTranslator {
             }
         }
         // Trailing
-        if(!base.isEmpty())
-            list.add(new TextComponent(base.toString()));
+        if(!base.isEmpty()){
+            TextComponent trail = new TextComponent(base.toString());
+            trail.retain(ComponentBuilder.FormatRetention.FORMATTING);
+            list.add(trail);
+        }
         return list.toArray(BaseComponent[]::new);
     }
 }
