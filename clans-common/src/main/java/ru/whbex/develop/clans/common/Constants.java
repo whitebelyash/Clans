@@ -24,4 +24,6 @@ public class Constants {
     public static final String LANGUAGE_FILE_NAME = "messages.lang";
     public static final Long TASK_WAIT_TIMEOUT = 10L;
     public static final TimeUnit TASK_WAIT_TIMEOUT_UNIT = TimeUnit.SECONDS;
+
+    public static final short PAGE_SIZE = 8;
 }
