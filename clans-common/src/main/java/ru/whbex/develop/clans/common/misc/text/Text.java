@@ -53,4 +53,7 @@ public class Text {
     public boolean isHoverLocalized(){
         return hoverTranslate;
     }
+    public boolean isLocalized(){
+        return translate;
+    }
 }
