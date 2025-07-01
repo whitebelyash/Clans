@@ -5,6 +5,7 @@ package ru.whbex.develop.clans.common.misc.text;
 public class Text {
     private final String text;
     private final boolean translate;
+    private boolean retain = false;
     private String hover = null;
     private boolean hoverTranslate = false;
     private String click = null;
@@ -55,5 +56,12 @@ public class Text {
     }
     public boolean isLocalized(){
         return translate;
+    }
+    public void retain(){
+        this.retain = true;
+    }
+
+    public boolean isRetain() {
+        return retain;
     }
 }
