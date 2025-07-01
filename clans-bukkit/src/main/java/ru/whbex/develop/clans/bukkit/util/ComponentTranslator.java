@@ -12,7 +12,7 @@ import java.util.List;
 public class ComponentTranslator {
 
     public static BaseComponent translate(Text text){
-        TextComponent result = new TextComponent(text.getText());
+        TextComponent result = new TextComponent(text.isLocalized() ? ClansPlugin.mainLanguage().getPhrase(text.getText()) : text.getText());
         if(text.hasHoverText()){
             result.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new net.md_5.bungee.api.chat.hover.content.Text(
                     text.isHoverLocalized() ? ClansPlugin.mainLanguage().getPhrase(text.getHoverText()) : text.getHoverText()
