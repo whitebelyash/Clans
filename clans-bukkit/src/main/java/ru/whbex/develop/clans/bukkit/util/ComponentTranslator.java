@@ -29,7 +29,7 @@ public class ComponentTranslator {
     }
     public static BaseComponent[] translate(FormattedText text){
         List<BaseComponent> list = new ArrayList<>();
-        StringBuilder base = new StringBuilder(text.getText());
+        StringBuilder base = new StringBuilder(text.isLocalized() ? ClansPlugin.mainLanguage().getPhrase(text.getText()) : text.getText());
 
         for(int i = 0; i < text.getSize(); i++){
             int index = base.indexOf("{" + i + "}");
