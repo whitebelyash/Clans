@@ -57,8 +57,9 @@ public class Text {
     public boolean isLocalized(){
         return translate;
     }
-    public void retain(){
+    public Text retain(){
         this.retain = true;
+        return this;
     }
 
     public boolean isRetain() {
