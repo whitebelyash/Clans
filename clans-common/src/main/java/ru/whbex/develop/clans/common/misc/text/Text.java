@@ -4,15 +4,22 @@ package ru.whbex.develop.clans.common.misc.text;
 // Single text block with hover/click actions
 public class Text {
     private final String text;
+    private final boolean translate;
     private String hover = null;
     private boolean hoverTranslate = false;
     private String click = null;
     //private boolean clickTranslate = false;
     public Text(String text){
         this.text = text;
+        this.translate = false;
+    }
+    public Text(String key, boolean translate){
+        this.text = key;
+        this.translate = translate;
     }
     public Text(Text other){
         this.text = other.text;
+        this.translate = other.translate;
         this.hover = other.hover;
         this.click = other.click;
         this.hoverTranslate = other.hoverTranslate;
