@@ -342,7 +342,7 @@ public class ClanManager {
             boolean[] ret = {true};
             DatabaseService.getExecutor(SQLAdapter::update)
                     .sql("CREATE TABLE IF NOT EXISTS clans (" +
-                            "id varchar(36) NOT NULL UNIQUE PRIMARY KEY, " +
+                            "id varchar(36) PRIMARY KEY, " +
                             "tag varchar(16) NOT NULL, " +
                             "name varchar(24), " +
                             "description varchar(255), " +
