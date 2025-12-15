@@ -141,7 +141,7 @@ public abstract class PlayerManager {
             boolean[] ret = {true};
             DatabaseService.getExecutor(SQLAdapter::update)
                     .sql("CREATE TABLE IF NOT EXISTS actors(" +
-                            "id varchar(36) PRIMARY KEY NOT NULL UNIQUE, " +
+                            "id varchar(36) PRIMARY KEY, " +
                             "name varchar(32),   " +
                             "regDate BIGINT, " +
                             "lastSeen BIGINT, " +
